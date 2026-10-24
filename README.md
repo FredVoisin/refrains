@@ -1,6 +1,6 @@
 # refrains
 
-Experimental tools to analyse musical and syntagmatic sequences as symbolic expressions, in Common Lisp
+Experimental Common Lisp tools for the morphological analysis of musical transcriptions and other symbolic sequences: segmentation, motif search, classification, and measures of repetition and difference.
 
 Continuation of [fv-morphologie](https://github.com/FredVoisin/fv-morphologie), without its PWGL legacy, itself an
 analysis-oriented branch of the legacy library [Morphologie](https://github.com/openmusic-project/Morphologie) for OpenMusic (Ircam)

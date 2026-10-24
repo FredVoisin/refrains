@@ -30,7 +30,7 @@
 ;;;; to test the code: refrains itself does not depend on it.
 
 (asdf:defsystem :refrains
-  :description "Lisp tools to analyse musical and syntagmatic sequences as symbolic expressions."
+  :description "Experimental Common Lisp tools for the morphological analysis of musical transcriptions and other symbolic sequences: segmentation, motif search, classification, and measures of repetition and difference."
   :long-description #.(uiop:read-file-string
                        (uiop:subpathname *load-pathname* "README.md"))
   :author "Frederic Voisin"
