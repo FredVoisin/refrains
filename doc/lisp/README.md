@@ -10,6 +10,9 @@ de refrains (`doc-lisp-license`) le vérifie.
 - [refrains-trees.lisp](refrains-trees.lisp) : les arbres des fonctions de
   refrains, présentés dans l'exemple
   [Arbres de refrains](../exemples/arbres-des-fonctions.md).
+- [neuromuse-graphs.lisp](neuromuse-graphs.lisp) : les réseaux de neurones de
+  neuromuse étudiés comme graphes, présentés dans l'exemple
+  [Les réseaux de neurones de neuromuse comme graphes](../exemples/neuromuse.md).
 
 ---
 

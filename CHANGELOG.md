@@ -12,6 +12,13 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 
 ### Added
 
+- Example: the neural networks of neuromuse as graphs
+  (`doc/exemples/neuromuse.md`, `doc/lisp/neuromuse-graphs.lisp`): the
+  skeleton, the strongest paths and the pruning of an MLP trained on XOR, the
+  resemblance of its hidden neurons (Ward), the topology of a self-organizing
+  map trained on the song of a chaffinch, and its sequences of winning
+  neurons compared by edit distance, the DTW considered in neuromuse.
+
 - `graph>dot` takes `:overlap`: `t` (by default) lets the nodes overlap, as
   before; `nil` makes neato move them apart (graph attribute
   `overlap=false`), useful when the lengths are short compared with the

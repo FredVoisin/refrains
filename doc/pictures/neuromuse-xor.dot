@@ -1,0 +1,12 @@
+graph "neuromuse-xor" {
+/* generated with refrains:graph>dot, 25 Oct 2026 1:41:20 */
+ graph [bgcolor=black];
+ node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
+ edge [font=Helvetica,fontsize=10, color=white, fontcolor=white, labelfloat=true];
+ "H2" -- "O0" [w=1, len=1.000000, label="1.0"];
+ "I0" -- "H0" [w=1, len=1.740000, label="1.74"];
+ "I1" -- "H3" [w=1, len=1.770000, label="1.77"];
+ "H0" -- "O0" [w=1, len=1.940000, label="1.94"];
+ "H3" -- "O0" [w=1, len=1.980000, label="1.98"];
+ "H1" -- "O0" [w=1, len=2.030000, label="2.03"];
+}
