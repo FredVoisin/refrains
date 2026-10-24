@@ -561,7 +561,7 @@ fonctions de distance (voir [3.2](#32-comparer--distances-et-dissimilarités)),
 graphe.
 
 Ces fonctions portent souvent sur des arbres (arbre de recouvrement minimal,
-dendrogramme), mais leurs noms commencent par `graph` : Fred a
+dendrogramme), mais leurs noms commencent par `graph` : on a
 préféré *graph* à *arbre*, parce que le mot est commun au français et à
 l'anglais (*graphe*, *graph*), que la théorie des graphes s'applique aux
 arbres, et qu'elle sert aussi au développement de refrains.

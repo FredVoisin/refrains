@@ -507,7 +507,7 @@ distance functions (see [3.2](#32-compare-distances-and-dissimilarities)),
 `(i j d(i,j))`, so the output of a distance function can be used as a graph.
 
 These functions often deal with trees (minimum spanning tree, dendrogram),
-but their names begin with `graph`: Fred preferred *graph* to
+but their names begin with `graph`: *graph* was preferred to
 *tree*, because the word is common to French and English (*graphe*,
 *graph*), because graph theory applies to trees, and because it is also used
 in developing refrains.
