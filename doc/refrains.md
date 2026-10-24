@@ -1664,7 +1664,7 @@ The list of the 53 exported functions, with their arguments and docstrings, is
 in [refrains-functions.md](refrains-functions.md).
 
 Two minimum spanning trees link these functions by their names and by their
-documentation, computed with refrains by
+documentation, with their dendrograms, computed with refrains by
 [refrains-trees.lisp](pictures/refrains-trees.lisp): see
 [Function trees](refrains-functions.md#function-trees).
 

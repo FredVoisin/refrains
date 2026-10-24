@@ -91,7 +91,10 @@ A propos de terminologie : dans un souci de simplification et de cohérence, le 
 Les 53 fonctions reliées par leurs ressemblances, avec refrains lui-même : deux
 arbres de recouvrement minimal (`graph-span`), dessinés avec `graph>dot` et
 neato. Plus une arête est courte, plus les deux fonctions sont proches. Le
-fichier [refrains-trees.lisp](pictures/refrains-trees.lisp) les recalcule et
+dendrogramme de chaque arbre (`graph>dendrogram`, lien simple) range ses
+fusions par distance croissante : les feuilles sont à gauche, et chaque fusion
+est placée à l'abscisse de sa distance, de 0 à 1. Le fichier
+[refrains-trees.lisp](pictures/refrains-trees.lisp) recalcule les arbres et
 redessine les images : `(load "refrains-trees.lisp")`.
 
 **Par les noms** : distance d'édition normalisée entre les noms, lettre à
@@ -100,12 +103,20 @@ lettre (`dist-edit` avec `:norm t`). Les familles de noms (`filt-`, `graph-`,
 
 ![Arbre de recouvrement minimal des fonctions de refrains d'après leurs noms](pictures/refrains-names.png)
 
+![Dendrogramme des fonctions de refrains d'après leurs noms](pictures/refrains-names-dendrogram.png)
+
 **Par la documentation** : distance de Jaccard entre les vocabulaires des
 docstrings, découpées en mots avec `separate` ; les mots présents dans plus de
 10 des 53 docstrings (*the*, *list*, *with*…), comptés avec `histogram`, sont
 écartés. Les groupes y viennent du vocabulaire, et non plus des noms.
 
 ![Arbre de recouvrement minimal des fonctions de refrains d'après leur documentation](pictures/refrains-docstrings.png)
+
+Dans le dendrogramme, peu de fonctions se regroupent avant 0,75 : une fois
+écartés les mots courants, le vocabulaire des docstrings distingue peu les
+fonctions.
+
+![Dendrogramme des fonctions de refrains d'après leur documentation](pictures/refrains-docstrings-dendrogram.png)
 
 ## A faire
 

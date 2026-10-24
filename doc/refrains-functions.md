@@ -97,15 +97,20 @@ Deleuze : la pensée-musique*, CDMC, 2015).*
 
 The 53 functions linked by their resemblances, with refrains itself: two
 minimum spanning trees (`graph-span`), drawn with `graph>dot` and neato. The
-shorter an edge, the closer the two functions. The file
-[refrains-trees.lisp](pictures/refrains-trees.lisp) computes them again and
-redraws the images: `(load "refrains-trees.lisp")`.
+shorter an edge, the closer the two functions. The dendrogram of each tree
+(`graph>dendrogram`, single linkage) orders its fusions by increasing
+distance: the leaves are on the left, and each fusion is placed at the
+abscissa of its distance, from 0 to 1. The file
+[refrains-trees.lisp](pictures/refrains-trees.lisp) computes the trees again
+and redraws the images: `(load "refrains-trees.lisp")`.
 
 **By their names**: normalized edit distance between the names, letter by
 letter (`dist-edit` with `:norm t`). The families of names (`filt-`,
 `graph-`, `dist-`, `mark-`, `motif-`) make branches.
 
 ![Minimum spanning tree of the refrains functions by their names](pictures/refrains-names.png)
+
+![Dendrogram of the refrains functions by their names](pictures/refrains-names-dendrogram.png)
 
 **By their documentation**: Jaccard distance between the vocabularies of the
 docstrings, split into words with `separate`; the words found in more than 10
@@ -114,6 +119,12 @@ left out. The groups there come from the vocabulary, no longer from the
 names.
 
 ![Minimum spanning tree of the refrains functions by their documentation](pictures/refrains-docstrings.png)
+
+In the dendrogram, few functions group together below 0.75: once the common
+words are left out, the vocabulary of the docstrings tells the functions
+little apart.
+
+![Dendrogram of the refrains functions by their documentation](pictures/refrains-docstrings-dendrogram.png)
 
 ## To do
 

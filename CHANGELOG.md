@@ -22,7 +22,8 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 - Documentation: two minimum spanning trees of the functions, by their names
   and by the vocabulary of their docstrings, computed with refrains by
   `doc/pictures/refrains-trees.lisp` (which uses `:overlap nil` and
-  `:invert t`), and the figure of the operations, in white on black; what to do
+  `:invert t`), with their dendrograms (`graph>dendrogram`), and the figure
+  of the operations, in white on black; what to do
   when the system "refrains" is not found.
 
 ## [0.2.0] - 2026-10-24

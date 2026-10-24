@@ -73,3 +73,67 @@ et les mots de moins de trois lettres."
            :overlap nil :invert t)
 (graph>dot *docstrings-tree* (namestring (merge-pathnames "refrains-docstrings.png" *here*))
            :overlap nil :invert t)
+
+;;; 4. Les dendrogrammes de chaque arbre : graph>dendrogram (lien simple) donne
+;;; les fusions de l'arbre par distance croissante, sous forme d'arbre imbriqué
+;;; (distance gauche droite). refrains ne trace pas encore de dendrogramme :
+;;; dendrogram>dot place les feuilles à gauche, une par ligne, et chaque fusion
+;;; à l'abscisse de sa distance ; neato -n2 trace le dot à ces positions.
+
+(defun dendrogram-leaves (dendrogram)
+  (if (atom dendrogram)
+      (list dendrogram)
+      (append (dendrogram-leaves (second dendrogram)) (dendrogram-leaves (third dendrogram)))))
+
+(defun dendrogram>dot (dendrogram file &key (unit 700) (step 16))
+  "Écrit le dendrogramme dans file, en langage dot, avec la position de chaque point :
+une distance d est à l'abscisse x0 + d * unit, les feuilles sont espacées de step points."
+  (let* ((names (dendrogram-leaves dendrogram))
+         (x0 (+ 12 (* 6.6 (reduce #'max (mapcar #'length names))))) ; Courier 11 : 6,6 points par lettre
+         (n 0))
+    (with-open-file (out file :direction :output :if-exists :supersede)
+      (labels ((x (d) (+ x0 (* unit d)))
+               (point (x y)
+                 (format out " p~D [pos=\"~,1F,~,1F\"];~%" (incf n) x y)
+                 (format nil "p~D" n))
+               (draw (tree)
+                 ;; le point d'où part le trait vers le parent, et son ordonnée
+                 (if (atom tree)
+                     (let ((y (* step (- (length names) 1 (position tree names :test #'equal)))))
+                       (format out " ~S [shape=plaintext, label=~S, pos=\"~,1F,~,1F\"];~%"
+                               tree tree (- x0 6 (* 3.3 (length tree))) y)
+                       (list (point x0 y) y))
+                     (destructuring-bind (d a b) tree
+                       (destructuring-bind ((pa ya) (pb yb)) (list (draw a) (draw b))
+                         (let* ((y (/ (+ ya yb) 2))
+                                (ca (point (x d) ya))
+                                (cb (point (x d) yb))
+                                (m (point (x d) y)))
+                           (format out " ~A -- ~A;~% ~A -- ~A;~% ~A -- ~A;~% ~A -- ~A;~%"
+                                   pa ca pb cb ca m m cb)
+                           (list m y)))))))
+        (format out "graph dendrogram {~%")
+        (format out " graph [bgcolor=black, splines=false];~%")
+        (format out " node [shape=point, width=0, color=white, fontcolor=white, fontname=Courier, fontsize=11];~%")
+        (format out " edge [color=white];~%")
+        (draw dendrogram)
+        ;; l'échelle des distances, sous les feuilles
+        (let ((y (- (* 1.5 step))))
+          (loop for d in '(0 0.25 0.5 0.75 1)
+                for (tick label) = (list (point (x d) y) (point (x d) (- y 5)))
+                do (format out " ~A -- ~A;~% t~A [shape=plaintext, label=\"~A\", pos=\"~,1F,~,1F\"];~%"
+                           tick label n d (x d) (- y 16))
+                collect tick into ticks
+                finally (format out " ~{~A~^ -- ~};~%" ticks)))
+        (format out "}~%")))
+    file))
+
+(defun draw-dendrogram (tree name)
+  (let ((dot (namestring (merge-pathnames (format nil "~A.dot" name) *here*)))
+        (png (namestring (merge-pathnames (format nil "~A.png" name) *here*))))
+    (dendrogram>dot (nth-value 1 (graph>dendrogram tree)) dot)
+    (uiop:run-program (list "neato" "-n2" "-Tpng" "-o" png dot))
+    png))
+
+(draw-dendrogram *names-tree* "refrains-names-dendrogram")
+(draw-dendrogram *docstrings-tree* "refrains-docstrings-dendrogram")
