@@ -25,8 +25,12 @@ two distances a distance?"). For large graphs, prefer the svg format.
 Computing the spanning tree can take from seconds to hours depending on the
 number of elements (about 12 hours for the
 [« Délinéations différentielles »](https://fredvoisin.com/articles/220-delineations-differentielles.html), 2013).
-Data: `Difference&Repetition-*.txt`, `Alice.txt`,
-`Stalker.txt`.
+Data: [data/Alice.txt](../data/Alice.txt) (Lewis Carroll, public domain), and two protected
+texts, kept in the fv-morphologie repository and not covered by the license of
+refrains: an excerpt of Gilles Deleuze, *Différence et répétition*
+([Difference&Repetition-utf8.txt](https://github.com/FredVoisin/fv-morphologie/blob/master/pwgl-legacy/tutorial/5.%20FV-exemples/data/Difference%26Repetition-utf8.txt)), and a quotation of
+Arkady and Boris Strugatsky, *Roadside Picnic*
+([Stalker.txt](https://github.com/FredVoisin/fv-morphologie/blob/master/pwgl-legacy/tutorial/5.%20FV-exemples/data/Stalker.txt)).
 
 ---
 

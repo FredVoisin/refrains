@@ -9,7 +9,8 @@ F. Voisin, 2010-2013.
 Automatic segmentation of an F0 analysis made with Praat, by a minimal time
 gap between segments. Only the read and write functions of refrains
 are needed; the segments can be exported, for example as Max `coll` files
-(`data/babil-chant-3-*.coll`).
+(`data/babil-chant-3-*.coll`, in [data/](../data/README.md)), from the F0 analysis
+[data/babil-chant-3.pitch](../data/babil-chant-3.pitch).
 
 ---
 

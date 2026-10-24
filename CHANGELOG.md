@@ -43,7 +43,10 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   Lisp: its script moves to `doc/lisp/refrains-trees.lisp` (it writes its
   images in `doc/pictures/`), and its commented code, which is its
   documentation, is embedded in the page of the example. `doc/README.md`
-  presents the files of the documentation. Every Lisp file of
+  presents the files of the documentation. The data of the examples are in `doc/data/`
+  (CC BY 4.0, except a public-domain text), and the examples link to them;
+  the two protected texts of the example of the delineations stay in
+  fv-morphologie. Every Lisp file of
   `doc/lisp/` is under CC BY 4.0, like the documentation (`doc/lisp/README.md`),
   which a test checks (`doc-lisp-license`).
   In the vocabulary of the docstrings, the trees remove a list of the

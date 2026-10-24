@@ -129,4 +129,5 @@ under GPL-3.0.
 - **Documentation** (`doc/`): Creative Commons Attribution 4.0 International
   (CC BY 4.0), see [doc/LICENSE](doc/LICENSE). This includes every Lisp
   file of `doc/lisp/`, the examples of the documentation (such as
-  `refrains-trees.lisp`, which draws the function trees).
+  `refrains-trees.lisp`, which draws the function trees), and the data of
+  the examples in `doc/data/` (except `Alice.txt`, in the public domain).

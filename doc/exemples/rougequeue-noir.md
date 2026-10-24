@@ -11,13 +11,13 @@ Saint-Étienne, 2011, p. 191–197 (HAL
 *Analyse conservée avec ses données dans le dépôt [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) ; son principe est résumé ici, en attendant d'être réécrit sous forme d'exemple Common Lisp.*
 
 Méthode originale de Frédéric Voisin : un sonagramme est considéré uniquement
-comme une image (`data/rougequeue_noir.jpg`), dans laquelle on cherche des
+comme une image ([data/rougequeue_noir.jpg](../data/rougequeue_noir.jpg)), dans laquelle on cherche des
 motifs. Un sonagramme représente l'évolution du son dans le temps : une
 succession d'instants décrits par leur spectre, chaque région étant plus ou
 moins sombre selon son intensité.
 
 1. L'image est convertie en texte avec
-   [jp2a](http://jp2a.sourceforge.net/) (`data/rougequeue_noir.txt`) : `x`
+   [jp2a](http://jp2a.sourceforge.net/) ([data/rougequeue_noir.txt](../data/rougequeue_noir.txt)) : `x`
    pour le blanc, `.` pour le noir ; 45 lignes de 300 caractères pour
    5 secondes, soit 490 Hz et 17 ms par caractère.
 2. Chaque ligne est découpée en ses symboles (`alpha>num`), et la liste de

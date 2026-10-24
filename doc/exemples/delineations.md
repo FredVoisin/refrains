@@ -26,7 +26,12 @@ grands graphes, préférez le format svg. Le calcul de l'arbre de recouvrement
 peut prendre de quelques secondes à plusieurs heures selon le nombre
 d'éléments (environ 12 heures pour les
 [« Délinéations différentielles »](https://fredvoisin.com/articles/220-delineations-differentielles.html), 2013).
-Données : `Difference&Repetition-*.txt`, `Alice.txt`, `Stalker.txt`.
+Données : [data/Alice.txt](../data/Alice.txt) (Lewis Carroll, domaine public), et deux textes
+protégés, conservés dans le dépôt fv-morphologie et non couverts par la licence de
+refrains : un extrait de Gilles Deleuze, *Différence et répétition*
+([Difference&Repetition-utf8.txt](https://github.com/FredVoisin/fv-morphologie/blob/master/pwgl-legacy/tutorial/5.%20FV-exemples/data/Difference%26Repetition-utf8.txt)), et une citation
+d'Arcadi et Boris Strougatski, *Pique-nique au bord du chemin*
+([Stalker.txt](https://github.com/FredVoisin/fv-morphologie/blob/master/pwgl-legacy/tutorial/5.%20FV-exemples/data/Stalker.txt)).
 
 ---
 

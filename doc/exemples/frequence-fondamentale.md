@@ -10,7 +10,8 @@ Segmentation automatique d'une analyse de F0 réalisée avec Praat, selon un
 écart temporel minimal entre segments. Seules les fonctions de lecture et
 d'écriture de refrains sont nécessaires ; les segments peuvent être
 exportés, par exemple sous forme de fichiers `coll` de Max
-(`data/babil-chant-3-*.coll`).
+(`data/babil-chant-3-*.coll`, dans [data/](../data/README.md)), à partir de l'analyse
+de F0 [data/babil-chant-3.pitch](../data/babil-chant-3.pitch).
 
 ---
 

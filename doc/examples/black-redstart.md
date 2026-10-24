@@ -11,13 +11,13 @@ Saint-Étienne, 2011, pp. 191–197 (HAL
 *An analysis kept with its data in the [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) repository; its principle is summarized here, to be rewritten as a Common Lisp example.*
 
 An original method by Frédéric Voisin: a sonogram is considered only as an
-image (`data/rougequeue_noir.jpg`), in which motifs are looked for. A
+image ([data/rougequeue_noir.jpg](../data/rougequeue_noir.jpg)), in which motifs are looked for. A
 sonogram represents the evolution of sound in time: a succession of instants
 described by their spectrum, each region darkened according to its
 intensity.
 
 1. The image is converted into text with
-   [jp2a](http://jp2a.sourceforge.net/) (`data/rougequeue_noir.txt`): `x`
+   [jp2a](http://jp2a.sourceforge.net/) ([data/rougequeue_noir.txt](../data/rougequeue_noir.txt)): `x`
    for white, `.` for black; 45 lines of 300 characters for 5 seconds, i.e.
    490 Hz and 17 ms per character.
 2. Each line is split into its symbols (`alpha>num`), and the list of lists

@@ -13,7 +13,7 @@ polyrhythmic instrumental piece from the repertoire of the Aka of Central
 Africa. This part, called *diketo*, is played by two machetes struck
 together. The intensities of the recording (dB) were measured with
 [Praat](https://www.praat.org) into a two-column text file (time,
-amplitude): `data/diketo-db.txt`. The recordings were made at Mongumba
+amplitude): [data/diketo-db.txt](../data/diketo-db.txt). The recordings were made at Mongumba
 (Central African Republic) on 5 March 1990 by Simha Arom, Vincent Dehoux,
 Susanne Fürniss, Gilles Léothaud and Frédéric Voisin; the *diketo* part was
 recorded separately, by *re-recording*.

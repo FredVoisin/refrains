@@ -13,7 +13,7 @@ pièce instrumentale polyrythmique du répertoire des Aka de Centrafrique.
 Cette partie, appelée *diketo*, est jouée avec deux machettes entrechoquées.
 Les intensités de l'enregistrement (dB) ont été mesurées avec
 [Praat](https://www.praat.org) dans un fichier texte à deux colonnes (temps,
-amplitude) : `data/diketo-db.txt`. Les enregistrements ont été réalisés à
+amplitude) : [data/diketo-db.txt](../data/diketo-db.txt). Les enregistrements ont été réalisés à
 Mongumba (République centrafricaine) le 5 mars 1990 par Simha Arom, Vincent
 Dehoux, Susanne Fürniss, Gilles Léothaud et Frédéric Voisin ; la partie du
 *diketo* a été enregistrée séparément, en *re-recording*.
