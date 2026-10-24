@@ -42,7 +42,8 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `doc/examples.md`; the function trees are the first example in Common
   Lisp: its script moves to `doc/lisp/refrains-trees.lisp` (it writes its
   images in `doc/pictures/`), and its commented code, which is its
-  documentation, is embedded in the page of the example. Every Lisp file of
+  documentation, is embedded in the page of the example. `doc/README.md`
+  presents the files of the documentation. Every Lisp file of
   `doc/lisp/` is under CC BY 4.0, like the documentation (`doc/lisp/README.md`),
   which a test checks (`doc-lisp-license`).
   In the vocabulary of the docstrings, the trees remove a list of the
