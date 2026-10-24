@@ -201,6 +201,7 @@ Sur fredvoisin.com :
 - [« Schizo-analyse et musicologie »](https://fredvoisin.com/articles/125-schizo-analyse-et-musicologie.html)
 - [« Deux machines à musiquer »](https://fredvoisin.com/articles/178-deux-machines-a-musiquer.html) (colloque *Deleuze et la musique*, Saint-Étienne, 2011)
 - [« Dissemblance et espaces compositionnels »](https://fredvoisin.com/articles/185-dissemblance-et-espaces-compositionnels.html) (JIM 2011)
+- [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisin.com/articles/186-arbres-de-recouvrement-minimal-de-chants-d-oiseaux.html) (30 mai 2011) : sur une même page, les arbres des chants de douze oiseaux (chouette effraie, hirondelles de fenêtre et rustique, mésanges, rouge-gorge…) ; voir aussi l'exemple du [rougequeue noir](exemples/rougequeue-noir.md)
 - Ancienne page de documentation de fv-morphologie : [« fv-morphologie: documentation »](https://fredvoisin.com/articles/114-fv-morphologie-documentation.html)
 
 Code original de Morphologie (~1995) : <https://github.com/openmusic-project/Morphologie>

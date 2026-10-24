@@ -155,6 +155,11 @@ About:
 - Former fv-morphologie doc page: [« fv-morphologie: documentation »](https://fredvoisin.com/articles/114-fv-morphologie-documentation.html)
 - *Dissemblance et espaces compositionnels* (Frédéric Voisin, JIM 2011):
   [« Dissemblance et espaces compositionnels »](https://fredvoisin.com/articles/185-dissemblance-et-espaces-compositionnels.html)
+- *Arbres de recouvrement minimal de chants d'oiseaux* (minimum spanning trees of bird songs, Frédéric Voisin, 30 May 2011):
+  [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisin.com/articles/186-arbres-de-recouvrement-minimal-de-chants-d-oiseaux.html)
+  (on one page, the trees of the songs of twelve birds: barn owl, house
+  martin and barn swallow, tits, robin…; see also the example of the
+  [black redstart](examples/black-redstart.md))
 - Original code (~1995): <https://github.com/openmusic-project/Morphologie>
 
 ### Acknowledgements
