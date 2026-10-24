@@ -1,5 +1,6 @@
 graph "refrains-docstrings" {
-/* generated with refrains:graph>dot 2026 october twenty-fourth at 19h27 */
+/* generated with refrains:graph>dot 2026 october twenty-fourth at 19h31 */
+ graph [overlap="false", sep="+4"];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=black, fontcolor=black];
  edge [font=Helvetica,fontsize=10, color=black, labelfloat=true];
  "motif-list" -- "motif-position" [w=1, len=0.450000, label="0.45"];
@@ -50,8 +51,8 @@ graph "refrains-docstrings" {
  "display-list" -- "doc" [w=1, len=0.920000, label="0.92"];
  "dist-graph" -- "dist-hamming" [w=1, len=0.920000, label="0.92"];
  "mark-list" -- "mark-structure" [w=1, len=0.920000, label="0.92"];
- "graph>dot" -- "str>sym" [w=1, len=0.930000, label="0.93"];
  "dist-edit" -- "inner-dynamic" [w=1, len=0.940000, label="0.94"];
+ "dist-graph" -- "graph>dot" [w=1, len=0.940000, label="0.94"];
  "mark-list" -- "mark-position" [w=1, len=0.940000, label="0.94"];
  "filt-mean" -- "filt-repeat" [w=1, len=0.950000, label="0.95"];
 }

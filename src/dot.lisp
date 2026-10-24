@@ -50,13 +50,17 @@
   "A Graphviz shape name, case kept (Mrecord, box3d...)."
   (if (stringp shape) shape (string-downcase (string shape))))
 
-(defun 2dot (graph min dis shape1 shape2 out legend &key (name "span-graph"))
+(defun 2dot (graph min dis shape1 shape2 out legend &key (name "span-graph") (overlap t))
   (let ((date (date))
         (nid (remove-if #'(lambda (x) (zerop (third x))) graph))
         (ide (remove-if-not #'(lambda (x) (zerop (third x))) graph)))
     (format out "graph ~A {~&" (dot-id (make-name-from-path name)))
     (format out "/* generated with refrains:graph>dot ~S ~D ~:R at ~Sh~S */~&"
             (first date) (nth (1- (cadr date)) *months*) (third date) (fourth date) (fifth date))
+    ;; overlap t (default): nodes may overlap; nil: neato moves them apart (overlap=false),
+    ;; a string: the value of the Graphviz overlap attribute ("scale", "prism"...)
+    (unless (eq overlap t)
+      (format out " graph [overlap=~A, sep=\"+4\"];~&" (dot-id (if overlap overlap "false"))))
     (format out " node [shape=~A, font=Helvetica, fontsize=12, color=black, fontcolor=black];~&"
 	    (dot-id (dot-shape shape1)))
     (format out " edge [font=Helvetica,fontsize=10, color=black, labelfloat=true];~&")
@@ -79,7 +83,7 @@
     (* (if lengths (reduce #'min lengths) 1) k)))
 
 #-Lispworks
-(defun graph2dot (graph dis mode shape out &optional (legend t))
+(defun graph2dot (graph dis mode shape out &optional (legend t) (overlap t))
   (let* ((k (if (numberp mode) mode (if mode 1 0.2)))
          (min (graph-min-length graph k))
          shape1 shape2)
@@ -97,7 +101,7 @@
                                      :direction :output
                                      :if-exists :supersede
                                      :if-does-not-exist :create)
-               (2dot graph min dis shape1 shape2 stream legend :name out))
+               (2dot graph min dis shape1 shape2 stream legend :name out :overlap overlap))
              (when (not (equalp type "dot"))
                ;; the type of the file is the output format of neato (svg, pdf, png, gif...)
                (let ((fmt (string-downcase (or type "png")))
@@ -115,11 +119,11 @@
                    (error (c)
                      (error "graph>dot: the dot file ~A is written, but neato (Graphviz) could not make the ~A file: ~A"
                             dot fmt c)))))))
-          (t (2dot graph min dis shape1 shape2 out legend :name out))))
+          (t (2dot graph min dis shape1 shape2 out legend :name out :overlap overlap))))
   (format nil "~G" out))
 
 #+Lispworks
-(defun graph2dot (graph dis mode shape out &optional (legend t))
+(defun graph2dot (graph dis mode shape out &optional (legend t) (overlap t))
   (let* ((k (if (numberp mode) mode (if mode 1 0.2)))
          (min (graph-min-length graph k))
          shape1 shape2
@@ -139,7 +143,7 @@
                                      :direction :output
                                      :if-exists :supersede
                                      :if-does-not-exist :create)
-               (2dot graph min dis shape1 shape2 stream legend :name out))
+               (2dot graph min dis shape1 shape2 stream legend :name out :overlap overlap))
              (when (not (equalp type "dot"))
                (system::run-shell-command
                 (list neato (format nil "-T~(~S~)" (if type (safe-read-from-string type) (safe-read-from-string "gif"))))
@@ -151,7 +155,7 @@
                 :if-input-does-not-exist :error
                 :if-output-exists :supersede
                 ))))
-          (t (2dot graph min dis shape1 shape2 out legend :name out)))
+          (t (2dot graph min dis shape1 shape2 out legend :name out :overlap overlap)))
     (format nil "~G" out)))
 
 ;(graph2dot '((a b 1) (a c 2) (a d 3) (b k 8) (b j 0)) 0 .1 nil t)

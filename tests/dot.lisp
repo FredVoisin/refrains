@@ -64,7 +64,11 @@
     (is (search "\"q\\\"t\"" (dot '(("z" "q\"t" 2)))))
     ;; only edges of length 0, or no edge, used to fail
     (is (search "\"A\" -- \"B\" [len=1.000000]" (dot '((a b 0) (b c 0)))))
-    (is (search "graph \"span-graph\" {" (dot '())))))
+    (is (search "graph \"span-graph\" {" (dot '())))
+    ;; overlap: nothing by default, overlap=false with nil, a Graphviz value with a string
+    (is (not (search "overlap" (dot '((a b 1))))))
+    (is (search "graph [overlap=\"false\", sep=\"+4\"];" (dot '((a b 1)) :overlap nil)))
+    (is (search "overlap=\"scale\"" (dot '((a b 1)) :overlap "scale")))))
 
 (test graph>dot-neato
   ;; draws a graph with neato, if Graphviz is installed (else the test is skipped)

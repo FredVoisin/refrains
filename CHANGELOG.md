@@ -8,6 +8,20 @@ refrains continues [fv-morphologie](https://github.com/FredVoisin/fv-morphologie
 refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 (fv-morphologie 1.4.0 to 0.1.0) are those of fv-morphologie.
 
+## [0.2.1] - 2026-10-24
+
+### Added
+
+- `graph>dot` takes `:overlap`: `t` (by default) lets the nodes overlap, as
+  before; `nil` makes neato move them apart (graph attribute
+  `overlap=false`), useful when the lengths are short compared with the
+  names of the nodes, such as distances from 0 to 1; a string is the value
+  of the Graphviz `overlap` attribute (`"scale"`, `"prism"`…).
+- Documentation: two minimum spanning trees of the functions, by their names
+  and by the vocabulary of their docstrings, computed with refrains by
+  `doc/pictures/refrains-trees.lisp` (which uses `:overlap nil`); what to do
+  when the system "refrains" is not found.
+
 ## [0.2.0] - 2026-10-24
 
 ### Changed

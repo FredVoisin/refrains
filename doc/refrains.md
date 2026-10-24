@@ -591,7 +591,7 @@ nodes cannot be lists (a list stands for several nodes).
 (graph-path nil nil '((a b 1) (b c 2) (b d 1))) ;=> ((A B C) (A B D) (C B D))
 ```
 
-#### `graph>dot (graph out &key dis scale shape legend)`
+#### `graph>dot (graph out &key dis scale shape legend overlap)`
 
 Draws an undirected graph in the **dot** format.
 
@@ -624,6 +624,11 @@ Arguments:
   `"plaintext"`, `"point"`), or a list of two shapes: ordinary nodes, and
   nodes joined by zero-length edges.
 - `:legend`: label the edges with their lengths (`t` by default).
+- `:overlap`: `t` (by default) lets the nodes overlap; `nil` makes `neato`
+  move them apart (graph attribute `overlap=false`), useful when the lengths
+  are short compared with the names of the nodes, such as distances from 0
+  to 1; a string is the value of the Graphviz `overlap` attribute
+  (`"scale"`, `"prism"`…).
 
 Edges of length 0 are drawn in blue, with the length of the shortest other
 edge times `:scale` (or `:scale` if all the edges have length 0).

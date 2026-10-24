@@ -157,7 +157,7 @@ need a complete semi-matrix of distances."))
 (defmethod graph-path ((from t) (to t) (graph list))
   (refrains::tree-path from to graph))
 
-(defgeneric graph>dot (graph out &key dis scale shape legend)
+(defgeneric graph>dot (graph out &key dis scale shape legend overlap)
   (:documentation   "GRAPH>DOT: converts a graph (list of edges) into an undirected graph into dot langage to be processed using neato program.
 Arguments:
 <graph> : the graph, as a structured list.
@@ -166,10 +166,13 @@ Keywords:
  :dis : amount of distortion allowed for distances fir drawing the graph (from 0.0 for minimum distorsion to 1.0 maximum distorsion)
  :scale : scaling factor for the mininum distance
  :shape : string or list of strings to define node's shape, using 'neato' definitions
+ :legend : label the edges with their lengths (t by default)
+ :overlap : t (default) lets the nodes overlap; nil makes neato move them apart (useful when the lengths
+are short compared with the names of the nodes); a string is the value of the Graphviz overlap attribute (\"scale\", \"prism\"...)
 "))
 
-(defmethod graph>dot  ((graph t) (out t) &key (dis 1) (scale t) (shape "ellipse") (legend t))
-  (refrains::graph2dot graph dis scale shape out legend))
+(defmethod graph>dot  ((graph t) (out t) &key (dis 1) (scale t) (shape "ellipse") (legend t) (overlap t))
+  (refrains::graph2dot graph dis scale shape out legend overlap))
 
 (defgeneric morph-seq (seq1 seq2 &key test random)
   (:documentation "MORPH-SEQ: interpolates the sequence <seq1> to the sequence <seq2> with the minimum of steps,

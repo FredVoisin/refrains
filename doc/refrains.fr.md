@@ -653,7 +653,7 @@ listes (une liste représente plusieurs nœuds).
 (graph-path nil nil '((a b 1) (b c 2) (b d 1))) ;=> ((A B C) (A B D) (C B D))
 ```
 
-#### `graph>dot (graph out &key dis scale shape legend)`
+#### `graph>dot (graph out &key dis scale shape legend overlap)`
 
 Trace un graphe non orienté au format **dot**.
 
@@ -687,6 +687,11 @@ Arguments :
   `"plaintext"`, `"point"`), ou une liste de deux formes : nœuds ordinaires,
   et nœuds reliés par des arêtes de longueur nulle.
 - `:legend` : étiqueter les arêtes avec leur longueur (`t` par défaut).
+- `:overlap` : `t` (par défaut) laisse les nœuds se chevaucher ; `nil` demande
+  à `neato` de les écarter (attribut `overlap=false` du graphe), ce qui est
+  utile quand les longueurs sont courtes par rapport aux noms des nœuds, par
+  exemple des distances de 0 à 1 ; une chaîne donne la valeur de l'attribut
+  `overlap` de Graphviz (`"scale"`, `"prism"`…).
 
 Les arêtes de longueur 0 sont tracées en bleu, avec la longueur de la plus
 courte autre arête multipliée par `:scale` (ou `:scale` si toutes les arêtes

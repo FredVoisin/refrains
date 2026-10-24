@@ -64,16 +64,11 @@ et les mots de moins de trois lettres."
                 ;; jaccard-dist : fonction interne de refrains, non exportée
                 (lambda (a b) (refrains::jaccard-dist a b :test #'string=)))))
 
-;;; 3. Les arbres en langage dot (graph>dot), puis en images (neato)
+;;; 3. Les arbres en langage dot, puis en images : graph>dot écrit le fichier .dot
+;;; et appelle neato. Les distances, de 0 à 1, sont plus courtes que les noms des
+;;; nœuds : avec :overlap nil, neato écarte les nœuds qui se chevaucheraient.
 
-(defun draw (tree name)
-  (let ((dot (namestring (merge-pathnames (format nil "~A.dot" name) *here*)))
-        (png (namestring (merge-pathnames (format nil "~A.png" name) *here*))))
-    (graph>dot tree dot)
-    ;; les distances, de 0 à 1, sont plus courtes que les noms des nœuds :
-    ;; neato écarte les nœuds qui se chevaucheraient
-    (uiop:run-program (list "neato" "-Goverlap=false" "-Gsep=+4" "-Tpng" "-o" png dot))
-    png))
-
-(draw *names-tree* "refrains-names")
-(draw *docstrings-tree* "refrains-docstrings")
+(graph>dot *names-tree* (namestring (merge-pathnames "refrains-names.png" *here*))
+           :overlap nil)
+(graph>dot *docstrings-tree* (namestring (merge-pathnames "refrains-docstrings.png" *here*))
+           :overlap nil)
