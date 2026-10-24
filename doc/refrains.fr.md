@@ -256,7 +256,8 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
 ;;  1.2 FILTRER
        filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-function
 ;;  1.3 DÉLINÉER : tracer des graphes
-       graph-span, graph>dendrogram, graph-path, graph>dot, dendrogram>dot
+       graph-span, graph>dendrogram, graph-path, graph>dot, dendrogram>dot,
+       graph>matrix
 ;;  1.4 INTERPOLER
        morph-seq
 ;;; 2. CLASSIFICATION
@@ -772,6 +773,18 @@ il se trace avec `neato -n2`.
 
 Le fichier dot peut aussi être tracé à la main :
 `neato -n2 -Tpng dendrogramme.dot -o dendrogramme.png`.
+
+#### `graph>matrix (graph)`
+
+La matrice d'adjacence symétrique d'un graphe, sous forme de liste de lignes :
+lignes et colonnes sont dans l'ordre de
+[`graph-nodes`](#graph-nodes-graph-graph-leaves-graph), chaque case est la
+distance de l'arête entre les deux nœuds, 0 s'il n'y en a pas (une arête de
+longueur 0 ne se distingue donc pas d'une absence d'arête).
+
+```lisp
+(graph>matrix '((a b 1) (b c 2)))   ;=> ((0 1 0) (1 0 2) (0 2 0))   ; nœuds (A B C)
+```
 
 ### 1.4 Interpoler
 
@@ -1322,17 +1335,6 @@ quelques secondes pour 120 éléments.
 ```lisp
 (motif-list '(a b c a b c d a b c) nil)
 ;=> (((A B C) (0 2) (3 5) (7 9)))
-```
-
-#### `graph>matrix (graph)`
-
-La matrice d'adjacence symétrique d'un graphe, sous forme de liste de lignes :
-lignes et colonnes sont dans l'ordre de `graph-nodes`, chaque case est la
-distance de l'arête entre les deux nœuds, 0 s'il n'y en a pas (une arête de
-longueur 0 ne se distingue donc pas d'une absence d'arête).
-
-```lisp
-(graph>matrix '((a b 1) (b c 2)))   ;=> ((0 1 0) (1 0 2) (0 2 0))   ; nœuds (A B C)
 ```
 
 #### `graph-nodes (graph)`, `graph-leaves (graph)`

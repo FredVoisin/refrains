@@ -208,7 +208,8 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
 ;;  1.2 FILTER
        filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-function
 ;;  1.3 DELINEATE : trace graphs
-       graph-span, graph>dendrogram, graph-path, graph>dot, dendrogram>dot
+       graph-span, graph>dendrogram, graph-path, graph>dot, dendrogram>dot,
+       graph>matrix
 ;;  1.4 INTERPOLATE
        morph-seq
 ;;; 2. CLASSIFICATION
@@ -706,6 +707,18 @@ with `neato -n2`.
 
 The dot file can also be drawn by hand:
 `neato -n2 -Tpng dendrogram.dot -o dendrogram.png`.
+
+#### `graph>matrix (graph)`
+
+The symmetric adjacency matrix of a graph, as a list of rows: rows and
+columns are in the order of
+[`graph-nodes`](#graph-nodes-graph-graph-leaves-graph), each cell is the distance of the
+edge between the two nodes, 0 when there is none (so an edge of length 0
+cannot be told from no edge).
+
+```lisp
+(graph>matrix '((a b 1) (b c 2)))   ;=> ((0 1 0) (1 0 2) (0 2 0))   ; nodes (A B C)
+```
 
 ### 1.4 Interpolate
 
@@ -1236,17 +1249,6 @@ the tolerance), which takes longer: a few seconds for 120 elements.
 ```lisp
 (motif-list '(a b c a b c d a b c) nil)
 ;=> (((A B C) (0 2) (3 5) (7 9)))
-```
-
-#### `graph>matrix (graph)`
-
-The symmetric adjacency matrix of a graph, as a list of rows: rows and
-columns are in the order of `graph-nodes`, each cell is the distance of the
-edge between the two nodes, 0 when there is none (so an edge of length 0
-cannot be told from no edge).
-
-```lisp
-(graph>matrix '((a b 1) (b c 2)))   ;=> ((0 1 0) (1 0 2) (0 2 0))   ; nodes (A B C)
 ```
 
 #### `graph-nodes (graph)`, `graph-leaves (graph)`
