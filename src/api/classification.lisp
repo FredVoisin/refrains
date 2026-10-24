@@ -31,7 +31,7 @@
   (:documentation "EXSAMPLE: samples a sequence of numerical values <seq> according to its signature, its salient points with some threshold <thres> for variation in intensity.
 The argument <thres> may be nil or 0 (no threshold for variations in intensity), or an absolute amplitude (in the unit of the values of <seq>, not negative): variations smaller than <thres> are ignored.
 Argument <method> defines the algorithm to compute the signature:
-:minflexmax (default, or nil), returns minima, maxima and inflexions: the minima and maxima of :minmax, and an inflexion where a plateau
+:minflexmax (default, or nil), returns minima, maxima and inflexions (plateaus, negligible variations): the minima and maxima of :minmax, and an inflexion where a plateau
  which is not an extremum begins and where it ends (a plateau is a stretch of at least :duration positions where the sequence varies by less than thres);
 :minmax, minima and maxima only: the important extrema of :major-extrema, with |a - b|;
 :major-extrema, important extrema (Fink & Gandhi, Conference on Systems, Man and Cybernetics, 2007):
