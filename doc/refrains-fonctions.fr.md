@@ -105,9 +105,16 @@ lettre (`dist-edit` avec `:norm t`). Les familles de noms (`filt-`, `graph-`,
 ![Dendrogramme des fonctions de refrains d'après leurs noms](pictures/refrains-names-dendrogram.png)
 
 **Par la documentation** : distance de Jaccard entre les vocabulaires des
-docstrings, découpées en mots avec `separate` ; les mots présents dans plus de
-10 des 52 docstrings (*the*, *list*, *with*…), comptés avec `histogram`, sont
-écartés. Les groupes y viennent du vocabulaire, et non plus des noms.
+docstrings, découpées en mots avec `separate`. Les articles (*a*, *an*,
+*the*), les nombres et les symboles d'une lettre (*a*, *b*, *x*…) sont
+retirés. Les variantes d'un même mot sont fusionnées en un terme générique, le
+plus court d'entre elles (*list* et *lists* ; *define*, *defined* et
+*defines*…) : ce sont les mots dont la distance d'édition relative
+(`dist-edit`, une substitution comptant comme une suppression et une
+insertion) est au plus 0,2, regroupés avec `graph>dendrogram`. Enfin, les
+termes présents dans plus de 10 des 52 docstrings (*of*, *list*, *with*…),
+comptés avec `histogram`, sont écartés. Les groupes y viennent du
+vocabulaire, et non plus des noms.
 
 ![Arbre de recouvrement minimal des fonctions de refrains d'après leur documentation](pictures/refrains-docstrings.png)
 

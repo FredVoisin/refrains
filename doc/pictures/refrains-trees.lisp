@@ -37,30 +37,67 @@ entre leurs objets (noms ou vocabulaires), arrondie au centième."
 
 ;;; 2. Par la documentation : distance de Jaccard entre les vocabulaires
 
-(defun vocabulary (f)
-  "Les mots de la documentation de f, en minuscules, sans le nom de f, les nombres
-et les mots de moins de trois lettres."
+(defparameter *articles* '("a" "an" "the"))
+
+(defun vocabulaire (f)
+  "Les mots de la documentation de f, en minuscules, sans le nom de f, les articles,
+les nombres et les symboles d'une lettre (a, b, x...)."
   (remove-duplicates
    (remove-if (lambda (word)
-                (or (< (length word) 3)
-                    (string= word (string-downcase f))
-                    (every #'digit-char-p word)))
+                (or (member word *articles* :test #'string=)
+                    (= (length word) 1)
+                    (every #'digit-char-p word)
+                    (string= word (string-downcase f))))
               (separate (string-downcase (documentation f 'function))
                         :marks "()<>[]{},;.:!?'\"=/|*#`&+~"))
    :test #'string=))
 
-(defparameter *vocabularies* (mapcar #'vocabulary *functions*))
+(defparameter *vocabulaires* (mapcar #'vocabulaire *functions*))
 
-;; les mots présents dans plus de 10 des 52 documentations (the, list, with...),
+;; les mots voisins (list et lists ; define, defined et defines...) sont fusionnés en un
+;; terme générique, le plus court d'entre eux : leur distance d'édition relative est
+;; au plus 0,2, une substitution comptant comme une suppression et une insertion
+;; (:sub 2), pour que seules les variantes d'un même mot se rapprochent
+
+(defparameter *mots*
+  (sort (remove-duplicates (reduce #'append *vocabulaires*) :test #'string=) #'string<))
+
+(defun mots-voisins (words)
+  "Les paires de mots voisins (mot-a mot-b distance)."
+  (loop for (a . others) on words
+        nconc (loop for b in others
+                    ;; la distance relative vaut au moins l'écart des longueurs
+                    when (<= (abs (- (length a) (length b))) (* 0.2 (max (length a) (length b))))
+                      nconc (let ((d (dist-edit a b :sub 2 :norm t)))
+                              (when (<= d 0.2) (list (list a b d)))))))
+
+;; les groupes de mots voisins : les feuilles des dendrogrammes (lien simple) du graphe
+;; des mots voisins, qui n'est pas connexe (graph-span le signale) ;
+;; dendrogram-leaves : fonction interne de refrains, non exportée
+(defparameter *termes-generiques*
+  (let ((terms (make-hash-table :test #'equal))
+        (forest (nth-value 1 (graph>dendrogram (mots-voisins *mots*)))))
+    (dolist (tree (if (realp (first forest)) (list forest) forest) terms)
+      (let* ((group (refrains::dendrogram-leaves tree))
+             (generic (first (stable-sort (sort (copy-list group) #'string<) #'< :key #'length))))
+        (dolist (word group) (setf (gethash word terms) generic))))))
+
+(defun vocabulaire-generique (vocabulaire)
+  (remove-duplicates (mapcar (lambda (word) (gethash word *termes-generiques* word)) vocabulaire)
+                     :test #'string=))
+
+(defparameter *termes* (mapcar #'vocabulaire-generique *vocabulaires*))
+
+;; les termes présents dans plus de 10 des 52 documentations (list, with...),
 ;; trop courants pour distinguer les fonctions
-(defparameter *common-words*
-  (loop for (word count) in (histogram (reduce #'append *vocabularies*) :test #'equal)
-        when (> count 10) collect word))
+(defparameter *termes-courants*
+  (loop for (term count) in (histogram (reduce #'append *termes*) :test #'equal)
+        when (> count 10) collect term))
 
 (defparameter *docstrings-tree*
   (graph-span
-   (semi-matrix (mapcar (lambda (v) (set-difference v *common-words* :test #'string=))
-                        *vocabularies*)
+   (semi-matrix (mapcar (lambda (v) (set-difference v *termes-courants* :test #'string=))
+                        *termes*)
                 ;; jaccard-dist : fonction interne de refrains, non exportée
                 (lambda (a b) (refrains::jaccard-dist a b :test #'string=)))))
 

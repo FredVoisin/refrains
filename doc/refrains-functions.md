@@ -112,10 +112,15 @@ letter (`dist-edit` with `:norm t`). The families of names (`filt-`,
 ![Dendrogram of the refrains functions by their names](pictures/refrains-names-dendrogram.png)
 
 **By their documentation**: Jaccard distance between the vocabularies of the
-docstrings, split into words with `separate`; the words found in more than 10
-of the 52 docstrings (*the*, *list*, *with*…), counted with `histogram`, are
-left out. The groups there come from the vocabulary, no longer from the
-names.
+docstrings, split into words with `separate`. The articles (*a*, *an*,
+*the*), the numbers and the one-letter symbols (*a*, *b*, *x*…) are removed.
+The variants of a same word are merged into a generic term, the shortest of
+them (*list* and *lists*; *define*, *defined* and *defines*…): the words
+whose relative edit distance (`dist-edit`, a substitution counting as a
+deletion and an insertion) is at most 0.2, grouped with `graph>dendrogram`.
+Last, the terms found in more than 10 of the 52 docstrings (*of*, *list*,
+*with*…), counted with `histogram`, are left out. The groups there come from
+the vocabulary, no longer from the names.
 
 ![Minimum spanning tree of the refrains functions by their documentation](pictures/refrains-docstrings.png)
 
