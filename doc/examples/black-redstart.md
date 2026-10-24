@@ -2,7 +2,11 @@
 
 [Examples](../examples.md) · En français : [Transcription automatique d'un sonagramme : le rougequeue noir](../exemples/rougequeue-noir.md)
 
-F. Voisin, 2011.
+F. Voisin, 2011. Presented at the Journées d'informatique musicale (JIM 2011),
+in Saint-Étienne: Voisin, Frédéric, « Dissemblance et espaces
+compositionnels », *Actes des Journées d'Informatique Musicale (JIM 2011)*,
+Saint-Étienne, 2011, pp. 191–197 (HAL
+[hal-01612263](https://hal.science/hal-01612263v1)).
 
 *An analysis kept with its data in the [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) repository; its principle is summarized here, to be rewritten as a Common Lisp example.*
 

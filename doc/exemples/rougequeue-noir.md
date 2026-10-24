@@ -2,7 +2,11 @@
 
 [Exemples](../exemples.md) · In English: [Automatic transcription of a sonogram: the black redstart](../examples/black-redstart.md)
 
-F. Voisin, 2011.
+F. Voisin, 2011. Présenté aux Journées d'informatique musicale (JIM 2011),
+à Saint-Étienne : Voisin, Frédéric, « Dissemblance et espaces
+compositionnels », *Actes des Journées d'Informatique Musicale (JIM 2011)*,
+Saint-Étienne, 2011, p. 191–197 (HAL
+[hal-01612263](https://hal.science/hal-01612263v1)).
 
 *Analyse conservée avec ses données dans le dépôt [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) ; son principe est résumé ici, en attendant d'être réécrit sous forme d'exemple Common Lisp.*
 
