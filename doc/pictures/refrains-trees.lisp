@@ -66,9 +66,10 @@ et les mots de moins de trois lettres."
 
 ;;; 3. Les arbres en langage dot, puis en images : graph>dot écrit le fichier .dot
 ;;; et appelle neato. Les distances, de 0 à 1, sont plus courtes que les noms des
-;;; nœuds : avec :overlap nil, neato écarte les nœuds qui se chevaucheraient.
+;;; nœuds : avec :overlap nil, neato écarte les nœuds qui se chevaucheraient ;
+;;; :invert t trace en blanc sur noir.
 
 (graph>dot *names-tree* (namestring (merge-pathnames "refrains-names.png" *here*))
-           :overlap nil)
+           :overlap nil :invert t)
 (graph>dot *docstrings-tree* (namestring (merge-pathnames "refrains-docstrings.png" *here*))
-           :overlap nil)
+           :overlap nil :invert t)

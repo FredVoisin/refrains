@@ -591,7 +591,7 @@ nodes cannot be lists (a list stands for several nodes).
 (graph-path nil nil '((a b 1) (b c 2) (b d 1))) ;=> ((A B C) (A B D) (C B D))
 ```
 
-#### `graph>dot (graph out &key dis scale shape legend overlap)`
+#### `graph>dot (graph out &key dis scale shape legend overlap invert)`
 
 Draws an undirected graph in the **dot** format.
 
@@ -629,6 +629,8 @@ Arguments:
   are short compared with the names of the nodes, such as distances from 0
   to 1; a string is the value of the Graphviz `overlap` attribute
   (`"scale"`, `"prism"`…).
+- `:invert`: `t` draws white on black instead of black on white (`nil` by
+  default); the edges of length 0 are then light blue.
 
 Edges of length 0 are drawn in blue, with the length of the shortest other
 edge times `:scale` (or `:scale` if all the edges have length 0).

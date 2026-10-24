@@ -17,9 +17,12 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `overlap=false`), useful when the lengths are short compared with the
   names of the nodes, such as distances from 0 to 1; a string is the value
   of the Graphviz `overlap` attribute (`"scale"`, `"prism"`…).
+- `graph>dot` takes `:invert`: `t` draws white on black instead of black on
+  white (`nil` by default).
 - Documentation: two minimum spanning trees of the functions, by their names
   and by the vocabulary of their docstrings, computed with refrains by
-  `doc/pictures/refrains-trees.lisp` (which uses `:overlap nil`); what to do
+  `doc/pictures/refrains-trees.lisp` (which uses `:overlap nil` and
+  `:invert t`), and the figure of the operations, in white on black; what to do
   when the system "refrains" is not found.
 
 ## [0.2.0] - 2026-10-24

@@ -68,7 +68,16 @@
     ;; overlap: nothing by default, overlap=false with nil, a Graphviz value with a string
     (is (not (search "overlap" (dot '((a b 1))))))
     (is (search "graph [overlap=\"false\", sep=\"+4\"];" (dot '((a b 1)) :overlap nil)))
-    (is (search "overlap=\"scale\"" (dot '((a b 1)) :overlap "scale")))))
+    (is (search "overlap=\"scale\"" (dot '((a b 1)) :overlap "scale")))
+    ;; invert: black on white by default, white on black with t
+    (let ((d (dot '((a b 1)))))
+      (is (search "color=black, fontcolor=black" d))
+      (is (not (search "bgcolor" d))))
+    (let ((d (dot '((a b 1) (b c 0)) :invert t)))
+      (is (search "graph [bgcolor=black];" d))
+      (is (search "color=white, fontcolor=white" d))
+      (is (search "color=white, fontcolor=white, labelfloat=true" d))
+      (is (search "color=lightskyblue" d)))))
 
 (test graph>dot-neato
   ;; draws a graph with neato, if Graphviz is installed (else the test is skipped)

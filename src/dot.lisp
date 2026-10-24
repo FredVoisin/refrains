@@ -50,8 +50,11 @@
   "A Graphviz shape name, case kept (Mrecord, box3d...)."
   (if (stringp shape) shape (string-downcase (string shape))))
 
-(defun 2dot (graph min dis shape1 shape2 out legend &key (name "span-graph") (overlap t))
+(defun 2dot (graph min dis shape1 shape2 out legend &key (name "span-graph") (overlap t) (invert nil))
+  ;; invert: white on black instead of black on white (light blue for the edges of length 0)
   (let ((date (date))
+        (fg (if invert "white" "black"))
+        (fg0 (if invert "lightskyblue" "blue"))
         (nid (remove-if #'(lambda (x) (zerop (third x))) graph))
         (ide (remove-if-not #'(lambda (x) (zerop (third x))) graph)))
     (format out "graph ~A {~&" (dot-id (make-name-from-path name)))
@@ -61,18 +64,21 @@
     ;; a string: the value of the Graphviz overlap attribute ("scale", "prism"...)
     (unless (eq overlap t)
       (format out " graph [overlap=~A, sep=\"+4\"];~&" (dot-id (if overlap overlap "false"))))
-    (format out " node [shape=~A, font=Helvetica, fontsize=12, color=black, fontcolor=black];~&"
-	    (dot-id (dot-shape shape1)))
-    (format out " edge [font=Helvetica,fontsize=10, color=black, labelfloat=true];~&")
+    (when invert
+      (format out " graph [bgcolor=black];~&"))
+    (format out " node [shape=~A, font=Helvetica, fontsize=12, color=~A, fontcolor=~A];~&"
+	    (dot-id (dot-shape shape1)) fg fg)
+    (format out " edge [font=Helvetica,fontsize=10, color=~A, ~:[~;fontcolor=white, ~]labelfloat=true];~&"
+            fg invert)
     (dolist (n nid)
       ;; len: the length itself (it was formatted on 3 characters first: 12.5 gave 13.)
       (format out " ~A -- ~A [w=~A, len=~,6F, label=~A];~&"
               (dot-id (car n)) (dot-id (cadr n)) dis (float (third n))
               (dot-id (if legend (third n) " "))))
     (when ide
-      (format out " node [shape=~A, font=Helvetica, fontsize=12, color=blue, fontcolor=blue];~&"
-	      (dot-id (dot-shape shape2)))
-      (format out " edge [font=Helvetica,fontsize=10, color=blue];~&")
+      (format out " node [shape=~A, font=Helvetica, fontsize=12, color=~A, fontcolor=~A];~&"
+	      (dot-id (dot-shape shape2)) fg0 fg0)
+      (format out " edge [font=Helvetica,fontsize=10, color=~A];~&" fg0)
       (dolist (n ide)
         (format out " ~A -- ~A [len=~,6F];~&" (dot-id (car n)) (dot-id (cadr n)) (float min))))
     (format out "}~&")))
@@ -83,7 +89,7 @@
     (* (if lengths (reduce #'min lengths) 1) k)))
 
 #-Lispworks
-(defun graph2dot (graph dis mode shape out &optional (legend t) (overlap t))
+(defun graph2dot (graph dis mode shape out &optional (legend t) (overlap t) (invert nil))
   (let* ((k (if (numberp mode) mode (if mode 1 0.2)))
          (min (graph-min-length graph k))
          shape1 shape2)
@@ -101,7 +107,7 @@
                                      :direction :output
                                      :if-exists :supersede
                                      :if-does-not-exist :create)
-               (2dot graph min dis shape1 shape2 stream legend :name out :overlap overlap))
+               (2dot graph min dis shape1 shape2 stream legend :name out :overlap overlap :invert invert))
              (when (not (equalp type "dot"))
                ;; the type of the file is the output format of neato (svg, pdf, png, gif...)
                (let ((fmt (string-downcase (or type "png")))
@@ -119,11 +125,11 @@
                    (error (c)
                      (error "graph>dot: the dot file ~A is written, but neato (Graphviz) could not make the ~A file: ~A"
                             dot fmt c)))))))
-          (t (2dot graph min dis shape1 shape2 out legend :name out :overlap overlap))))
+          (t (2dot graph min dis shape1 shape2 out legend :name out :overlap overlap :invert invert))))
   (format nil "~G" out))
 
 #+Lispworks
-(defun graph2dot (graph dis mode shape out &optional (legend t) (overlap t))
+(defun graph2dot (graph dis mode shape out &optional (legend t) (overlap t) (invert nil))
   (let* ((k (if (numberp mode) mode (if mode 1 0.2)))
          (min (graph-min-length graph k))
          shape1 shape2
@@ -143,7 +149,7 @@
                                      :direction :output
                                      :if-exists :supersede
                                      :if-does-not-exist :create)
-               (2dot graph min dis shape1 shape2 stream legend :name out :overlap overlap))
+               (2dot graph min dis shape1 shape2 stream legend :name out :overlap overlap :invert invert))
              (when (not (equalp type "dot"))
                (system::run-shell-command
                 (list neato (format nil "-T~(~S~)" (if type (safe-read-from-string type) (safe-read-from-string "gif"))))
@@ -155,7 +161,7 @@
                 :if-input-does-not-exist :error
                 :if-output-exists :supersede
                 ))))
-          (t (2dot graph min dis shape1 shape2 out legend :name out :overlap overlap)))
+          (t (2dot graph min dis shape1 shape2 out legend :name out :overlap overlap :invert invert)))
     (format nil "~G" out)))
 
 ;(graph2dot '((a b 1) (a c 2) (a d 3) (b k 8) (b j 0)) 0 .1 nil t)

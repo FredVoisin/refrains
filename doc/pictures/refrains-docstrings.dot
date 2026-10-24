@@ -1,8 +1,9 @@
 graph "refrains-docstrings" {
-/* generated with refrains:graph>dot 2026 october twenty-fourth at 19h31 */
+/* generated with refrains:graph>dot 2026 october twenty-fourth at 19h39 */
  graph [overlap="false", sep="+4"];
- node [shape="ellipse", font=Helvetica, fontsize=12, color=black, fontcolor=black];
- edge [font=Helvetica,fontsize=10, color=black, labelfloat=true];
+ graph [bgcolor=black];
+ node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
+ edge [font=Helvetica,fontsize=10, color=white, fontcolor=white, labelfloat=true];
  "motif-list" -- "motif-position" [w=1, len=0.450000, label="0.45"];
  "date+time-string" -- "date-string" [w=1, len=0.500000, label="0.5"];
  "filt-extrema" -- "filt-median" [w=1, len=0.520000, label="0.52"];
@@ -52,7 +53,7 @@ graph "refrains-docstrings" {
  "dist-graph" -- "dist-hamming" [w=1, len=0.920000, label="0.92"];
  "mark-list" -- "mark-structure" [w=1, len=0.920000, label="0.92"];
  "dist-edit" -- "inner-dynamic" [w=1, len=0.940000, label="0.94"];
- "dist-graph" -- "graph>dot" [w=1, len=0.940000, label="0.94"];
+ "graph>dendrogram" -- "graph>dot" [w=1, len=0.940000, label="0.94"];
  "mark-list" -- "mark-position" [w=1, len=0.940000, label="0.94"];
  "filt-mean" -- "filt-repeat" [w=1, len=0.950000, label="0.95"];
 }
