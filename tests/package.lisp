@@ -41,7 +41,7 @@
                 #:motif-position #:motif-list #:motif-group #:class-num #:class-sym
                 ;; graphs
                 #:graph-span #:graph>dendrogram #:graph-path #:graph-length #:graph-degree #:graph-nodes
-                #:graph-leaves #:graph>dot #:graph-part
+                #:graph-leaves #:graph>dot #:graph-part #:dendrogram>dot
                 ;; io
                 #:read-text #:write-list #:date-string #:date+time-string
                 #:help #:doc))

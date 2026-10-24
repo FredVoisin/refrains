@@ -192,3 +192,106 @@ if a string, it defines the pathname of the output. Type of file define output.
 
 (defmethod graphtodot  ((graph list) (dis number) (min number)  (out t) &key shape legend)
   (graph2dot graph dis min shape out legend))
+
+;;; dendrograms to dot format, drawn by neato at fixed positions (neato -n2)
+
+(defun dendrogram-leaves (dendrogram)
+  "The leaves of a dendrogram (distance tree-a tree-b), from the first one to the last one."
+  (if (and (consp dendrogram) (realp (first dendrogram)))
+      (append (dendrogram-leaves (second dendrogram)) (dendrogram-leaves (third dendrogram)))
+      (list dendrogram)))
+
+(defun dendrogram-height (dendrogram)
+  (if (and (consp dendrogram) (realp (first dendrogram))) (first dendrogram) 0))
+
+(defun nice-step (max)
+  "A step of 1, 2 or 5 times a power of 10, for about four graduations from 0 to max."
+  (if (not (plusp max))
+      1
+      (let* ((raw (/ max 4))
+             (mag (expt 10 (floor (log raw 10))))
+             (norm (/ raw mag)))
+        (* mag (cond ((<= norm 1) 1) ((<= norm 2) 2) ((<= norm 5) 5) (t 10))))))
+
+(defun scale-label (x)
+  "x printed without useless zeros: 0.5, 2, 0.25."
+  (let ((s (string-right-trim "." (string-right-trim "0" (format nil "~,4F" x)))))
+    (if (string= s "") "0" s)))
+
+(defun 2dot-dendrogram (forest out &key (width 700) (step 16) (invert nil) (name "dendrogram"))
+  "Writes the dendrograms of forest into the stream out, in dot, with the position of each point:
+the leaves on the left, one by line, each fusion at the abscissa of its distance."
+  (let* ((fg (if invert "white" "black"))
+         (leaves (loop for d in forest append (dendrogram-leaves d)))
+         (names (mapcar #'(lambda (x) (if (stringp x) x (princ-to-string x))) leaves))
+         (x0 (+ 12 (* 6.6 (reduce #'max (mapcar #'length names) :initial-value 1)))) ; Courier 11
+         (scale-step (nice-step (reduce #'max (mapcar #'dendrogram-height forest) :initial-value 0)))
+         (end (* scale-step (max 1 (ceiling (reduce #'max (mapcar #'dendrogram-height forest)
+                                                    :initial-value 0)
+                                            scale-step))))
+         (unit (/ width end))
+         (row 0)
+         (n 0))
+    (labels ((x (d) (+ x0 (* unit d)))
+             (point (x y)
+               (format out " p~D [pos=\"~,1F,~,1F\"];~&" (incf n) x y)
+               (format nil "p~D" n))
+             (draw (tree)
+               ;; the point from which the line goes to the parent, and its ordinate
+               (if (and (consp tree) (realp (first tree)))
+                   (destructuring-bind (d a b) tree
+                     (destructuring-bind ((pa ya) (pb yb)) (list (draw a) (draw b))
+                       (let* ((y (/ (+ ya yb) 2))
+                              (ca (point (x d) ya))
+                              (cb (point (x d) yb))
+                              (m (point (x d) y)))
+                         (format out " ~A -- ~A;~& ~A -- ~A;~& ~A -- ~A;~& ~A -- ~A;~&"
+                                 pa ca pb cb ca m m cb)
+                         (list m y))))
+                   (let* ((label (nth row names))
+                          (y (* step (- (length leaves) 1 row))))
+                     (incf row)
+                     (format out " l~D [shape=plaintext, label=~A, pos=\"~,1F,~,1F\"];~&"
+                             row (dot-id label) (- x0 6 (* 3.3 (length label))) y)
+                     (list (point x0 y) y)))))
+      (format out "graph ~A {~&" (dot-id (make-name-from-path name)))
+      (format out "/* generated with refrains:dendrogram>dot, to be drawn with neato -n2 */~&")
+      (format out " graph [splines=false~:[~;, bgcolor=black~]];~&" invert)
+      (format out " node [shape=point, width=0, color=~A, fontcolor=~A, fontname=Courier, fontsize=11];~&" fg fg)
+      (format out " edge [color=~A];~&" fg)
+      (dolist (d forest) (draw d))
+      ;; the scale of the distances, under the leaves
+      (let ((y (- (* 1.5 step)))
+            (ticks nil))
+        (loop for k from 0 to (round end scale-step)
+              for d = (* k scale-step)
+              do (let ((tick (point (x d) y)))
+                   (format out " ~A -- ~A;~& s~D [shape=plaintext, label=~A, pos=\"~,1F,~,1F\"];~&"
+                           tick (point (x d) (- y 5)) k (dot-id (scale-label d)) (x d) (- y 16))
+                   (push tick ticks)))
+        (format out " ~{~A~^ -- ~};~&" (nreverse ticks)))
+      (format out "}~&"))))
+
+(defun dendrogram2dot (dendrogram out &key (width 700) (step 16) (invert nil))
+  (let ((forest (if (and (consp dendrogram) (realp (first dendrogram))) (list dendrogram) dendrogram)))
+    (when (not out) (setf out t))
+    (cond ((or (pathnamep out) (stringp out))
+           (let* ((type (pathname-type out))
+                  (dot (namestring (make-pathname :type "dot" :defaults (pathname out)))))
+             (with-open-file (stream dot :direction :output :if-exists :supersede :if-does-not-exist :create)
+               (2dot-dendrogram forest stream :width width :step step :invert invert :name out))
+             (when (not (equalp type "dot"))
+               ;; the type of the file is the output format of neato (svg, pdf, png, gif...)
+               (let* ((fmt (string-downcase (or type "png")))
+                      (image (namestring (make-pathname :type fmt :defaults (pathname out)))))
+                 (handler-case
+                     #-Lispworks
+                     (shell-command (list "neato" "-n2" (format nil "-T~A" fmt) "-o" image dot)
+                                    :error-output :interactive)
+                     #+Lispworks
+                     (shell-command (format nil "/usr/local/bin/neato -n2 -T~A -o ~S ~S" fmt image dot))
+                   (error (c)
+                     (error "dendrogram>dot: the dot file ~A is written, but neato (Graphviz) could not make the ~A file: ~A"
+                            dot fmt c)))))))
+          (t (2dot-dendrogram forest out :width width :step step :invert invert)))
+    (format nil "~G" out)))

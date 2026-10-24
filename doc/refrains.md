@@ -208,7 +208,7 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
 ;;  1.2 FILTER
        filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-function
 ;;  1.3 DELINEATE : trace graphs
-       graph-span, graph>dendrogram, graph-path, graph>dot
+       graph-span, graph>dendrogram, graph-path, graph>dot, dendrogram>dot
 ;;  1.4 INTERPOLATE
        morph-seq
 ;;; 2. CLASSIFICATION
@@ -570,6 +570,8 @@ Experimental.
 ;=> (37/6 (3 (1 A B) C) (1 D E))
 ```
 
+The dendrogram is drawn with `dendrogram>dot`.
+
 #### `graph-path (from to graph)`
 
 The nodes on the path between two nodes of a tree (`nil` if they are not
@@ -641,6 +643,32 @@ edge times `:scale` (or `:scale` if all the edges have length 0).
 ```
 
 The dot file can also be drawn by hand: `neato -Tpng graph.dot -o graph.png`.
+
+#### `dendrogram>dot (dendrogram out &key width step invert)`
+
+Draws a dendrogram, as returned by `graph>dendrogram`
+(`(distance tree-a tree-b)`), or a list of dendrograms (for a graph not
+connected). The leaves are on the left, one by line, in the order of the
+dendrogram; each fusion is placed at the abscissa of its distance, and a
+scale of the distances, graduated by 1, 2 or 5 times a power of 10, is drawn
+under the leaves. The dot file gives the position of each point: it is drawn
+with `neato -n2`.
+
+- `out`: as for `graph>dot`, `t` or `nil` prints the dot text, a stream is
+  written into, and a path writes a `.dot` file and, unless its type is
+  `dot`, runs `neato -n2` to make the image in the format of its type (`png`
+  without type).
+- `:width`: width of the scale, in points (700 by default).
+- `:step`: space between two leaves, in points (16 by default).
+- `:invert`: `t` draws white on black (`nil` by default).
+
+```lisp
+(dendrogram>dot (nth-value 1 (graph>dendrogram *m*)) "/tmp/dendrogram.png")
+;=> "/tmp/dendrogram.png"   ; writes /tmp/dendrogram.dot and .png
+```
+
+The dot file can also be drawn by hand:
+`neato -n2 -Tpng dendrogram.dot -o dendrogram.png`.
 
 ### 1.4 Interpolate
 
@@ -1660,7 +1688,7 @@ and [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisi
 
 ## List of functions
 
-The list of the 53 exported functions, with their arguments and docstrings, is
+The list of the 54 exported functions, with their arguments and docstrings, is
 in [refrains-functions.md](refrains-functions.md).
 
 Two minimum spanning trees link these functions by their names and by their
@@ -1672,8 +1700,7 @@ documentation, with their dendrograms, computed with refrains by
 
 - **Language**: the French version ([refrains.fr.md](refrains.fr.md))
   is the reference; this English version is to be updated from it.
-- **`graph>dendrogram`**: the dendrogram could be drawn (with `graph>dot`, or
-  as text); Ward's linkage remains to be added if needed.
+- **`graph>dendrogram`**: Ward's linkage remains to be added if needed.
 - **Behaviour**: several results differ from the versions of fv-morphologie
   before 0.2.0 (`read-text`,
   filters, `graph-span` with Kruskal, `graph-path` with Dijkstra, nodes

@@ -91,3 +91,37 @@
           (is (search "<svg" (uiop:read-file-string svg)))
           (ignore-errors (delete-file dot))))
       (skip "neato (Graphviz) is not installed")))
+
+(test dendrogram>dot-output
+  (flet ((dot (dendrogram &rest keys)
+           (with-output-to-string (s) (apply #'dendrogram>dot dendrogram s keys))))
+    (let ((d (dot '(3 (1 x y) (2 (1 a b) c)))))
+      (is (search "graph \"dendrogram\" {" d))
+      ;; the leaves, in the order of the dendrogram, from the top
+      (is (< (search "label=\"X\"" d) (search "label=\"Y\"" d) (search "label=\"A\"" d)
+             (search "label=\"C\"" d)))
+      ;; every point has a position, for neato -n2
+      (is (search "pos=" d))
+      ;; the scale: 0 to 3 by 1
+      (is (search "label=\"3\"" d))
+      (is (not (search "bgcolor" d))))
+    (is (search "bgcolor=black" (dot '(1 a b) :invert t)))
+    ;; a list of dendrograms (graph not connected), strings as leaves
+    (let ((d (dot '((1 "x" "y") (2 "c" "d")))))
+      (is (search "label=\"x\"" d))
+      (is (search "label=\"d\"" d)))
+    ;; with graph>dendrogram
+    (is (search "label=\"E\""
+                (dot (nth-value 1 (graph>dendrogram '((a b 1) (a c 4) (b c 2) (c d 5) (d e 1)))))))))
+
+(test dendrogram>dot-neato
+  ;; draws a dendrogram with neato -n2, if Graphviz is installed (else the test is skipped)
+  (if (ignore-errors (uiop:run-program '("neato" "-V") :output nil :error-output nil) t)
+      (uiop:with-temporary-file (:pathname tmp :type "svg" :keep nil)
+        (let* ((svg (namestring tmp))
+               (dot (namestring (make-pathname :type "dot" :defaults tmp))))
+          (dendrogram>dot '(0.5 (0.25 a b) c) svg)
+          (is (search "<svg" (uiop:read-file-string svg)))
+          (ignore-errors (delete-file dot))))
+      (skip "neato (Graphviz) is not installed")))
+

@@ -2,7 +2,7 @@
 
 The reference version of this doc is in French, see: [refrains-fonctions.fr.md](refrains-fonctions.fr.md)
 
-The 53 functions exported by the `:refrains` package (version 0.2.1), grouped by the sections of the menu, with their arguments and their docstring (as printed by `doc` and `help`). The name of each function links to its description in the [documentation](refrains.md) when there is one.
+The 54 functions exported by the `:refrains` package (version 0.2.1), grouped by the sections of the menu, with their arguments and their docstring (as printed by `doc` and `help`). The name of each function links to its description in the [documentation](refrains.md) when there is one.
 
 The resemblances between these functions, by their names and by their documentation, are drawn in the [Function trees](#function-trees).
 
@@ -36,6 +36,7 @@ Deleuze : la pensée-musique*, CDMC, 2015).*
 | [`graph>dendrogram`](refrains.md#graphdendrogram-mat-dist-key-linkage) | `mat-dist &key linkage` | GRAPH&gt;DENDROGRAM: dendrogram of the hierarchical classification of the objects of a semi-matrix of<br>distances or of a graph &lt;mat-dist&gt;, a list of edges (node-a node-b distance). Returns two values: the list of the<br>successive fusions (distance group-a group-b), by increasing distance, where a group is the list of its nodes;<br>and the dendrogram, where each fusion is (distance tree-a tree-b) and the leaves are the objects.<br>:linkage defines the distance of two groups: :single (by default) the smallest distance of their objects,<br>given by the minimum spanning tree (see graph-span; a graph not connected gives the list of the dendrograms<br>of its parts); :complete the greatest distance; :average (UPGMA) the mean distance. :complete and :average<br>need a complete semi-matrix of distances. |
 | [`graph-path`](refrains.md#graph-path-from-to-graph) | `from to graph` | GRAPH-PATH: returns path(s) from node(s) or leave(s) to one or some other node(s) or leave(s) of a graph; in a graph with cycles, the shortest path by distance. |
 | [`graph>dot`](refrains.md#graphdot-graph-out-key-dis-scale-shape-legend-overlap-invert) | `graph out &key dis scale shape legend overlap invert` | GRAPH&gt;DOT: converts a graph (list of edges) into an undirected graph into dot langage to be processed using neato program.<br>Arguments:<br>&lt;graph&gt; : the graph, as a structured list.<br>&lt;out&gt; : if NIL or T, print out in listener; if a string, it defines the pathname of the output. Type of file define output.<br>Keywords:<br> :dis : amount of distortion allowed for distances fir drawing the graph (from 0.0 for minimum distorsion to 1.0 maximum distorsion)<br> :scale : scaling factor for the mininum distance<br> :shape : string or list of strings to define node's shape, using 'neato' definitions<br> :legend : label the edges with their lengths (t by default)<br> :overlap : t (default) lets the nodes overlap; nil makes neato move them apart (useful when the lengths<br>are short compared with the names of the nodes); a string is the value of the Graphviz overlap attribute ("scale", "prism"...)<br> :invert : t draws white on black instead of black on white (nil by default) |
+| [`dendrogram>dot`](refrains.md#dendrogramdot-dendrogram-out-key-width-step-invert) | `dendrogram out &key width step invert` | DENDROGRAM&gt;DOT: draws a dendrogram, as given by graph&gt;dendrogram (distance tree-a tree-b), or a list of<br>dendrograms, in dot langage with the position of each point, to be drawn by neato -n2: the leaves on the left, one by<br>line, and each fusion at the abscissa of its distance, with a scale of the distances under the leaves.<br>Arguments:<br>&lt;dendrogram&gt; : the dendrogram, or a list of dendrograms (the second value of graph&gt;dendrogram for a graph not connected).<br>&lt;out&gt; : if NIL or T, print out in listener; a stream, write into it; if a string, it defines the pathname of the output:<br>a dot file, and, unless its type is dot, the image made by neato -n2 in the format of its type (png without type).<br>Keywords:<br> :width : the width of the scale, in points (700 by default)<br> :step : the space between two leaves, in points (16 by default)<br> :invert : t draws white on black instead of black on white (nil by default) |
 | [`graph>matrix`](refrains.md#graphmatrix-graph) | `graph` | GRAPH&gt;MATRIX: the symmetric adjacency matrix of &lt;graph&gt;, a list of edges (node-a node-b distance),<br>as a list of rows: rows and columns in the order of graph-nodes, the distance of each edge, 0 elsewhere. |
 | [`morph-seq`](refrains.md#morph-seq-seq1-seq2-key-test-random) | `seq1 seq2 &key test random` | MORPH-SEQ: interpolates the sequence &lt;seq1&gt; to the sequence &lt;seq2&gt; with the minimum of steps,<br>changing one element at a time (substitution, deletion or insertion) along an edit path of minimal cost (see<br>dist-edit): the list of the sequences from &lt;seq1&gt; to &lt;seq2&gt;, as many steps as their edit distance. &lt;test&gt;:<br>identity of the elements (equalp by default). For equal costs, substitution is preferred, then deletion,<br>then insertion; with :random t, one of them at random. Two strings give strings. |
 
@@ -95,12 +96,12 @@ Deleuze : la pensée-musique*, CDMC, 2015).*
 
 ## Function trees
 
-The 53 functions linked by their resemblances, with refrains itself: two
+The 54 functions linked by their resemblances, with refrains itself: two
 minimum spanning trees (`graph-span`), drawn with `graph>dot` and neato. The
 shorter an edge, the closer the two functions. The dendrogram of each tree
 (`graph>dendrogram`, single linkage) orders its fusions by increasing
 distance: the leaves are on the left, and each fusion is placed at the
-abscissa of its distance, from 0 to 1. The file
+abscissa of its distance (`dendrogram>dot`). The file
 [refrains-trees.lisp](pictures/refrains-trees.lisp) computes the trees again
 and redraws the images: `(load "refrains-trees.lisp")`.
 
@@ -114,7 +115,7 @@ letter (`dist-edit` with `:norm t`). The families of names (`filt-`,
 
 **By their documentation**: Jaccard distance between the vocabularies of the
 docstrings, split into words with `separate`; the words found in more than 10
-of the 53 docstrings (*the*, *list*, *with*…), counted with `histogram`, are
+of the 54 docstrings (*the*, *list*, *with*…), counted with `histogram`, are
 left out. The groups there come from the vocabulary, no longer from the
 names.
 
@@ -128,4 +129,4 @@ little apart.
 
 ## To do
 
-The dendrogram of `graph>dendrogram` could be drawn (with `graph>dot`, or as text); Ward's linkage remains to be added if needed. To group the adjacent lists that intersect, use `motif-group` with the test `(lambda (a b) (intersection a b))`.
+For `graph>dendrogram`, Ward's linkage remains to be added if needed. To group the adjacent lists that intersect, use `motif-group` with the test `(lambda (a b) (intersection a b))`.

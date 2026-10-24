@@ -46,7 +46,8 @@
    #:transcode #:num>base #:num>alpha #:alpha>num #:list>sym #:str>sym
    #:filt-noise #:filt-median #:filt-extrema #:filt-mean #:filt-lowpass
    #:filt-repeat #:filt-function
-   #:graph-span #:graph>dendrogram #:graph-path #:graph>dot #:graph>matrix
+   #:graph-span #:graph>dendrogram #:graph-path #:graph>dot
+   #:dendrogram>dot #:graph>matrix
    #:morph-seq
    ;; 2. classification
    #:exsample #:separate #:graph-part

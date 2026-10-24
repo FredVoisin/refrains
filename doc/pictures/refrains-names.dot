@@ -1,5 +1,5 @@
 graph "refrains-names" {
-/* generated with refrains:graph>dot 2026 october twenty-fourth at 19h43 */
+/* generated with refrains:graph>dot 2026 october twenty-fourth at 19h47 */
  graph [overlap="false", sep="+4"];
  graph [bgcolor=black];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
@@ -41,6 +41,7 @@ graph "refrains-names" {
  "alpha>num" -- "class-num" [w=1, len=0.560000, label="0.56"];
  "histogram" -- "list>sym" [w=1, len=0.560000, label="0.56"];
  "num>alpha" -- "num>base" [w=1, len=0.560000, label="0.56"];
+ "dendrogram>dot" -- "graph>dot" [w=1, len=0.570000, label="0.57"];
  "dist-cityblock" -- "dist-edit" [w=1, len=0.570000, label="0.57"];
  "dist-edit" -- "dist-structure" [w=1, len=0.570000, label="0.57"];
  "date-string" -- "dist-hamming" [w=1, len=0.580000, label="0.58"];

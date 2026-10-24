@@ -19,10 +19,16 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   of the Graphviz `overlap` attribute (`"scale"`, `"prism"`…).
 - `graph>dot` takes `:invert`: `t` draws white on black instead of black on
   white (`nil` by default).
+- `dendrogram>dot (dendrogram out &key width step invert)`: draws a
+  dendrogram of `graph>dendrogram`, or a list of them, in dot with the
+  position of each point, for `neato -n2`: the leaves on the left, each
+  fusion at the abscissa of its distance, and a scale of the distances. The
+  package exports 54 functions.
 - Documentation: two minimum spanning trees of the functions, by their names
   and by the vocabulary of their docstrings, computed with refrains by
   `doc/pictures/refrains-trees.lisp` (which uses `:overlap nil` and
-  `:invert t`), with their dendrograms (`graph>dendrogram`), and the figure
+  `:invert t`), with their dendrograms (`graph>dendrogram` and
+  `dendrogram>dot`), and the figure
   of the operations, in white on black; what to do
   when the system "refrains" is not found.
 

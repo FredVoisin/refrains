@@ -2,7 +2,7 @@
 
 In English, see: [refrains-functions.md](refrains-functions.md)
 
-Les 53 fonctions exportées du paquet `:refrains` (version 0.2.1), regroupées selon les sections du menu, avec leurs arguments et leur docstring en français (dans le code, les docstrings, affichées par `doc` et `help`, sont en anglais). Le nom de chaque fonction renvoie à sa description dans la [documentation](refrains.fr.md) quand elle y figure. Cette liste est la version de référence.
+Les 54 fonctions exportées du paquet `:refrains` (version 0.2.1), regroupées selon les sections du menu, avec leurs arguments et leur docstring en français (dans le code, les docstrings, affichées par `doc` et `help`, sont en anglais). Le nom de chaque fonction renvoie à sa description dans la [documentation](refrains.fr.md) quand elle y figure. Cette liste est la version de référence.
 
 Les ressemblances entre ces fonctions, d'après leurs noms et d'après leur documentation, sont tracées dans les [Arbres des fonctions](#arbres-des-fonctions).
 
@@ -29,6 +29,7 @@ A propos de terminologie : dans un souci de simplification et de cohérence, le 
 | [`graph>dendrogram`](refrains.fr.md#graphdendrogram-mat-dist-key-linkage) | `mat-dist &key linkage` | GRAPH&gt;DENDROGRAM : dendrogramme de la classification hiérarchique des objets d'une semi-matrice de<br>distances ou d'un graphe &lt;mat-dist&gt;, une liste d'arêtes (nœud-a nœud-b distance). Renvoie deux valeurs : la liste des<br>fusions successives (distance groupe-a groupe-b), par distance croissante, où un groupe est la liste de ses nœuds ;<br>et le dendrogramme, où chaque fusion est (distance arbre-a arbre-b) et dont les feuilles sont les objets.<br>:linkage définit la distance entre deux groupes : :single (par défaut) la plus petite distance entre leurs objets,<br>donnée par l'arbre de recouvrement minimal (voir graph-span ; un graphe non connexe donne la liste des dendrogrammes<br>de ses parties) ; :complete la plus grande distance ; :average (UPGMA) la distance moyenne. :complete et :average<br>demandent une semi-matrice de distances complète. |
 | [`graph-path`](refrains.fr.md#graph-path-from-to-graph) | `from to graph` | GRAPH-PATH : renvoie le ou les chemins d'un ou plusieurs nœuds ou feuilles vers un ou plusieurs autres nœuds ou feuilles d'un graphe ; dans un graphe avec des cycles, le plus court chemin selon les distances. |
 | [`graph>dot`](refrains.fr.md#graphdot-graph-out-key-dis-scale-shape-legend-overlap-invert) | `graph out &key dis scale shape legend overlap invert` | GRAPH&gt;DOT : convertit un graphe (liste d'arêtes) en graphe non orienté dans le langage dot, à traiter par le programme neato.<br>Arguments :<br>&lt;graph&gt; : le graphe, sous forme de liste structurée.<br>&lt;out&gt; : si NIL ou T, affiche le résultat dans le listener ; une chaîne définit le chemin du fichier de sortie, dont le type définit le format.<br>Mots-clés :<br> :dis : distorsion permise des distances pour tracer le graphe (de 0.0, distorsion minimale, à 1.0, distorsion maximale)<br> :scale : facteur d'échelle de la distance minimale<br> :shape : chaîne ou liste de chaînes définissant la forme des nœuds, selon les définitions de neato<br> :legend : étiqueter les arêtes avec leur longueur (t par défaut)<br> :overlap : t (par défaut) laisse les nœuds se chevaucher ; nil demande à neato de les écarter (utile quand les longueurs<br>sont courtes par rapport aux noms des nœuds) ; une chaîne donne la valeur de l'attribut overlap de Graphviz ("scale", "prism"...)<br> :invert : t trace en blanc sur fond noir au lieu de noir sur fond blanc (nil par défaut) |
+| [`dendrogram>dot`](refrains.fr.md#dendrogramdot-dendrogram-out-key-width-step-invert) | `dendrogram out &key width step invert` | DENDROGRAM&gt;DOT : trace un dendrogramme, tel que le renvoie graph&gt;dendrogram (distance arbre-a arbre-b), ou une liste de<br>dendrogrammes, en langage dot avec la position de chaque point, à tracer par neato -n2 : les feuilles à gauche, une par<br>ligne, et chaque fusion à l'abscisse de sa distance, avec une échelle des distances sous les feuilles.<br>Arguments :<br>&lt;dendrogram&gt; : le dendrogramme, ou une liste de dendrogrammes (la seconde valeur de graph&gt;dendrogram pour un graphe non connexe).<br>&lt;out&gt; : si NIL ou T, affiche le résultat dans le listener ; un flux, y écrit ; une chaîne définit le chemin de sortie :<br>un fichier dot et, sauf si son type est dot, l'image produite par neato -n2 au format de son type (png sans type).<br>Mots-clés :<br> :width : largeur de l'échelle, en points (700 par défaut)<br> :step : espace entre deux feuilles, en points (16 par défaut)<br> :invert : t trace en blanc sur fond noir au lieu de noir sur fond blanc (nil par défaut) |
 | [`graph>matrix`](refrains.fr.md#graphmatrix-graph) | `graph` | GRAPH&gt;MATRIX : la matrice d'adjacence symétrique de &lt;graph&gt;, une liste d'arêtes (nœud-a nœud-b distance),<br>sous forme de liste de lignes : lignes et colonnes dans l'ordre de graph-nodes, la distance de chaque arête, 0 ailleurs. |
 | [`morph-seq`](refrains.fr.md#morph-seq-seq1-seq2-key-test-random) | `seq1 seq2 &key test random` | MORPH-SEQ : interpole la suite &lt;seq1&gt; vers la suite &lt;seq2&gt; en un minimum d'étapes,<br>en changeant un élément à la fois (substitution, suppression ou insertion) le long d'un chemin d'édition de coût minimal (voir<br>dist-edit) : la liste des suites de &lt;seq1&gt; à &lt;seq2&gt;, autant d'étapes que leur distance d'édition. &lt;test&gt; :<br>identité des éléments (equalp par défaut). À coûts égaux, la substitution est préférée, puis la suppression,<br>puis l'insertion ; avec :random t, l'une d'elles au hasard. Deux chaînes donnent des chaînes. |
 
@@ -88,12 +89,12 @@ A propos de terminologie : dans un souci de simplification et de cohérence, le 
 
 ## Arbres des fonctions
 
-Les 53 fonctions reliées par leurs ressemblances, avec refrains lui-même : deux
+Les 54 fonctions reliées par leurs ressemblances, avec refrains lui-même : deux
 arbres de recouvrement minimal (`graph-span`), dessinés avec `graph>dot` et
 neato. Plus une arête est courte, plus les deux fonctions sont proches. Le
 dendrogramme de chaque arbre (`graph>dendrogram`, lien simple) range ses
 fusions par distance croissante : les feuilles sont à gauche, et chaque fusion
-est placée à l'abscisse de sa distance, de 0 à 1. Le fichier
+est placée à l'abscisse de sa distance (`dendrogram>dot`). Le fichier
 [refrains-trees.lisp](pictures/refrains-trees.lisp) recalcule les arbres et
 redessine les images : `(load "refrains-trees.lisp")`.
 
@@ -107,7 +108,7 @@ lettre (`dist-edit` avec `:norm t`). Les familles de noms (`filt-`, `graph-`,
 
 **Par la documentation** : distance de Jaccard entre les vocabulaires des
 docstrings, découpées en mots avec `separate` ; les mots présents dans plus de
-10 des 53 docstrings (*the*, *list*, *with*…), comptés avec `histogram`, sont
+10 des 54 docstrings (*the*, *list*, *with*…), comptés avec `histogram`, sont
 écartés. Les groupes y viennent du vocabulaire, et non plus des noms.
 
 ![Arbre de recouvrement minimal des fonctions de refrains d'après leur documentation](pictures/refrains-docstrings.png)
@@ -120,4 +121,4 @@ fonctions.
 
 ## A faire
 
-Le dendrogramme de `graph>dendrogram` pourrait être tracé (avec `graph>dot`, ou en texte) ; le lien de Ward reste à ajouter si besoin. Pour regrouper les listes adjacentes qui ont une intersection, utiliser `motif-group` avec le test `(lambda (a b) (intersection a b))`.
+Pour `graph>dendrogram`, le lien de Ward reste à ajouter si besoin. Pour regrouper les listes adjacentes qui ont une intersection, utiliser `motif-group` avec le test `(lambda (a b) (intersection a b))`.
