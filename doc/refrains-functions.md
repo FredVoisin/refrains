@@ -91,6 +91,28 @@ Deleuze : la pensée-musique*, CDMC, 2015).*
 | [`help`](refrains.md#menu) | `&optional keyword threshold` | HELP: looks for a keyword (a symbol of any package, a keyword or a string) in the names and the<br>documentation of the refrains functions, prints out the documentation of the functions found, the most<br>similar first, and returns the list of their names. A word of a name or of a documentation matches if it contains<br>the keyword, or if its similarity with the keyword (1 - normalized edit distance, case ignored) is at least<br>&lt;threshold&gt; (0.75 by default, from 0 to 1).<br>If no argument (keyword), prints out the list of all generic functions. |
 | [`doc`](refrains.md#menu) | `&optional fct` | DOC: Prints out the documentation of some refrains function(s).<br>If no argument, prints out the list of all generic functions.<br>If argument is a symbol (of any package, or a keyword or a string) or a list of them, prints out documentation<br>of the corresponding functions; list gives the list of the functions, all prints out all their documentations.<br>Exemples:<br>(doc)<br>(doc 'dist-edit) |
 
+## Function trees
+
+The 53 functions linked by their resemblances, with refrains itself: two
+minimum spanning trees (`graph-span`), drawn with `graph>dot` and neato. The
+shorter an edge, the closer the two functions. The file
+[refrains-trees.lisp](pictures/refrains-trees.lisp) computes them again and
+redraws the images: `(load "refrains-trees.lisp")`.
+
+**By their names**: normalized edit distance between the names, letter by
+letter (`dist-edit` with `:norm t`). The families of names (`filt-`,
+`graph-`, `dist-`, `mark-`, `motif-`) make branches.
+
+![Minimum spanning tree of the refrains functions by their names](pictures/refrains-names.png)
+
+**By their documentation**: Jaccard distance between the vocabularies of the
+docstrings, split into words with `separate`; the words found in more than 10
+of the 53 docstrings (*the*, *list*, *with*…), counted with `histogram`, are
+left out. The groups there come from the vocabulary, no longer from the
+names.
+
+![Minimum spanning tree of the refrains functions by their documentation](pictures/refrains-docstrings.png)
+
 ## To do
 
 The dendrogram of `graph>dendrogram` could be drawn (with `graph>dot`, or as text); Ward's linkage remains to be added if needed. To group the adjacent lists that intersect, use `motif-group` with the test `(lambda (a b) (intersection a b))`.

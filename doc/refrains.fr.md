@@ -1765,6 +1765,11 @@ La liste des 53 fonctions exportées, avec leurs arguments et leur docstring, es
 dans
 [refrains-fonctions.fr.md](refrains-fonctions.fr.md).
 
+Deux arbres de recouvrement minimal relient ces fonctions d'après leurs noms
+et d'après leur documentation, calculés avec refrains par
+[refrains-trees.lisp](pictures/refrains-trees.lisp) : voir
+[Arbres des fonctions](refrains-fonctions.fr.md#arbres-des-fonctions).
+
 ## Notes pour la mise à jour
 
 - **Langue** : cette version française est la référence ; la version anglaise

@@ -84,6 +84,27 @@ A propos de terminologie : dans un souci de simplification et de cohérence, le 
 | [`help`](refrains.fr.md#menu) | `&optional keyword threshold` | HELP : cherche un mot-clé (un symbole de n'importe quel paquet, un mot-clé ou une chaîne) dans les noms et la<br>documentation des fonctions de refrains, affiche la documentation des fonctions trouvées, les plus<br>proches d'abord, et renvoie la liste de leurs noms. Un mot d'un nom ou d'une documentation correspond s'il contient<br>le mot-clé, ou si sa similarité avec le mot-clé (1 - distance d'édition normalisée, sans tenir compte de la casse) vaut au moins<br>&lt;threshold&gt; (0.75 par défaut, de 0 à 1).<br>Sans argument (mot-clé), affiche la liste de toutes les fonctions génériques. |
 | [`doc`](refrains.fr.md#menu) | `&optional fct` | DOC : affiche la documentation d'une ou de plusieurs fonctions de refrains.<br>Sans argument, affiche la liste de toutes les fonctions génériques.<br>Si l'argument est un symbole (de n'importe quel paquet, ou un mot-clé ou une chaîne) ou une liste de symboles, affiche la documentation<br>des fonctions correspondantes ; list donne la liste des fonctions, all affiche toutes leurs documentations.<br>Exemples :<br>(doc)<br>(doc 'dist-edit) |
 
+## Arbres des fonctions
+
+Les 53 fonctions reliées par leurs ressemblances, avec refrains lui-même : deux
+arbres de recouvrement minimal (`graph-span`), dessinés avec `graph>dot` et
+neato. Plus une arête est courte, plus les deux fonctions sont proches. Le
+fichier [refrains-trees.lisp](pictures/refrains-trees.lisp) les recalcule et
+redessine les images : `(load "refrains-trees.lisp")`.
+
+**Par les noms** : distance d'édition normalisée entre les noms, lettre à
+lettre (`dist-edit` avec `:norm t`). Les familles de noms (`filt-`, `graph-`,
+`dist-`, `mark-`, `motif-`) forment des branches.
+
+![Arbre de recouvrement minimal des fonctions de refrains d'après leurs noms](pictures/refrains-names.png)
+
+**Par la documentation** : distance de Jaccard entre les vocabulaires des
+docstrings, découpées en mots avec `separate` ; les mots présents dans plus de
+10 des 53 docstrings (*the*, *list*, *with*…), comptés avec `histogram`, sont
+écartés. Les groupes y viennent du vocabulaire, et non plus des noms.
+
+![Arbre de recouvrement minimal des fonctions de refrains d'après leur documentation](pictures/refrains-docstrings.png)
+
 ## A faire
 
 Le dendrogramme de `graph>dendrogram` pourrait être tracé (avec `graph>dot`, ou en texte) ; le lien de Ward reste à ajouter si besoin. Pour regrouper les listes adjacentes qui ont une intersection, utiliser `motif-group` avec le test `(lambda (a b) (intersection a b))`.
