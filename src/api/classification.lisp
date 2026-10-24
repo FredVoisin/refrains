@@ -110,9 +110,9 @@ Optional argument <key> defines a function to be applyed to each consecutive ele
   (adj-group seq test key))
 
 (defgeneric class-num (data classes mode  &key iter dist)
-  (:documentation "CLASS-NUM: classify a set (list) of points <data> into different <classes> into s space with n dimensions (n integer > 0),
-where each point is represented as a list of values into each dimension.
-Argument :mode defines the algorithm used for partitioning the points:
+  (:documentation "CLASS-NUM: classifies the points <data> into <classes> classes, in a space of n dimensions (n integer > 0):
+each point is a number (one dimension) or the list of its coordinates.
+Argument <mode> defines the algorithm used for partitioning the points:
 :centroids for centroids algorithm (in French: nuees dynamiques);
 :1d-centroids, initial centres taken between the largest differences of the sorted data (one dimension, deterministic).
 Keyword argument :iter to set the number of runs of the algorithm (with :centroids);

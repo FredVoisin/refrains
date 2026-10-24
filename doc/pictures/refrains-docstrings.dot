@@ -1,5 +1,5 @@
 graph "refrains-docstrings" {
-/* generated with refrains:graph>dot, 24 Oct 2026 21:13:25 */
+/* generated with refrains:graph>dot, 24 Oct 2026 21:17:04 */
  graph [overlap="false", sep="+4"];
  graph [bgcolor=black];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
@@ -35,7 +35,6 @@ graph "refrains-docstrings" {
  "graph-length" -- "graph>dendrogram" [w=1, len=0.880000, label="0.88"];
  "list>sym" -- "str>sym" [w=1, len=0.880000, label="0.88"];
  "mark-list" -- "mark-structure" [w=1, len=0.880000, label="0.88"];
- "class-num" -- "class-sym" [w=1, len=0.890000, label="0.89"];
  "dist-cityblock" -- "list>sym" [w=1, len=0.890000, label="0.89"];
  "dist-multi-edit" -- "dist-structure" [w=1, len=0.890000, label="0.89"];
  "doc" -- "mark-list" [w=1, len=0.890000, label="0.89"];
@@ -49,6 +48,7 @@ graph "refrains-docstrings" {
  "dendrogram>dot" -- "exsample" [w=1, len=0.910000, label="0.91"];
  "dendrogram>dot" -- "graph>dendrogram" [w=1, len=0.910000, label="0.91"];
  "display-list" -- "doc" [w=1, len=0.910000, label="0.91"];
+ "dist-euclidean" -- "dist-structure" [w=1, len=0.910000, label="0.91"];
  "motif-group" -- "motif-position" [w=1, len=0.910000, label="0.91"];
  "dist-structure" -- "entropy" [w=1, len=0.920000, label="0.92"];
  "filt-lowpass" -- "filt-median" [w=1, len=0.920000, label="0.92"];

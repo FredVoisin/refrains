@@ -57,6 +57,7 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   into groups (single linkage), as `class-sym` does for sequences of
   symbols. The docstring of `class-sym` referred to `class-graph`, which
   does not exist: it refers to `graph-part`.
+- The docstring of `class-num` is reworded (it said "into s space").
 - `date-string` and `date+time-string` are merged into
   `date-string (&optional time u)`: the date of the universal time `u` (now
   by default), such as `"22 Oct 2026"`, or with `time` true the date and
