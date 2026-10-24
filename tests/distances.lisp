@@ -55,7 +55,15 @@
   (is (approx= 0.0 (dist-structure '(a b a b) '(a b a b)))))
 
 (test dist-graph
-  (is (= 4 (dist-graph 'a 'd '((a b 1) (b c 2) (c d 1))))))
+  (is (= 4 (dist-graph 'a 'd '((a b 1) (b c 2) (c d 1)))))
+  (let ((g '((a b 1) (b c 2) (b d 1))))
+    (is (equal '(3 2) (dist-graph 'a '(c d) g)))
+    ;; nil: the distances to all the nodes, in the order of graph-nodes
+    ;; (it gave the number of nodes of the paths: (2 3 3))
+    (is (equal '(0 1 3 2) (dist-graph 'a nil g)))
+    (is (equal (length (graph-nodes g)) (length (dist-graph 'c nil g)))))
+  ;; nil for the nodes out of reach
+  (is (equal '(0 1 nil nil) (dist-graph 'a nil '((a b 1) (c d 1))))))
 
 (test dist-euclid-number-list
   ;; used to map over the number instead of the list

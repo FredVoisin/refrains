@@ -146,7 +146,9 @@ If <b> is nil, the distances between all the sequences of <a>."))
 
 (defgeneric dist-graph (v1 v2 graph)
   (:documentation "DIST-GRAPH: distance between the nodes <v1> and <v2> of a graph: the length of the shortest path
-between them (Dijkstra, see graph-path), 0 from a node to itself, nil if there is no path."))
+between them (Dijkstra, see graph-path), 0 from a node to itself, nil if there is no path.
+A list of nodes <v2> gives the list of their distances to <v1>, and nil the distances of <v1> to all the nodes,
+in the order of graph-nodes."))
 
 (defmethod dist-graph ((v1 t) (v2 t) (graph t))
   (refrains::tree-dist v1 v2 graph))

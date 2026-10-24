@@ -77,6 +77,14 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `date-string`, such as `22 Oct 2026 14:05:09` (it was
   `2026 october twenty-second at 14h5`).
 
+### Fixed
+
+- `(dist-graph v1 nil graph)` gave the number of nodes of the paths from
+  `v1` to the other nodes (`(2 3 3)`), not their lengths: it gives the
+  distances of `v1` to all the nodes, in the order of `graph-nodes`, 0 to
+  `v1` itself (`(0 1 3 2)`). The docstring and the documentation describe
+  it, with a list of nodes as `v2`.
+
 ### Removed
 
 - `date-string` is no longer exported: no function of refrains used it or

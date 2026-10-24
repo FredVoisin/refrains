@@ -1328,10 +1328,14 @@ dissimilarity).
 
 Distance between two nodes of a graph: the length of the shortest path
 between them (Dijkstra's algorithm, see `graph-path`), 0 from a node to
-itself, `nil` if there is no path.
+itself, `nil` if there is no path. A list of nodes `v2` gives the list of
+their distances to `v1`, and `nil` the distances of `v1` to all the nodes,
+in the order of `graph-nodes`.
 
 ```lisp
-(dist-graph 'a 'c '((a b 1) (b c 2) (b d 1)))   ;=> 3
+(dist-graph 'a 'c '((a b 1) (b c 2) (b d 1)))       ;=> 3
+(dist-graph 'a '(c d) '((a b 1) (b c 2) (b d 1)))   ;=> (3 2)
+(dist-graph 'a nil '((a b 1) (b c 2) (b d 1)))      ;=> (0 1 3 2), for (A B C D)
 ```
 
 ### 3.3 Quantify: information, diversity

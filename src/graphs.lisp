@@ -301,7 +301,9 @@ In a tree there is only one path; in other graphs, Dijkstra's algorithm gives th
   (mapcar #'(lambda (x) (tree-dist vertex1 x tree)) vertex2))
 
 (defmethod tree-dist ((vertex1 t) (vertex2 null) (tree list))
-  (mapcar #'(lambda (x) (length (tree-path vertex1 x tree))) (remove vertex1 (all-vertices tree) :test #'equal)))
+  ;; the distances to all the nodes, in the order of all-vertices (graph-nodes), 0 to vertex1 itself
+  ;; (it gave the number of nodes of the paths to the other nodes)
+  (mapcar #'(lambda (x) (tree-dist vertex1 x tree)) (all-vertices tree)))
 
 ;;Strahler number to do
 

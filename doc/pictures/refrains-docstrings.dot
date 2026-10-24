@@ -1,5 +1,5 @@
 graph "refrains-docstrings" {
-/* generated with refrains:graph>dot, 24 Oct 2026 21:20:48 */
+/* generated with refrains:graph>dot, 24 Oct 2026 21:35:37 */
  graph [overlap="false", sep="+4"];
  graph [bgcolor=black];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
@@ -14,11 +14,11 @@ graph "refrains-docstrings" {
  "motif-list" -- "motif-structure" [w=1, len=0.760000, label="0.76"];
  "dendrogram>dot" -- "graph>dot" [w=1, len=0.780000, label="0.78"];
  "histogram" -- "self-info" [w=1, len=0.780000, label="0.78"];
+ "dist-graph" -- "graph-degree" [w=1, len=0.800000, label="0.8"];
  "graph-length" -- "graph-span" [w=1, len=0.800000, label="0.8"];
  "graph-degree" -- "graph>matrix" [w=1, len=0.810000, label="0.81"];
  "alpha>num" -- "num>alpha" [w=1, len=0.820000, label="0.82"];
  "dist-edit" -- "motif-position" [w=1, len=0.830000, label="0.83"];
- "dist-graph" -- "graph-path" [w=1, len=0.830000, label="0.83"];
  "filt-mean" -- "str>sym" [w=1, len=0.830000, label="0.83"];
  "graph-leaves" -- "graph-path" [w=1, len=0.830000, label="0.83"];
  "graph-path" -- "list>sym" [w=1, len=0.830000, label="0.83"];
@@ -41,6 +41,7 @@ graph "refrains-docstrings" {
  "exsample" -- "filt-noise" [w=1, len=0.890000, label="0.89"];
  "transcode" -- "write-list" [w=1, len=0.890000, label="0.89"];
  "class-sym" -- "filt-noise" [w=1, len=0.900000, label="0.9"];
+ "dist-graph" -- "doc" [w=1, len=0.900000, label="0.9"];
  "filt-function" -- "filt-noise" [w=1, len=0.900000, label="0.9"];
  "filt-noise" -- "read-text" [w=1, len=0.900000, label="0.9"];
  "alpha>num" -- "filt-repeat" [w=1, len=0.910000, label="0.91"];
@@ -48,7 +49,6 @@ graph "refrains-docstrings" {
  "dendrogram>dot" -- "exsample" [w=1, len=0.910000, label="0.91"];
  "dendrogram>dot" -- "graph-dendrogram" [w=1, len=0.910000, label="0.91"];
  "display-list" -- "doc" [w=1, len=0.910000, label="0.91"];
- "dist-euclidean" -- "dist-structure" [w=1, len=0.910000, label="0.91"];
  "motif-group" -- "motif-position" [w=1, len=0.910000, label="0.91"];
  "dist-structure" -- "entropy" [w=1, len=0.920000, label="0.92"];
  "filt-lowpass" -- "filt-median" [w=1, len=0.920000, label="0.92"];

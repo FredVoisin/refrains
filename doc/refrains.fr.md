@@ -1415,10 +1415,14 @@ complète).
 
 Distance entre deux nœuds d'un graphe : la longueur du plus court chemin
 entre eux (algorithme de Dijkstra, voir `graph-path`), 0 d'un nœud à
-lui-même, `nil` s'il n'y a pas de chemin.
+lui-même, `nil` s'il n'y a pas de chemin. Une liste de nœuds `v2` donne la
+liste de leurs distances à `v1`, et `nil` les distances de `v1` à tous les
+nœuds, dans l'ordre de `graph-nodes`.
 
 ```lisp
-(dist-graph 'a 'c '((a b 1) (b c 2) (b d 1)))   ;=> 3
+(dist-graph 'a 'c '((a b 1) (b c 2) (b d 1)))       ;=> 3
+(dist-graph 'a '(c d) '((a b 1) (b c 2) (b d 1)))   ;=> (3 2)
+(dist-graph 'a nil '((a b 1) (b c 2) (b d 1)))      ;=> (0 1 3 2), pour (A B C D)
 ```
 
 ### 3.3 Quantifier : information, diversité
