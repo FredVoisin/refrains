@@ -1,8 +1,8 @@
-# The function trees of refrains
+# Trees of refrains
 
-[Examples](../examples.md) · En français : [Les arbres des fonctions de refrains](../exemples/arbres-des-fonctions.md)
+[Examples](../examples.md) · En français : [Arbres de refrains](../exemples/arbres-des-fonctions.md)
 
-Frédéric Voisin, 2015. See Voisin, Frédéric, "De la brousse dans les
+F. Voisin, 2015. See Voisin, Frédéric, "De la brousse dans les
 synthés", in P. Criton & J.-M. Chouvel (eds.), *Gilles Deleuze : la
 pensée-musique*, Paris, CDMC, 2015, pp. 231–240 (HAL
 [hal-01611947](https://hal.science/hal-01611947v1)): the minimum spanning

@@ -2,7 +2,7 @@
 
 [Exemples](../exemples.md) · In English: [Segmentation of a fundamental frequency (F0)](../examples/fundamental-frequency.md)
 
-Frédéric Voisin, 2010-2013.
+F. Voisin, 2010-2013.
 
 *Analyse conservée avec ses données dans le dépôt [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) ; son principe est résumé ici, en attendant d'être réécrit sous forme d'exemple Common Lisp.*
 

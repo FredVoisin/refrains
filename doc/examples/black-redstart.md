@@ -2,7 +2,7 @@
 
 [Examples](../examples.md) · En français : [Transcription automatique d'un sonagramme : le rougequeue noir](../exemples/rougequeue-noir.md)
 
-Frédéric Voisin, 2011.
+F. Voisin, 2011.
 
 *An analysis kept with its data in the [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) repository; its principle is summarized here, to be rewritten as a Common Lisp example.*
 

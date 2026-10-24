@@ -2,7 +2,7 @@
 
 [Examples](../examples.md) · En français : [Délinéations : représentation rhizomatique d'un texte](../exemples/delineations.md)
 
-Frédéric Voisin, 2013.
+F. Voisin, 2013.
 
 *An analysis kept with its data in the [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) repository; its principle is summarized here, to be rewritten as a Common Lisp example.*
 

@@ -1,8 +1,8 @@
-# Les arbres des fonctions de refrains
+# Arbres de refrains
 
-[Exemples](../exemples.md) · In English: [The function trees of refrains](../examples/function-trees.md)
+[Exemples](../exemples.md) · In English: [Trees of refrains](../examples/function-trees.md)
 
-Frédéric Voisin, 2015. Voir Voisin, Frédéric, « De la brousse dans les
+F. Voisin, 2015. Voir Voisin, Frédéric, « De la brousse dans les
 synthés », in P. Criton & J.-M. Chouvel (éd.), *Gilles Deleuze : la
 pensée-musique*, Paris, CDMC, 2015, p. 231–240 (HAL
 [hal-01611947](https://hal.science/hal-01611947v1)) : l'arbre de

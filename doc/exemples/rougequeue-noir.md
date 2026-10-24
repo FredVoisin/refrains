@@ -2,7 +2,7 @@
 
 [Exemples](../exemples.md) · In English: [Automatic transcription of a sonogram: the black redstart](../examples/black-redstart.md)
 
-Frédéric Voisin, 2011.
+F. Voisin, 2011.
 
 *Analyse conservée avec ses données dans le dépôt [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) ; son principe est résumé ici, en attendant d'être réécrit sous forme d'exemple Common Lisp.*
 

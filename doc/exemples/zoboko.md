@@ -2,7 +2,7 @@
 
 [Exemples](../exemples.md) · In English: [Classification, quantization and entropy: *Zoboko*](../examples/zoboko.md)
 
-Frédéric Voisin, 2009. Voir
+F. Voisin, 2009. Voir
 [« À propos de la polyrythmie du *Zoboko* des Aka »](https://fredvoisin.com/articles/105-a-propos-de-la-polyrythmie-du-zoboko-des-aka.html)
 (fredvoisin.com, 6 juin 2009).
 

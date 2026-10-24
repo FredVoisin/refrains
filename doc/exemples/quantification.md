@@ -2,7 +2,7 @@
 
 [Exemples](../exemples.md) · In English: [Quantization](../examples/quantization.md)
 
-Frédéric Voisin, 2010.
+F. Voisin, 2010.
 
 *Analyse conservée avec ses données dans le dépôt [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) ; son principe est résumé ici, en attendant d'être réécrit sous forme d'exemple Common Lisp.*
 
