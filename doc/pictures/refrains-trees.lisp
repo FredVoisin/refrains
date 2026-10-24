@@ -2,13 +2,21 @@
 ;;;;
 ;;;; Les arbres des fonctions de refrains : les arbres de recouvrement minimal
 ;;;; des fonctions exportées, d'après leurs noms et d'après le vocabulaire de
-;;;; leur documentation, calculés avec refrains.
+;;;; leur documentation, et leurs dendrogrammes, calculés avec refrains.
 ;;;;
 ;;;; (load "refrains-trees.lisp") écrit, dans le dossier de ce fichier,
-;;;; refrains-names.dot/.png et refrains-docstrings.dot/.png.
+;;;; refrains-names.dot/.png, refrains-docstrings.dot/.png et leurs
+;;;; dendrogrammes, refrains-names-dendrogram.dot/.png et
+;;;; refrains-docstrings-dendrogram.dot/.png.
 ;;;; Les images sont tracées par neato (Graphviz).
 ;;;;
-;;;; This file is part of refrains (GPL-3.0-only).
+;;;; Copyright (C) 2026 Frédéric Voisin
+;;;;
+;;;; Ce fichier, exemple de la documentation de refrains, est placé sous licence
+;;;; Creative Commons Attribution 4.0 International (CC BY 4.0), comme la
+;;;; documentation : voir ../LICENSE ou https://creativecommons.org/licenses/by/4.0/
+;;;;
+;;;; SPDX-License-Identifier: CC-BY-4.0
 
 (asdf:load-system :refrains)
 (in-package :refrains)

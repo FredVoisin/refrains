@@ -1765,4 +1765,6 @@ documentation, with their dendrograms, computed with refrains by
 
 This documentation is licensed under the
 [Creative Commons Attribution 4.0 International License (CC BY 4.0)](LICENSE).
-The refrains code is licensed under GPL-3.0-only.
+The refrains code is licensed under GPL-3.0-only;
+[refrains-trees.lisp](pictures/refrains-trees.lisp), an example of this
+documentation, is licensed under CC BY 4.0.

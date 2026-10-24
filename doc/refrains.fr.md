@@ -1877,4 +1877,6 @@ et d'après leur documentation, avec leurs dendrogrammes, calculés avec refrain
 
 Cette documentation est placée sous licence
 [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE).
-Le code de refrains est placé sous licence GPL-3.0-only.
+Le code de refrains est placé sous licence GPL-3.0-only ;
+[refrains-trees.lisp](pictures/refrains-trees.lisp), exemple de cette
+documentation, est placé sous licence CC BY 4.0.
