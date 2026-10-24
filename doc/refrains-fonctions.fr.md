@@ -4,6 +4,8 @@ In English, see: [refrains-functions.md](refrains-functions.md)
 
 Les 53 fonctions exportées du paquet `:refrains` (version 0.2.1), regroupées selon les sections du menu, avec leurs arguments et leur docstring en français (dans le code, les docstrings, affichées par `doc` et `help`, sont en anglais). Le nom de chaque fonction renvoie à sa description dans la [documentation](refrains.fr.md) quand elle y figure. Cette liste est la version de référence.
 
+Les ressemblances entre ces fonctions, d'après leurs noms et d'après leur documentation, sont tracées dans les [Arbres des fonctions](#arbres-des-fonctions).
+
 A propos de terminologie : dans un souci de simplification et de cohérence, le nom des fonctions peut évoluer avec les versions et, autant que possible, se référer à une étymologie commune au français et à l'anglais, voire à l'indo-européen. Depuis la version 0.2.0, les noms suivent deux conventions : `famille-objet` (`filt-median`, `graph-path`, `dist-edit`, `motif-list`…) et `source>cible` pour les conversions (`num>base`, `str>sym`, `graph>dot`, `graph>dendrogram`…). Pour les fonctions qui portent sur des arbres, Fred a préféré *graph* à *arbre* : le mot est commun au français et à l'anglais (*graphe*, *graph*), la théorie des graphes s'applique aux arbres, et elle sert aussi au développement de refrains.
 
 ## 1. Transcription

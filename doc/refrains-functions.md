@@ -4,6 +4,8 @@ The reference version of this doc is in French, see: [refrains-fonctions.fr.md](
 
 The 53 functions exported by the `:refrains` package (version 0.2.1), grouped by the sections of the menu, with their arguments and their docstring (as printed by `doc` and `help`). The name of each function links to its description in the [documentation](refrains.md) when there is one.
 
+The resemblances between these functions, by their names and by their documentation, are drawn in the [Function trees](#function-trees).
+
 About terminology: for the sake of simplicity and consistency, the names of the functions may change with the versions and, as far as possible, refer to an etymology common to French and English, or even to Indo-European. Since version 0.2.0, the names follow two conventions: `family-object` (`filt-median`, `graph-path`, `dist-edit`, `motif-list`…) and `source>target` for conversions (`num>base`, `str>sym`, `graph>dot`, `graph>dendrogram`…). For the functions on trees, Fred preferred *graph* to *tree*: the word is common to French and English (*graphe*, *graph*), graph theory applies to trees, and it is also used in developing refrains.
 
 ![Minimum spanning tree of the verbs naming the analysis operations](pictures/morpho-processes.png)
