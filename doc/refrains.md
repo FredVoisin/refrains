@@ -3,17 +3,14 @@
 **Tools for the description and morphological study of musical transcriptions.**
 Common Lisp version.
 
-Frédéric Voisin, 1994–2013 (PWGL tutorial version 20131111), Common Lisp
-version 2026.
+Frédéric Voisin, 2026.
 
 > The reference version of this documentation is the French one,
 > [refrains.fr.md](refrains.fr.md), adapted to Common Lisp; this
 > English version is translated from it. All examples have been run with SBCL.
 > Points still to be updated are listed at the end, in
 > [Notes for the update](#notes-for-the-update).
-> refrains continues [fv-morphologie](https://github.com/FredVoisin/fv-morphologie), without its PWGL legacy;
-> it takes up and develops the initial PWGL tutorial, kept in
-> [`pwgl-legacy/tutorial/`](https://github.com/FredVoisin/fv-morphologie/tree/master/pwgl-legacy/tutorial) in the fv-morphologie repository.
+> refrains continues [fv-morphologie](https://github.com/FredVoisin/fv-morphologie).
 
 ## Contents
 
@@ -68,8 +65,8 @@ framework that we tried to make explicit, pragmatically.
 The analysis operations are grouped in three families, which make up the
 structure of the menu: **transcription**, **classification**, **evaluation**.
 This grouping itself results from an analysis, with refrains, of the
-semantic field covered by these operations (cf.
-`pwgl-legacy/tutorial/5. FV-exemples/delineations/` in [fv-morphologie](https://github.com/FredVoisin/fv-morphologie/tree/master/pwgl-legacy/tutorial)):
+semantic field covered by these operations (cf. the delineations kept in
+[fv-morphologie](https://github.com/FredVoisin/fv-morphologie)):
 
 ![Minimum spanning tree of the verbs naming the analysis operations](pictures/morpho-processes.png)
 
@@ -152,7 +149,7 @@ Saint-Étienne, 2011).
 
 About:
 
-- Legacy PWGL fv-morphologie doc page: [« fv-morphologie: documentation »](https://fredvoisin.com/articles/114-fv-morphologie-documentation.html)
+- Former fv-morphologie doc page: [« fv-morphologie: documentation »](https://fredvoisin.com/articles/114-fv-morphologie-documentation.html)
 - *Dissemblance et espaces compositionnels* (Frédéric Voisin, JIM 2011):
   [« Dissemblance et espaces compositionnels »](https://fredvoisin.com/articles/185-dissemblance-et-espaces-compositionnels.html)
 - Original code (~1995): <https://github.com/openmusic-project/Morphologie>
@@ -192,22 +189,18 @@ All the examples below are evaluated in the `:refrains` package.
   the code: `(ql:quickload :refrains/tests)` then
   `(asdf:test-system :refrains)`.
 
-In PWGL and OpenMusic, fv-morphologie required the
-[ompw](http://kiliansprotte.de/lisp/#ompw) library (Kilian Sprotte); the
-Common Lisp version does not.
-
 ## Menu
 
 ```
 ;;; 1. TRANSCRIPTION
 ;;  1.1 TRANSCODE : convert, encode, trace
-       transcode, num>base, num>alpha, alpha>num, list>sym, str->symb, filt-noise
+       transcode, num>base, num>alpha, alpha>num, list>sym, str>sym, filt-noise
 ;;  1.2 FILTER
-       filt-median, filt-extrema, filt-mean, filt-lowpass, filt-local-rep, filt-fct
+       filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-function
 ;;  1.3 DELINEATE : trace graphs
-       graph-span, graph-hierarc, graph-path, graph>dot
+       graph-span, graph>dendrogram, graph-path, graph>dot
 ;;  1.4 INTERPOLATE
-       morph-lists
+       morph-seq
 ;;; 2. CLASSIFICATION
 ;;  2.1 SEGMENT : cut, split
        exsample, separate, graph-part
@@ -217,12 +210,12 @@ Common Lisp version does not.
        mark-structure, motif-structure, class-num, class-sym
 ;;; 3. EVALUATION
 ;;  3.1 ENUMERATE : sample, find, count
-       mark-position, mark-list, motif-find, motif-list, graph-nodes, graph-extrem
+       mark-position, mark-list, motif-position, motif-list, graph-nodes, graph-leaves
 ;;  3.2 COMPARE : distances and dissimilarities
-       dist-euclidian, dist-citybloc, dist-hamming, dist-edit,
+       dist-euclidean, dist-cityblock, dist-hamming, dist-edit,
        dist-multi-edit, dist-structure, dist-graph
 ;;  3.3 QUANTIFY : self information
-       histogram, entropy, elt-info, inner-dynamic, graph-length, graph-degree
+       histogram, entropy, self-info, inner-dynamic, graph-length, graph-degree
 ;;; 4. READ/WRITE files
        read-text, write-list, display-list
 ```
@@ -296,18 +289,18 @@ type of its elements.
 (list>sym '(1 2 3))      ;=> 123
 ```
 
-#### `str->symb (strings)`
+#### `str>sym (strings)`
 
 Reads a string (or a list of strings) as a list (or lists) of symbols.
 
 ```lisp
-(str->symb "a b c")          ;=> (A B C)
-(str->symb '("a b" "c"))     ;=> ((A B) (C))
+(str>sym "a b c")          ;=> (A B C)
+(str>sym '("a b" "c"))     ;=> ((A B) (C))
 ```
 
 #### `filt-noise (seq &optional mode val)`
 
-*PWGL box: `randomize`.* Jitters a sequence or adds noise to it, according to
+Jitters a sequence or adds noise to it, according to
 `mode`, with the amount `val` (0.1 by default) relative to the range
 (max − min) of `seq`:
 
@@ -382,22 +375,19 @@ length as `seq`.
 (filt-extrema '(5 5 0 5 5 1 1 1 5 5) 3 :close) ;=> (5 5 5 5 5 1 1 1 5 5)
 ```
 
-(The PWGL box used a window that was not centred but looked forward, and
-repeated at the end of the sequence a maximum already passed.)
+#### `filt-mean (seq window &optional step)`
 
-#### `filt-mean (seq wind &optional step)`
-
-Sliding mean over `wind` values (an integer, or a float as a fraction of the
+Sliding mean over `window` values (an integer, or a float as a fraction of the
 length of `seq`).
 
 - With `step` 1 (default), the window is centred on each value: an even
-  `wind` is enlarged to the next odd size, and at the edges the window
+  `window` is enlarged to the next odd size, and at the edges the window
   shrinks symmetrically, so the first and last values are kept and ramps are
   left unchanged.
-- With a larger `step`, the mean of a window of `wind` values centred on
+- With a larger `step`, the mean of a window of `window` values centred on
   each block of `step` values is repeated for the whole block; with
-  `step` = `wind`, each block is replaced by its mean. A float `step` is a
-  fraction of `wind`.
+  `step` = `window`, each block is replaced by its mean. A float `step` is a
+  fraction of `window`.
 
 The result has the same length as `seq`.
 
@@ -409,7 +399,7 @@ The result has the same length as `seq`.
 
 #### `filt-lowpass (seq alpha &optional gamma)`
 
-*PWGL box: `filt-exponential`.* Exponential smoothing: each value moves by
+Exponential smoothing: each value moves by
 the fraction `alpha` (between 0 and 1) towards the input:
 s(t) = s(t−1) + α (x(t) − s(t−1)), from s(0) = x(0).
 
@@ -427,12 +417,12 @@ The result has the same length as `seq`.
 (filt-lowpass '(0 1 2 3 4 5) 0.5 0.5)    ;=> (0 1.0 2.0 3.0 4.0 5.0)
 ```
 
-#### `filt-local-rep (seq &optional mode test)`
+#### `filt-repeat (seq &optional mode test)`
 
 Removes consecutive identical elements (default behaviour, or mode
 `:delete`).
 
-With numerical sequences, mode `:linear` (or `:interp`, its PWGL name) keeps
+With numerical sequences, mode `:linear` (or `:interp`) keeps
 the length of the sequence: each run of identical values is replaced by a
 ramp from its value to the next different value; the last run is kept as
 is. With non-numerical sequences, `:linear` removes the repetitions as
@@ -442,27 +432,27 @@ is. With non-numerical sequences, `:linear` removes the repetitions as
 to treat close values as identical.
 
 ```lisp
-(filt-local-rep '(a a b b b c a b b a a))      ;=> (A B C A B A)
-(filt-local-rep '(0 0 1 2 2 2 3 3 0 0))        ;=> (0 1 2 3 0)
-(filt-local-rep '(0 0 1 2 2 2 3 3 0 0) :linear)
+(filt-repeat '(a a b b b c a b b a a))      ;=> (A B C A B A)
+(filt-repeat '(0 0 1 2 2 2 3 3 0 0))        ;=> (0 1 2 3 0)
+(filt-repeat '(0 0 1 2 2 2 3 3 0 0) :linear)
 ;=> (0.0 0.5 1 2.0 2.3333333 2.6666667 3.0 1.5 0 0)
 ```
 
-#### `filt-fct (seq func wind &optional step)`
+#### `filt-function (seq func window &optional step)`
 
-Applies the function `func` to a sliding window of `wind` values, by steps of
-`step` (1 by default). `wind` is an integer (number of values) or a fraction
-of the length of `seq`; `step` is an integer or a fraction of `wind`. The
+Applies the function `func` to a sliding window of `window` values, by steps of
+`step` (1 by default). `window` is an integer (number of values) or a fraction
+of the length of `seq`; `step` is an integer or a fraction of `window`. The
 windows are placed as for `filt-mean`:
 
-- with `step` 1, the window is centred on each value (an even `wind` is
+- with `step` 1, the window is centred on each value (an even `window` is
   enlarged to the next odd size) and shrinks symmetrically at the edges;
 - with a larger `step`, the window is centred on each block of `step` values.
 
 What `func` returns gives the values of the position or block:
 
 - a value (`nil` included) is repeated for the block;
-- a list replaces the block when the window is the block (`step` = `wind`),
+- a list replaces the block when the window is the block (`step` = `window`),
   whatever its length: `func` may then reorder, add or remove values;
 - otherwise, a list must be as long as the window, and its values at the
   positions of the block are kept.
@@ -471,9 +461,9 @@ The result has the same length as `seq`, except when lists of another length
 replace whole blocks.
 
 ```lisp
-(filt-fct '(0 0 0 9 0 0 0 0) (lambda (w) (apply #'max w)) 3)
+(filt-function '(0 0 0 9 0 0 0 0) (lambda (w) (apply #'max w)) 3)
 ;=> (0 0 9 9 9 0 0 0)
-(filt-fct '(1 2 3 4 5 6 7 8) #'reverse 3 3)
+(filt-function '(1 2 3 4 5 6 7 8) #'reverse 3 3)
 ;=> (3 2 1 6 5 4 8 7)
 ```
 
@@ -496,6 +486,12 @@ This is the same shape as the *semi-matrix of distances* returned by the
 distance functions (see [3.2](#32-compare-distances-and-dissimilarities)),
 `(i j d(i,j))`, so the output of a distance function can be used as a graph.
 
+These functions often deal with trees (minimum spanning tree, dendrogram),
+but their names begin with `graph`: Fred preferred *graph* to
+*tree*, because the word is common to French and English (*graphe*,
+*graph*), because graph theory applies to trees, and because it is also used
+in developing refrains.
+
 #### `graph-span (mat-dist &optional verbose)`
 
 Minimum spanning tree of a set of objects, deduced from the semi-matrix of
@@ -517,11 +513,11 @@ distances, the tree could change from one call to the next.)
 ;=> ((0 1 1) (2 3 1) (1 2 2))     ; edge (0 2 4) is not needed
 ```
 
-In the PWGL tutorial (`1.3.1_graph-span`), random melodic profiles are
-compared with each other by the edit distance of their signatures, and
-`graph-span` gives the tree of their resemblances.
+For instance, random melodic profiles can be compared with each other by the
+edit distance of their signatures: `graph-span` then gives the tree of their
+resemblances.
 
-#### `graph-hierarc (mat-dist &key linkage)`
+#### `graph>dendrogram (mat-dist &key linkage)`
 
 Dendrogram of the agglomerative hierarchical classification of the objects of
 a semi-matrix of distances or of the nodes of a graph: at each step, the two
@@ -555,17 +551,14 @@ Experimental.
 ```lisp
 (defparameter *m* '((a b 1) (a c 4) (a d 6) (a e 8) (b c 2)
                     (b d 5) (b e 7) (c d 5) (c e 6) (d e 1)))
-(graph-hierarc *m*)
+(graph>dendrogram *m*)
 ;=> ((1 (A) (B)) (1 (D) (E)) (2 (A B) (C)) (5 (A B C) (D E)))
 ;   (5 (2 (1 A B) C) (1 D E))
-(nth-value 1 (graph-hierarc *m* :linkage :complete))
+(nth-value 1 (graph>dendrogram *m* :linkage :complete))
 ;=> (8 (4 (1 A B) C) (1 D E))
-(nth-value 1 (graph-hierarc *m* :linkage :average))
+(nth-value 1 (graph>dendrogram *m* :linkage :average))
 ;=> (37/6 (3 (1 A B) C) (1 D E))
 ```
-
-The PWGL tutorial listed `graph-hierarc` next to `graph-span`, but the box
-had not been written.
 
 #### `graph-path (from to graph)`
 
@@ -634,7 +627,7 @@ The dot file can also be drawn by hand: `neato -Tpng graph.dot -o graph.png`.
 
 ### 1.4 Interpolate
 
-#### `morph-lists (seq1 seq2 &key test random)`
+#### `morph-seq (seq1 seq2 &key test random)`
 
 Interpolates the sequence `seq1` to the sequence `seq2` with the minimum of
 steps, changing one element at a time (substitution, deletion or insertion)
@@ -648,16 +641,12 @@ deletion, then insertion, and the result is always the same; with
 Two strings give strings.
 
 ```lisp
-(morph-lists '(a m p h o r a) '(p o u l e t))
+(morph-seq '(a m p h o r a) '(p o u l e t))
 ;=> ((A M P H O R A) (M P H O R A) (P P H O R A) (P O H O R A) (P O U O R A)
 ;    (P O U L R A) (P O U L E A) (P O U L E T))
-(morph-lists "chat" "chien")   ;=> ("chat" "chiat" "chiet" "chien")
-(morph-lists '(a b c) '(a b c)) ;=> ((A B C))
+(morph-seq "chat" "chien")   ;=> ("chat" "chiat" "chiet" "chien")
+(morph-seq '(a b c) '(a b c)) ;=> ((A B C))
 ```
-
-(In the PWGL version, written in 2013 for Julien Vincenot, the path was
-chosen at random for equal costs, substituting an element by itself counted
-as a step, and the elements were compared with `eql`.)
 
 ## 2. Classification
 
@@ -882,24 +871,23 @@ of their elements. Elements left alone are not put in a list.
 ;=> ((1 2) (10 11 12) 30)
 ```
 
-Consecutive lists that have at least one element in common (the PWGL box
-`group` with intersection):
+Consecutive lists that have at least one element in common:
 
 ```lisp
 (motif-group '((a b) (b c) (x) (c y) (y z)) (lambda (a b) (intersection a b)))
 ;=> ((A B B C) (X) (C Y Y Z))
 ```
 
-Other tests from the PWGL tutorial: the next element equals the previous one
+Other possible tests: the next element equals the previous one
 + 1; motifs made of the same symbols whatever their order; motifs with the
 same first (or last) element; motifs where the last element of one is the
 first of the next.
 
 #### `list>sym (list)`
 
-*PWGL box: `group` (without intersection; with intersection, see
-`motif-group`).* Concatenates a list into a single symbol, number or
-string (see [1.1](#11-transcode)).
+Concatenates a list into a single symbol, number or string (see
+[1.1](#11-transcode)). To group consecutive lists that have an element in
+common, see `motif-group`.
 
 ### 2.3 Differentiate
 
@@ -1031,7 +1019,7 @@ and with the number of classes.
 ;=> (0 0 1 1 2 2)
 ```
 
-#### `class-sym (data classes mode &key uncom ins del change excluded mst)`
+#### `class-sym (data classes mode &key sub ins del uncom excluded mst)`
 
 Classification of symbolic forms made of arbitrary symbols. It partitions the
 minimum spanning tree built on the dissimilarities between the forms, by
@@ -1043,7 +1031,7 @@ appearance; there are never more classes than distinct forms.
 
 - `mode`: `:edit-nn` (or `nil`), absolute edit distance; `:edit-norm`,
   relative edit distance.
-- `:change`, `:ins`, `:del`, `:uncom`: costs of the edit distance (see
+- `:sub`, `:ins`, `:del`, `:uncom`: costs of the edit distance (see
   `dist-edit`).
 - `:excluded`: forms excluded from the classification. Each excluded form is
   numbered first, from 0, and the classes found follow. Useful for example to
@@ -1074,7 +1062,7 @@ Positions of `mark` in `seq`.
 (mark-position '(a b c a b) 'a)   ;=> (0 3)
 ```
 
-#### `mark-list (seq mark &key mark-t seg-t)`
+#### `mark-list (seq mark &key mark-test seg-test)`
 
 The segments starting with each mark, with their positions:
 `((segment positions) ...)`. If `mark` is `nil`, each distinct symbol of
@@ -1083,9 +1071,9 @@ is used.
 
 The segments depend on equivalence classes that can be defined freely:
 
-- `:mark-t`: identity of the marks, a binary predicate (default `#'equalp`).
+- `:mark-test`: identity of the marks, a binary predicate (default `#'equalp`).
   For example, a mark can be defined as an ascending movement.
-- `:seg-t`: identity of the segments, a binary predicate (default
+- `:seg-test`: identity of the segments, a binary predicate (default
   `#'equalp`). Segments that are not identical but close can then be grouped
   as one.
 
@@ -1095,13 +1083,13 @@ The segments depend on equivalence classes that can be defined freely:
 
 ;; segments closer than 2 in edit distance count as the same
 (mark-list '(a b c d a x y a b e d a w z) 'a
-           :seg-t (lambda (a b) (< (dist-edit a b) 2)))
+           :seg-test (lambda (a b) (< (dist-edit a b) 2)))
 ;=> (((A B C D) (0 7)) ((A X Y) (4)) ((A W Z) (11)))
 ```
 
-#### `motif-find (motif seq &key diss l-var change ins del uncom test)`
+#### `motif-position (motif seq &key diss l-var sub ins del uncom test)`
 
-*PWGL box: `motif-position`.* All positions of a motif in a sequence of
+All positions of a motif in a sequence of
 symbols, or of a string in a string, as `(start end)` pairs. The occurrences
 may overlap: `(a a)` is found at 0, 1 and 2 in `(a a a a)`.
 
@@ -1113,7 +1101,7 @@ may overlap: `(a a)` is found at 0, 1 and 2 in `(a a a a)`.
   fraction of the length of the motif (0, the default: same length only).
 - `:test`: identity of the elements (default `#'equalp`). For example, with
   motifs made of pairs, a test on the first element of each pair.
-- `:change`, `:ins`, `:del`, `:uncom`: costs of the edit distance (see
+- `:sub`, `:ins`, `:del`, `:uncom`: costs of the edit distance (see
   `dist-edit`).
 
 Numbers are treated as arbitrary symbols: the distance between `(0 2 1 1)`
@@ -1122,19 +1110,19 @@ only one symbol changes. Motifs can be made of elements that are themselves
 lists, e.g. `((a 1) (b 1) (c 1))`.
 
 ```lisp
-(motif-find '(a b) '(a b c a b d a b))
+(motif-position '(a b) '(a b c a b d a b))
 ;=> ((0 1) (3 4) (6 7))
-(motif-find '(a b) '(a b c a c d a b))
+(motif-position '(a b) '(a b c a c d a b))
 ;=> ((0 1) (6 7))
-(motif-find '(a b) '(a b c a c d a b) :diss 0.5)
+(motif-position '(a b) '(a b c a c d a b) :diss 0.5)
 ;=> ((0 1) (3 4) (6 7))
-(motif-find "ab" "xabyAB")                   ; strings: case ignored (equalp)
+(motif-position "ab" "xabyAB")                   ; strings: case ignored (equalp)
 ;=> ((1 2) (4 5))
-(motif-find "ab" "xabyAB" :test #'char=)
+(motif-position "ab" "xabyAB" :test #'char=)
 ;=> ((1 2))
 ```
 
-#### `motif-list (seq out &key diss l-var n change insert delete uncom test)`
+#### `motif-list (seq out &key diss l-var n sub ins del uncom test)`
 
 The list of the motifs repeated in `seq`, with their positions:
 `((motif (start end) ...) ...)`.
@@ -1153,7 +1141,7 @@ The list of the motifs repeated in `seq`, with their positions:
 - `:n`: the lengths of the motifs, a maximum `n` (lengths 2 to `n`) or a list
   `(min max)`. By default, 3 to half the length of `seq`, so repetitions of 1
   or 2 elements are not found unless asked for.
-- `:change`, `:insert`, `:delete`, `:uncom` and `:test` tune the edit distance
+- `:sub`, `:ins`, `:del`, `:uncom` and `:test` tune the edit distance
   (see `dist-edit`); `:test` is also the identity of elements for exact
   repetitions.
 
@@ -1179,14 +1167,14 @@ cannot be told from no edge).
 (graph>matrix '((a b 1) (b c 2)))   ;=> ((0 1 0) (1 0 2) (0 2 0))   ; nodes (A B C)
 ```
 
-#### `graph-nodes (graph)`, `graph-extrem (graph)`
+#### `graph-nodes (graph)`, `graph-leaves (graph)`
 
 All the nodes of a graph (each once, compared with `equal`; sorted: numbers
 first, then by name), and its extremities (leaves).
 
 ```lisp
 (graph-nodes '((a b 1) (b c 2) (b d 1)))    ;=> (A B C D)
-(graph-extrem '((a b 1) (b c 2) (b d 1)))   ;=> (D C A)
+(graph-leaves '((a b 1) (b c 2) (b d 1)))   ;=> (D C A)
 ```
 
 ### 3.2 Compare: distances and dissimilarities
@@ -1196,27 +1184,27 @@ For all the distance functions, when the first argument is a list of items
 **semi-matrix of distances** between all items, as a list of `(i j d(i,j))`:
 
 ```lisp
-(dist-euclidian '((0 0) (3 4) (6 8)) nil)
+(dist-euclidean '((0 0) (3 4) (6 8)) nil)
 ;=> ((0 1 5.0) (0 2 10.0) (1 2 5.0))
 ```
 
-#### `dist-euclidian (a b)`
+#### `dist-euclidean (a b)`
 
 Euclidean distance. All points must have the same dimensionality, which is
 the length of the list of their coordinates: each rank of the list is the
 coordinate of the point on the corresponding dimension.
 
 ```lisp
-(dist-euclidian '(0 0) '(3 4))   ;=> 5.0
+(dist-euclidean '(0 0) '(3 4))   ;=> 5.0
 ```
 
-#### `dist-citybloc (a b)`
+#### `dist-cityblock (a b)`
 
 City-block distance: the sum of the absolute differences on each dimension.
 As for the Euclidean distance, all points must have the same dimensionality.
 
 ```lisp
-(dist-citybloc '(0 0) '(3 4))    ;=> 7
+(dist-cityblock '(0 0) '(3 4))    ;=> 7
 ```
 
 #### `dist-hamming (a b &optional norm test)`
@@ -1376,7 +1364,7 @@ always a float (or a list of floats).
 (entropy '(a b a b a a a a) 'shannon-2 4)    ;=> (1.0 1.0 0.0 0.0)
 ```
 
-#### `elt-info (data elt &optional test)`
+#### `self-info (data elt &optional test)`
 
 Self-information of an element: −log₂ of its frequency in `data`, `nil` if
 the element is absent (its information is infinite) or `data` is empty. The
@@ -1385,8 +1373,8 @@ by default). With `elt` = `nil`, gives every element, from the most to the
 least informative (equal amounts in their order of first appearance).
 
 ```lisp
-(elt-info '(a b a c) 'a)    ;=> 1.0
-(elt-info '(a b a c) nil)   ;=> ((B 2.0) (C 2.0) (A 1.0))
+(self-info '(a b a c) 'a)    ;=> 1.0
+(self-info '(a b a c) nil)   ;=> ((B 2.0) (C 2.0) (A 1.0))
 ```
 
 #### `inner-dynamic (seq &optional test)`
@@ -1437,8 +1425,7 @@ Imports data from a text file into a list. Modes:
 - `:charcode`: the segments of the file as lists of character codes (Unicode
   code points), for an analysis character by character.
 
-Another mode is an error. (The PWGL modes `:ascii-7b` and `:ascii-8b`, for
-old character encodings, are no longer needed: UTF-8 files are read directly.)
+Another mode is an error. UTF-8 files are read directly.
 
 `:sep` is a string of separator characters, besides blanks (spaces,
 tabulations, newlines), or `t` for the usual punctuation marks. With
@@ -1485,15 +1472,15 @@ Prints each element of a list on its own line, indented by depth.
 
 ## 5. FV-examples
 
-The PWGL tutorial ends with analyses by Frédéric Voisin, in
-`pwgl-legacy/tutorial/5. FV-exemples/` in [fv-morphologie](https://github.com/FredVoisin/fv-morphologie/tree/master/pwgl-legacy/tutorial), with their data in `data/`. They are
-PWGL patches; their principles are summarized here, to be rewritten as
-Common Lisp examples.
+Analyses by Frédéric Voisin are kept, with their data, in the
+[fv-morphologie](https://github.com/FredVoisin/fv-morphologie) repository.
+Their principles are summarized here, to be rewritten as Common Lisp
+examples.
 
 ### Contrastive analysis: marks and resemblance
 
 `mark-list` can treat segments that are not strictly identical but close in
-edit distance as one motif, with `:seg-t` (see [3.1](#31-enumerate)).
+edit distance as one motif, with `:seg-test` (see [3.1](#31-enumerate)).
 
 ### Classification, quantization and entropy: *Zoboko*
 
@@ -1656,18 +1643,17 @@ and [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisi
 
 ## List of functions
 
-The list of the 57 exported functions, with their arguments and docstrings, is
+The list of the 53 exported functions, with their arguments and docstrings, is
 in [refrains-functions.md](refrains-functions.md).
 
 ## Notes for the update
 
 - **Language**: the French version ([refrains.fr.md](refrains.fr.md))
   is the reference; this English version is to be updated from it.
-- **`graph-hierarc`**: the dendrogram could be drawn (with `graph>dot`, or
+- **`graph>dendrogram`**: the dendrogram could be drawn (with `graph>dot`, or
   as text); Ward's linkage remains to be added if needed.
-- **Renaming**: a consistent renaming of the functions is to be considered.
-- **Behaviour since the PWGL version**: the examples follow version 1.0.0.
-  Several results differ from the legacy tutorial since 0.2.0 (`read-text`,
+- **Behaviour**: several results differ from the versions of fv-morphologie
+  before 0.2.0 (`read-text`,
   filters, `graph-span` with Kruskal, `graph-path` with Dijkstra, nodes
   compared with `equal`, `class-num`, `class-sym`, `histogram`…): see
   [CHANGELOG.md](../CHANGELOG.md).
@@ -1678,9 +1664,8 @@ in [refrains-functions.md](refrains-functions.md).
 - **Contrastive analysis**: Frédéric Voisin, *L'analyse musicale contrastive*,
   cited by Aralla (2002) as published in *Prisma 01*, is still to be found and
   added to the references.
-- **Figures**: `pictures/menu-*.png` (PWGL menus) and
-  `1-Transcription/span-tree.bmp` (a spanning tree drawn with neato) are not
-  used yet.
+- **Figures**: `1-Transcription/span-tree.bmp` (a spanning tree drawn with
+  neato) is not used yet.
 
 ---
 

@@ -28,7 +28,7 @@
 
 (test filters
   (is (equal '(1 1 1 1 1 1 1) (filt-median '(1 9 1 1 1 9 1) 3)))
-  (is (equal '(a b c a) (filt-local-rep '(a a b b b c a a)))))
+  (is (equal '(a b c a) (filt-repeat '(a a b b b c a a)))))
 
 (test filt-lowpass-double
   ;; (1- alpha) is alpha - 1, not 1 - alpha: constants were not kept,
@@ -82,49 +82,49 @@
 
 (test window-apply-list-order
   ;; list results were reversed within each window
-  (is (equal '(1 2 3 4 5 6) (filt-fct '(1 2 3 4 5 6) #'identity 2 2))))
+  (is (equal '(1 2 3 4 5 6) (filt-function '(1 2 3 4 5 6) #'identity 2 2))))
 
-(test filt-fct-centred
+(test filt-function-centred
   (flet ((mx (w) (apply #'max w)))
     ;; the window looked ahead, and the default step was 1 + wind/2
-    (is (equal '(0 0 9 9 9 0 0 0) (filt-fct '(0 0 0 9 0 0 0 0) #'mx 3)))
-    (is (equal (filt-fct '(0 0 0 9 0 0 0 0) #'mx 3) (filt-fct '(0 0 0 9 0 0 0 0) #'mx 3 1)))
+    (is (equal '(0 0 9 9 9 0 0 0) (filt-function '(0 0 0 9 0 0 0 0) #'mx 3)))
+    (is (equal (filt-function '(0 0 0 9 0 0 0 0) #'mx 3) (filt-function '(0 0 0 9 0 0 0 0) #'mx 3 1)))
     ;; wind 0 and 1 were forced to 2
-    (is (equal '(1 2 3 4) (filt-fct '(1 2 3 4) #'mx 1)))
-    (is (equal '(1 2 3 4) (filt-fct '(1 2 3 4) #'mx 0)))
+    (is (equal '(1 2 3 4) (filt-function '(1 2 3 4) #'mx 1)))
+    (is (equal '(1 2 3 4) (filt-function '(1 2 3 4) #'mx 0)))
     ;; a float wind above 0.5 failed, a ratio was ignored, a large step failed
-    (is (equal '(1 3 5 7 8 8 8 8) (filt-fct '(1 2 3 4 5 6 7 8) #'mx 0.75)))
-    (is (equal '(1 3 4 5 6 7 8 8) (filt-fct '(1 2 3 4 5 6 7 8) #'mx 1/4)))
-    (is (equal '(4 4 4 4 4 8 8 8) (filt-fct '(1 2 3 4 5 6 7 8) #'mx 2 5))))
+    (is (equal '(1 3 5 7 8 8 8 8) (filt-function '(1 2 3 4 5 6 7 8) #'mx 0.75)))
+    (is (equal '(1 3 4 5 6 7 8 8) (filt-function '(1 2 3 4 5 6 7 8) #'mx 1/4)))
+    (is (equal '(4 4 4 4 4 8 8 8) (filt-function '(1 2 3 4 5 6 7 8) #'mx 2 5))))
   ;; overlapping windows returning lists used to lengthen the result
-  (is (equal '(1 2 3 4 5 6 7 8) (filt-fct '(1 2 3 4 5 6 7 8) #'identity 3)))
-  (is (equal '(1 2 3 4 5 6 7 8) (filt-fct '(1 2 3 4 5 6 7 8) #'reverse 3 1)))
-  (signals error (filt-fct '(1 2 3 4 5 6 7 8) (lambda (w) (remove 4 w)) 3 1))
+  (is (equal '(1 2 3 4 5 6 7 8) (filt-function '(1 2 3 4 5 6 7 8) #'identity 3)))
+  (is (equal '(1 2 3 4 5 6 7 8) (filt-function '(1 2 3 4 5 6 7 8) #'reverse 3 1)))
+  (signals error (filt-function '(1 2 3 4 5 6 7 8) (lambda (w) (remove 4 w)) 3 1))
   ;; blocks (step = wind) are replaced by the lists, whatever their length
-  (is (equal '(3 2 1 6 5 4 8 7) (filt-fct '(1 2 3 4 5 6 7 8) #'reverse 3 3)))
-  (is (equal '(1 2 3 5 6 7 8) (filt-fct '(1 2 3 4 5 6 7 8) (lambda (w) (remove 4 w)) 4 4)))
+  (is (equal '(3 2 1 6 5 4 8 7) (filt-function '(1 2 3 4 5 6 7 8) #'reverse 3 3)))
+  (is (equal '(1 2 3 5 6 7 8) (filt-function '(1 2 3 4 5 6 7 8) (lambda (w) (remove 4 w)) 4 4)))
   ;; nil is a value, it used to remove the values
-  (is (equal '(nil t nil t) (filt-fct '(1 2 3 4) (lambda (w) (evenp (car w))) 1))))
+  (is (equal '(nil t nil t) (filt-function '(1 2 3 4) (lambda (w) (evenp (car w))) 1))))
 
-(test filt-local-rep-fixes
+(test filt-repeat-fixes
   ;; :linear used to modify the list given (and quoted constants)
   (let ((x (list 0 0 1 2 2 2 3 3 0 0)))
-    (is (every #'approx= '(0 0.5 1 2 7/3 8/3 3 1.5 0 0) (filt-local-rep x :linear)))
+    (is (every #'approx= '(0 0.5 1 2 7/3 8/3 3 1.5 0 0) (filt-repeat x :linear)))
     (is (equal '(0 0 1 2 2 2 3 3 0 0) x)))
   ;; with a tolerance, the ramp used to start from each value instead of the first of the run
   (let ((close (lambda (a b) (< (abs (- a b)) 0.2))))
-    (is (every #'approx= '(1 5/3 7/3 3 4 5) (filt-local-rep '(1.0 1.1 1.05 3 3.1 5) :linear close)))
-    (is (equal '(1.0 3 5) (filt-local-rep '(1.0 1.1 1.05 3 3.1 5) :delete close))))
+    (is (every #'approx= '(1 5/3 7/3 3 4 5) (filt-repeat '(1.0 1.1 1.05 3 3.1 5) :linear close)))
+    (is (equal '(1.0 3 5) (filt-repeat '(1.0 1.1 1.05 3 3.1 5) :delete close))))
   ;; repeated nils were not removed
-  (is (equal '(a b nil c) (filt-local-rep '(a a b b nil nil c))))
-  (is (equal '(nil a) (filt-local-rep '(nil nil a))))
-  ;; :interp (PWGL) is :linear; an unknown mode was silently :delete
-  (is (equal (filt-local-rep '(0 0 1 2 2 3) :linear) (filt-local-rep '(0 0 1 2 2 3) :interp)))
-  (signals error (filt-local-rep '(1 1 2) :foo))
+  (is (equal '(a b nil c) (filt-repeat '(a a b b nil nil c))))
+  (is (equal '(nil a) (filt-repeat '(nil nil a))))
+  ;; :interp is :linear; an unknown mode was silently :delete
+  (is (equal (filt-repeat '(0 0 1 2 2 3) :linear) (filt-repeat '(0 0 1 2 2 3) :interp)))
+  (signals error (filt-repeat '(1 1 2) :foo))
   ;; non-numeric data with :linear: repetitions removed
-  (is (equal '(a b) (filt-local-rep '(a a b) :linear)))
-  (is (equal '(5 5 5) (filt-local-rep '(5 5 5) :linear)))
-  (is (null (filt-local-rep '() :linear))))
+  (is (equal '(a b) (filt-repeat '(a a b) :linear)))
+  (is (equal '(5 5 5) (filt-repeat '(5 5 5) :linear)))
+  (is (null (filt-repeat '() :linear))))
 
 (test filt-noise-modes
   (let ((*random-state* (seeded-random-state)))

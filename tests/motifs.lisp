@@ -26,10 +26,10 @@
   :description "Motifs: find, list, structure, groups.")
 (in-suite motifs)
 
-(test motif-find
-  (is (equal '((0 1) (3 4) (6 7)) (motif-find '(a b) '(a b c a b d a b))))
-  (is (equal '((0 1) (6 7)) (motif-find '(a b) '(a b c a c d a b))))
-  (is (equal '((0 1) (3 4) (6 7)) (motif-find '(a b) '(a b c a c d a b) :diss 0.5))))
+(test motif-position
+  (is (equal '((0 1) (3 4) (6 7)) (motif-position '(a b) '(a b c a b d a b))))
+  (is (equal '((0 1) (6 7)) (motif-position '(a b) '(a b c a c d a b))))
+  (is (equal '((0 1) (3 4) (6 7)) (motif-position '(a b) '(a b c a c d a b) :diss 0.5))))
 
 (test motif-list
   (is (equal '(((a b c) (0 2) (3 5) (7 9)))
@@ -37,13 +37,13 @@
 
 (test motif-group
   (is (equal '((1 1) (2 2 2) 3) (motif-group '(1 1 2 2 2 3) #'=)))
-  ;; group of the PWGL box group with intersection of adjacent lists
+  ;; adjacent lists grouped when they intersect
   (is (equal '((a b b c) (x) (c y y z))
              (motif-group '((a b) (b c) (x) (c y) (y z)) (lambda (a b) (intersection a b))))))
 
-(test motif-find-uses-edit-costs
+(test motif-position-uses-edit-costs
   ;; used to call find-pos with too many arguments
-  (finishes (motif-find '(a b) '(a b c) :change 2 :ins 1 :del 1)))
+  (finishes (motif-position '(a b) '(a b c) :sub 2 :ins 1 :del 1)))
 
 (test motif-list-default-output
   ;; (set out :length) used to fail at compile time
@@ -126,12 +126,12 @@
          (s (loop repeat 120 collect (nth (random 4) '(a b c d)))))
     (is (every #'(lambda (m) (>= (length (cdr m)) 2)) (motif-list s :length :diss 0.25)))))
 
-(test motif-find-strings-and-overlaps
+(test motif-position-strings-and-overlaps
   ;; strings had no applicable method
-  (is (equal '((1 2) (4 5)) (motif-find "ab" "xabyAB")))
-  (is (equal '((1 2)) (motif-find "ab" "xabyAB" :test #'char=)))
-  (is (equal '((1 2) (4 5)) (motif-find "ab" "xacyab" :diss 0.5)))
+  (is (equal '((1 2) (4 5)) (motif-position "ab" "xabyAB")))
+  (is (equal '((1 2)) (motif-position "ab" "xabyAB" :test #'char=)))
+  (is (equal '((1 2) (4 5)) (motif-position "ab" "xacyab" :diss 0.5)))
   ;; occurrences may overlap (documented)
-  (is (equal '((0 1) (1 2) (2 3)) (motif-find '(a a) '(a a a a))))
+  (is (equal '((0 1) (1 2) (2 3)) (motif-position '(a a) '(a a a a))))
   ;; lists unchanged
-  (is (equal '((0 1) (3 4) (6 7)) (motif-find '(a b) '(a b c a b d a b)))))
+  (is (equal '((0 1) (3 4) (6 7)) (motif-position '(a b) '(a b c a b d a b)))))

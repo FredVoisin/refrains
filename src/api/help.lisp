@@ -54,21 +54,21 @@
 
 (defparameter *refrains-menu*
   '(;; 1. transcription
-    transcode num>base num>alpha alpha>num list>sym str->symb filt-noise
-    filt-median filt-extrema filt-mean filt-lowpass filt-local-rep filt-fct
-    graph-span graph-hierarc graph-path graph>dot graph>matrix
-    morph-lists
+    transcode num>base num>alpha alpha>num list>sym str>sym filt-noise
+    filt-median filt-extrema filt-mean filt-lowpass filt-repeat filt-function
+    graph-span graph>dendrogram graph-path graph>dot graph>matrix
+    morph-seq
     ;; 2. classification
     exsample separate graph-part
-    motif-group concaten
+    motif-group
     mark-structure motif-structure class-num class-sym
     ;; 3. evaluation
-    mark-position mark-list motif-find motif-list graph-nodes graph-extrem
-    dist-euclidian dist-euclid dist-citybloc dist-hamming dist-edit dist-multi-edit
+    mark-position mark-list motif-position motif-list graph-nodes graph-leaves
+    dist-euclidean dist-cityblock dist-hamming dist-edit dist-multi-edit
     dist-structure dist-graph
-    histogram entropy elt-info inner-dynamic graph-length graph-degree
+    histogram entropy self-info inner-dynamic graph-length graph-degree
     ;; 4. reading and writing files
-    read-text write-list display-list split-string date-string date+time-string
+    read-text write-list display-list date-string date+time-string
     ;; documentation
     help doc)
   "The refrains functions, in the order of the documentation (all the exported functions).")

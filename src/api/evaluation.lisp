@@ -33,45 +33,45 @@
 (defmethod mark-position ((seq t) (mark t) &optional (test #'equalp) (cons t))
   (all-pos seq mark test cons))
 
-(defgeneric mark-list (seq mark &key mark-t seg-t)
+(defgeneric mark-list (seq mark &key mark-test seg-test)
   (:documentation "MARK-LIST: returns the list of all segments and their position in <seq> beginning with some marks defined with argument <mark>.
 If no argument mark (nil), considers all different symbols in <seq>.
-Option :mark-t defines the test function for searching the marks (equalp by default).
-Option :group-t defines the test function for comparing the different segments."))
+Option :mark-test defines the test function for searching the marks (equalp by default).
+Option :seg-test defines the test function for comparing the different segments."))
 
-(defmethod mark-list ((seq t) (mark t) &key (mark-t #'equalp) (seg-t #'equalp))
-  (when (and (symbolp mark-t) (not (boundp mark-t)))
-    (setf mark-t (eval `(function ,mark-t))))
-  (when (and (symbolp seg-t) (not (boundp seg-t)))
-    (setf seg-t (eval `(function ,seg-t))))
-  (mark-pos seq mark mark-t seg-t))
+(defmethod mark-list ((seq t) (mark t) &key (mark-test #'equalp) (seg-test #'equalp))
+  (when (and (symbolp mark-test) (not (boundp mark-test)))
+    (setf mark-test (eval `(function ,mark-test))))
+  (when (and (symbolp seg-test) (not (boundp seg-test)))
+    (setf seg-test (eval `(function ,seg-test))))
+  (mark-pos seq mark mark-test seg-test))
 
-(defgeneric motif-find (motif seq &key diss l-var change ins del uncom test)
-  (:documentation "MOTIF-FIND: returns all positions of a <motif> into a sequence <seq>.
+(defgeneric motif-position (motif seq &key diss l-var sub ins del uncom test)
+  (:documentation "MOTIF-POSITION: returns all positions of a <motif> into a sequence <seq>.
 Argument :diss is the threshold (from 0 to 1.0) of dissimilarity according to the normalized editing distance under which two different segments are considered to be the same ;
 argument :l-var is the threshold for variation in length of the motifs to be compared ;
-arguments :change :ins/sup :uncom and :test for tuning the editing distance (see dist-edit)."))
+arguments :sub :ins :del :uncom and :test for tuning the editing distance (see dist-edit)."))
 
-(defmethod motif-find ((motif t) (seq t) &key (diss 0) (l-var 0) (change 1) (ins 1) (del 1) (uncom 0) (test #'equalp))
+(defmethod motif-position ((motif t) (seq t) &key (diss 0) (l-var 0) (sub 1) (ins 1) (del 1) (uncom 0) (test #'equalp))
   (find-pos motif seq diss l-var
-            #'(lambda (a b) (edit-dist a b change ins del uncom t test))))
+            #'(lambda (a b) (edit-dist a b sub ins del uncom t test))))
 
-(defmethod motif-find ((motif string) (seq string) &key (diss 0) (l-var 0) (change 1) (ins 1) (del 1) (uncom 0) (test #'equalp))
+(defmethod motif-position ((motif string) (seq string) &key (diss 0) (l-var 0) (sub 1) (ins 1) (del 1) (uncom 0) (test #'equalp))
   ;; a string is searched as a list of characters (there was no method for strings)
-  (motif-find (coerce motif 'list) (coerce seq 'list) :diss diss :l-var l-var
-              :change change :ins ins :del del :uncom uncom :test test))
+  (motif-position (coerce motif 'list) (coerce seq 'list) :diss diss :l-var l-var
+                  :sub sub :ins ins :del del :uncom uncom :test test))
 
-(defgeneric motif-list (seq out &key diss l-var n change insert delete uncom test)
+(defgeneric motif-list (seq out &key diss l-var n sub ins del uncom test)
   (:documentation "MOTIF-LIST: returns the list of all motifs found into <seq> where a motif is any segment repeted at least one time according to editing distance.
 Output can be sorted according to the length of segment (:length, or nil) or to their frequency (:freq); another output is an error.
 Argument :diss is a threshold (from 0 to 1.0) of dissimilarity according to the normalized editing distance under which two different segments are considered to be the same ;
 argument :l-var is the threshold for variation in length of the segments to be compared ;
 argument :n is the maximum length of the motifs (lengths 2 to n), or a list (min max) (default: 3 to half the length of <seq>) ;
-arguments :change :ins/sup :uncom and :test for tuning the editing distance (see dist-edit)."))
+arguments :sub :ins :del :uncom and :test for tuning the editing distance (see dist-edit)."))
 
 (defmethod motif-list ((seq t) (out t)
 		       &key (diss 0) (l-var 0) (n nil)
-		       (change 1) (insert 1) (delete 1) (uncom 0) (test #'equalp))
+		       (sub 1) (ins 1) (del 1) (uncom 0) (test #'equalp))
   (when (not out) (setf out :length))
   (unless (member out '(:length :freq))
     (error "motif-list: unknown output ~S, use :length or :freq." out))
@@ -80,31 +80,31 @@ arguments :change :ins/sup :uncom and :test for tuning the editing distance (see
    ;; the default distance (nil) gives the same results faster: with diss 0 and positive costs,
    ;; a distance of 0 means identical elements by test; with the default costs, it is the same
    ;; normalized edit distance
-   (if (or (and (zerop diss) (plusp change) (plusp insert) (plusp delete) (not (minusp uncom)))
-           (and (= change insert delete 1) (zerop uncom)))
+   (if (or (and (zerop diss) (plusp sub) (plusp ins) (plusp del) (not (minusp uncom)))
+           (and (= sub ins del 1) (zerop uncom)))
        nil
-       #'(lambda (a b) (edit-dist a b change insert delete uncom t test)))
+       #'(lambda (a b) (edit-dist a b sub ins del uncom t test)))
    test))
 
-(defgeneric dist-euclidian (a b)
-  (:documentation "DIST-EUCLIDIAN: euclidian distance between points a and b.
-Point coordinates are represented by a list of values in any euclidian space with n dimensions (n integer > 0).
-The dimensionality of the euclidian space is defined by the list representing <a> and <b>.
+(defgeneric dist-euclidean (a b)
+  (:documentation "DIST-EUCLIDEAN: euclidean distance between points a and b.
+Point coordinates are represented by a list of values in any euclidean space with n dimensions (n integer > 0).
+The dimensionality of the euclidean space is defined by the list representing <a> and <b>.
  If a is a list of coordinates (lists) and b null,
 output is the list of distances for all points to all others ;
  if a or b is a number, consider b or a as list of numbers (1 dim).
 If a and b are lists with not same size (i.e points with not same dimensions),
  returns NIL (no distance)."))
 
-(defmethod dist-euclidian ((a t) (b t))
+(defmethod dist-euclidean ((a t) (b t))
   (refrains::dist-euclid a b))
 
-(defgeneric dist-citybloc (a b)
-  (:documentation "DIST-CITYBLOC: city-bloc distance between <x> and <y> which represent 'points' into kind of euclidian space.
-If <y> is null, <x> may represent a list of points, then the output is the list of city-bloc distances for all points to all others."))
+(defgeneric dist-cityblock (a b)
+  (:documentation "DIST-CITYBLOCK: city-block distance between <x> and <y> which represent 'points' into kind of euclidean space.
+If <y> is null, <x> may represent a list of points, then the output is the list of city-block distances for all points to all others."))
 
-(defmethod dist-citybloc ((a t) (b t))
-  (refrains::city-bloc a b))
+(defmethod dist-cityblock ((a t) (b t))
+  (refrains::city-block a b))
 
 (defgeneric dist-hamming (a b &optional norm test)
   (:documentation "DIST-HAMMING: Hamming distance between list a and list b."))
@@ -180,13 +180,13 @@ cond-sh: conditional entropy (experimental).
                   (t (error "entropy: unknown mode ~S, use shannon-2, shannon-n, shannon-e or cond-sh." mode)))))
     (if (listp r) (mapcar #'float r) (float r))))
 
-(defgeneric elt-info (data elt &optional test)
-  (:documentation "ELT-INFO: self-information of the element <elt>: -log2 of its frequency in <data>, nil if the element
+(defgeneric self-info (data elt &optional test)
+  (:documentation "SELF-INFO: self-information of the element <elt>: -log2 of its frequency in <data>, nil if the element
 is absent or <data> is empty. With <elt> nil, each element with its information, the most informative first
 (elements of equal information in their order of first appearance). <test>: identity of the elements (equalp by default)."))
 
-(defmethod elt-info ((data t) (elt t) &optional (test #'equalp))
-  (refrains::self-info data elt test))
+(defmethod self-info ((data t) (elt t) &optional (test #'equalp))
+  (refrains::self-information data elt test))
 
 ;(defmethod redundancy ((data t))
 ;  :non-generic t
@@ -224,8 +224,8 @@ A list of nodes gives the list of their degrees, nil the degrees of all the node
 (defmethod graph-nodes ((graph list))
   (refrains::all-vertices graph))
 
-(defgeneric graph-extrem (graph)
-  (:documentation "GRAPH-EXTREM: returns all extremities (leaves) of a graph."))
+(defgeneric graph-leaves (graph)
+  (:documentation "GRAPH-LEAVES: returns all extremities (leaves) of a graph."))
 
-(defmethod graph-extrem ((graph list))
+(defmethod graph-leaves ((graph list))
   (refrains::tree-leaves graph))

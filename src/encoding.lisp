@@ -213,13 +213,13 @@ Different modes can be selected with the optional argument mode."))
 		 (push (mapcar #'(lambda (s) (safe-read-from-string s)) st) r)))))
       (when (stringp string) (readst string))))
 
-(defgeneric str->symb (strings)
+(defgeneric str>sym (strings)
   (:documentation "Converts a string or a list of strings to respectively a list or a list of lists of symbols"))
 
-(defmethod str->symb ((strings list))
+(defmethod str>sym ((strings list))
   (mapcar #'string-to-symbol strings))
 
-(defmethod str->symb ((strings string))
+(defmethod str>sym ((strings string))
   (string-to-symbol strings))
 
 ;;; SOME CONVERSIONS (lists, strings, char...)

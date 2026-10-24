@@ -23,26 +23,26 @@
 (in-package :refrains/tests)
 
 (def-suite interpolation :in refrains
-  :description "1. Transcription: interpolation of sequences (morph-lists).")
+  :description "1. Transcription: interpolation of sequences (morph-seq).")
 (in-suite interpolation)
 
-(test morph-lists
-  (let ((r (morph-lists '(a m p h o r a) '(p o u l e t))))
+(test morph-seq
+  (let ((r (morph-seq '(a m p h o r a) '(p o u l e t))))
     (is (equal '(a m p h o r a) (first r)))
     (is (equal '(p o u l e t) (car (last r))))
     ;; as many steps as the edit distance
     (is (= (1+ (dist-edit '(a m p h o r a) '(p o u l e t))) (length r))))
   ;; deterministic: the same result at each call
-  (is (equal (morph-lists '(a b c d) '(d c b a)) (morph-lists '(a b c d) '(d c b a))))
+  (is (equal (morph-seq '(a b c d) '(d c b a)) (morph-seq '(a b c d) '(d c b a))))
   ;; identical elements were counted as steps: 4 copies of (a b c)
-  (is (equal '((a b c)) (morph-lists '(a b c) '(a b c))))
-  (is (equal '((1 2 3) (1 3)) (morph-lists '(1 2 3) '(1 3))))
-  (is (equal '((a b c) (b c) (c) nil) (morph-lists '(a b c) '())))
-  (is (equal '(nil (a) (a b)) (morph-lists '() '(a b))))
+  (is (equal '((a b c)) (morph-seq '(a b c) '(a b c))))
+  (is (equal '((1 2 3) (1 3)) (morph-seq '(1 2 3) '(1 3))))
+  (is (equal '((a b c) (b c) (c) nil) (morph-seq '(a b c) '())))
+  (is (equal '(nil (a) (a b)) (morph-seq '() '(a b))))
   ;; strings were compared with eql
-  (is (equal '(("a" "b") ("a" "c")) (morph-lists (list "a" "b") (list (copy-seq "a") "c"))))
-  (is (equal '("chat" "chiat" "chiet" "chien") (morph-lists "chat" "chien")))
+  (is (equal '(("a" "b") ("a" "c")) (morph-seq (list "a" "b") (list (copy-seq "a") "c"))))
+  (is (equal '("chat" "chiat" "chiet" "chien") (morph-seq "chat" "chien")))
   ;; at random, still a path of minimal length
   (let ((*random-state* (seeded-random-state)))
     (is (loop repeat 20
-              always (= 8 (length (morph-lists '(a m p h o r a) '(p o u l e t) :random t)))))))
+              always (= 8 (length (morph-seq '(a m p h o r a) '(p o u l e t) :random t)))))))

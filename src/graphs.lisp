@@ -413,7 +413,7 @@ Returns the same two values as single-linkage: the fusions and the dendrogram."
     (dotimes (i n)
       (loop for j from (1+ i) below n
             unless (aref d i j)
-              do (error "graph-hierarc: no distance between ~S and ~S: linkage ~S needs a complete semi-matrix of distances."
+              do (error "graph>dendrogram: no distance between ~S and ~S: linkage ~S needs a complete semi-matrix of distances."
                         (nth i nodes) (nth j nodes) linkage)))
     (let ((groups (coerce (mapcar #'list nodes) 'vector))
           (trees (coerce nodes 'vector))

@@ -29,19 +29,19 @@
   (:import-from :refrains
                 ;; encodage
                 #:transcode #:alpha>num #:num>alpha #:num>base #:concaten #:list>sym
-                #:str->symb #:separate #:split-string #:morph-lists
-                #:filt-median #:filt-extrema #:filt-local-rep #:filt-lowpass #:filt-mean #:filt-fct #:filt-noise #:exsample
+                #:str>sym #:separate #:split-string #:morph-seq
+                #:filt-median #:filt-extrema #:filt-repeat #:filt-lowpass #:filt-mean #:filt-function #:filt-noise #:exsample
                 ;; distances
-                #:dist-euclid #:dist-euclidian #:dist-citybloc #:dist-hamming
+                #:dist-euclid #:dist-euclidean #:dist-cityblock #:dist-hamming
                 #:dist-edit #:dist-multi-edit #:dist-structure #:dist-graph
                 ;; information
-                #:histogram #:entropy #:elt-info #:inner-dynamic
+                #:histogram #:entropy #:self-info #:inner-dynamic
                 ;; classification
                 #:mark-position #:mark-list #:mark-structure #:motif-structure
-                #:motif-find #:motif-list #:motif-group #:class-num #:class-sym
+                #:motif-position #:motif-list #:motif-group #:class-num #:class-sym
                 ;; graphs
-                #:graph-span #:graph-hierarc #:graph-path #:graph-length #:graph-degree #:graph-nodes
-                #:graph-extrem #:graph>dot #:graph-part
+                #:graph-span #:graph>dendrogram #:graph-path #:graph-length #:graph-degree #:graph-nodes
+                #:graph-leaves #:graph>dot #:graph-part
                 ;; io
                 #:read-text #:write-list #:date-string #:date+time-string
                 #:help #:doc))

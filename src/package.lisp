@@ -43,24 +43,24 @@
   (:use :cl . #.(if (find-package :ompw) '(:ompw) '()))
   (:export
    ;; 1. transcription
-   #:transcode #:num>base #:num>alpha #:alpha>num #:list>sym #:str->symb
+   #:transcode #:num>base #:num>alpha #:alpha>num #:list>sym #:str>sym
    #:filt-noise #:filt-median #:filt-extrema #:filt-mean #:filt-lowpass
-   #:filt-local-rep #:filt-fct
-   #:graph-span #:graph-hierarc #:graph-path #:graph>dot #:graph>matrix
-   #:morph-lists
+   #:filt-repeat #:filt-function
+   #:graph-span #:graph>dendrogram #:graph-path #:graph>dot #:graph>matrix
+   #:morph-seq
    ;; 2. classification
    #:exsample #:separate #:graph-part
-   #:motif-group #:concaten
+   #:motif-group
    #:mark-structure #:motif-structure #:class-num #:class-sym
    ;; 3. evaluation
-   #:mark-position #:mark-list #:motif-find #:motif-list
-   #:graph-nodes #:graph-extrem
-   #:dist-euclidian #:dist-euclid #:dist-citybloc #:dist-hamming #:dist-edit
+   #:mark-position #:mark-list #:motif-position #:motif-list
+   #:graph-nodes #:graph-leaves
+   #:dist-euclidean #:dist-cityblock #:dist-hamming #:dist-edit
    #:dist-multi-edit #:dist-structure #:dist-graph
-   #:histogram #:entropy #:elt-info #:inner-dynamic
+   #:histogram #:entropy #:self-info #:inner-dynamic
    #:graph-length #:graph-degree
    ;; 4. read/write
    #:read-text #:write-list #:display-list
-   #:split-string #:date-string #:date+time-string
+   #:date-string #:date+time-string
    ;; documentation
    #:help #:doc))

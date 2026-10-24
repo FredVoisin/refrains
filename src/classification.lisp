@@ -36,7 +36,7 @@
 (defun normalize-class (classes &optional (test #'equalp))
   "Reordonne les classes de nueesdynamiques, l'ordre de la classe etant le numero de sa premiere occurence dans la liste des classes."
   (let ((set nil) (r nil) (marker -1))
-    (when (stringp classes) (setf classes (str->symb classes)))
+    (when (stringp classes) (setf classes (str>sym classes)))
     ;; set: the classes already seen, as (class . number), most recent first
     (dolist (c classes (nreverse r))
       (let ((seen (assoc c set :test test)))

@@ -54,22 +54,22 @@ as a list of rows: rows and columns in the order of graph-nodes, the distance of
 (defmethod graph>matrix ((list t))
   (refrains::graph2matrix list))
 
-(defgeneric filt-fct (seq func wind &optional step)
-  (:documentation "Apply function <func> to sequence <seq> thru a sliding window of length <wind> by (optional) step <step> (1 by default).
+(defgeneric filt-function (seq func window &optional step)
+  (:documentation "Apply function <func> to sequence <seq> thru a sliding window of length <window> by (optional) step <step> (1 by default).
 Window size may be an integer (samples) or a fraction of the length of seq; step size may be an integer (samples) or a fraction of the window.
 With step 1 the window is centred on each value; with a larger step it is centred on each block of step values.
-A value returned by <func> is repeated for the block; a list replaces the block (step = wind), or gives the values of the block's positions."))
+A value returned by <func> is repeated for the block; a list replaces the block (step = window), or gives the values of the block's positions."))
 
-(defmethod filt-fct ((seq list) (func function) (wind real) &optional (step 1))
-  (let ((wind (if (integerp wind) wind (max 1 (round (* wind (length seq)))))))
-    (refrains::window-apply seq func wind
-                                  (if (integerp step) step (max 1 (round (* step wind)))))))
+(defmethod filt-function ((seq list) (func function) (window real) &optional (step 1))
+  (let ((window (if (integerp window) window (max 1 (round (* window (length seq)))))))
+    (refrains::window-apply seq func window
+                                  (if (integerp step) step (max 1 (round (* step window)))))))
 
-(defgeneric filt-mean (seq wind &optional step)
+(defgeneric filt-mean (seq window &optional step)
   (:documentation "Values replaced by their respective  windowed mean values."))
 
-(defmethod filt-mean ((seq list) (wind real) &optional (step 1))
-  (filt-fct seq #'refrains::mean wind step))
+(defmethod filt-mean ((seq list) (window real) &optional (step 1))
+  (filt-function seq #'refrains::mean window step))
 
 ;(filt-mean '(1 2 1 1 3 4 5 6 0 0 1) 3)
 
@@ -102,19 +102,19 @@ follows the trend of <seq>. The result has the same length as <seq>."))
       (refrains::exponential-smoothing seq alpha)
     (refrains::double-exponential-smoothing seq alpha gamma)))
 
-(defgeneric filt-local-rep (seq &optional mode test)
-  (:documentation "FILT-LOCAL-REP: removes the consecutive identical elements of <seq> (<mode> nil or :delete), or, for
+(defgeneric filt-repeat (seq &optional mode test)
+  (:documentation "FILT-REPEAT: removes the consecutive identical elements of <seq> (<mode> nil or :delete), or, for
 numbers, replaces each run of identical values by a ramp towards the next different value (<mode> :linear, or :interp),
 keeping the length of <seq>. <test>: identity of the elements (equalp by default)."))
 
-(defmethod filt-local-rep ((seq t) &optional (mode nil) (test #'equalp))
+(defmethod filt-repeat ((seq t) &optional (mode nil) (test #'equalp))
   (case mode
     ((nil :delete) (refrains::rem-local-rep seq test))
     ((:linear :interp)
      (if (every #'numberp seq)
          (refrains::nocons= seq test)
          (refrains::rem-local-rep seq test)))
-    (t (error "filt-local-rep: unknown mode ~S, use nil, :delete or :linear." mode))))
+    (t (error "filt-repeat: unknown mode ~S, use nil, :delete or :linear." mode))))
 
 (defgeneric filt-noise (seq &optional mode val)
   (:documentation  "FILT-NOISE: jitters or adds some noise into sequence <seq> using different methods, according to the first optional argument <mode>,
@@ -135,8 +135,8 @@ For instance (lambda (x l) (declare (ignore x)) (nth (random (length l)) l)) rep
 (defmethod graph-span ((mat-dist list) &optional (verbose nil))
   (minimum-spanning-tree mat-dist verbose))
 
-(defgeneric graph-hierarc (mat-dist &key linkage)
-  (:documentation "GRAPH-HIERARC: dendrogram of the hierarchical classification of the objects of a semi-matrix of
+(defgeneric graph>dendrogram (mat-dist &key linkage)
+  (:documentation "GRAPH>DENDROGRAM: dendrogram of the hierarchical classification of the objects of a semi-matrix of
 distances or of a graph <mat-dist>, a list of edges (node-a node-b distance). Returns two values: the list of the
 successive fusions (distance group-a group-b), by increasing distance, where a group is the list of its nodes;
 and the dendrogram, where each fusion is (distance tree-a tree-b) and the leaves are the objects.
@@ -145,11 +145,11 @@ given by the minimum spanning tree (see graph-span; a graph not connected gives 
 of its parts); :complete the greatest distance; :average (UPGMA) the mean distance. :complete and :average
 need a complete semi-matrix of distances."))
 
-(defmethod graph-hierarc ((mat-dist list) &key (linkage :single))
+(defmethod graph>dendrogram ((mat-dist list) &key (linkage :single))
   (case linkage
     (:single (refrains::single-linkage mat-dist))
     ((:complete :average) (refrains::agglomerative-clustering mat-dist linkage))
-    (t (error "graph-hierarc: unknown linkage ~S, use :single, :complete or :average." linkage))))
+    (t (error "graph>dendrogram: unknown linkage ~S, use :single, :complete or :average." linkage))))
 
 (defgeneric graph-path (from to graph)
   (:documentation "GRAPH-PATH: returns path(s) from node(s) or leave(s) to one or some other node(s) or leave(s) of a graph; in a graph with cycles, the shortest path by distance."))
@@ -171,16 +171,16 @@ Keywords:
 (defmethod graph>dot  ((graph t) (out t) &key (dis 1) (scale t) (shape "ellipse") (legend t))
   (refrains::graph2dot graph dis scale shape out legend))
 
-(defgeneric morph-lists (seq1 seq2 &key test random)
-  (:documentation "MORPH-LISTS: interpolates the sequence <seq1> to the sequence <seq2> with the minimum of steps,
+(defgeneric morph-seq (seq1 seq2 &key test random)
+  (:documentation "MORPH-SEQ: interpolates the sequence <seq1> to the sequence <seq2> with the minimum of steps,
 changing one element at a time (substitution, deletion or insertion) along an edit path of minimal cost (see
 dist-edit): the list of the sequences from <seq1> to <seq2>, as many steps as their edit distance. <test>:
 identity of the elements (equalp by default). For equal costs, substitution is preferred, then deletion,
 then insertion; with :random t, one of them at random. Two strings give strings."))
 
-(defmethod morph-lists ((seq1 list) (seq2 list) &key (test #'equalp) (random nil))
+(defmethod morph-seq ((seq1 list) (seq2 list) &key (test #'equalp) (random nil))
   (refrains::s-interpolate seq1 seq2 :test test :random random))
 
-(defmethod morph-lists ((seq1 string) (seq2 string) &key (test #'equalp) (random nil))
+(defmethod morph-seq ((seq1 string) (seq2 string) &key (test #'equalp) (random nil))
   (mapcar #'(lambda (s) (coerce s 'string))
           (refrains::s-interpolate seq1 seq2 :test test :random random)))

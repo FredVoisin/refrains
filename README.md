@@ -11,12 +11,10 @@ and PWGL (Mikael Laurson, Sibelius Academy).
 
 - Documentation: [English](doc/refrains.md),
   [français](doc/refrains.fr.md) (reference version).
-- The 57 exported functions, with their arguments and docstrings:
+- The 53 exported functions, with their arguments and docstrings:
   [English](doc/refrains-functions.md),
   [français](doc/refrains-fonctions.fr.md).
 - Changes between versions: [CHANGELOG.md](CHANGELOG.md).
-- The PWGL tutorial and bindings are kept in the
-  [`pwgl-legacy/`](https://github.com/FredVoisin/fv-morphologie/tree/master/pwgl-legacy) directory of fv-morphologie.
 
 In Lisp, `(doc)` lists the functions, `(doc 'dist-edit)` prints the docstring
 of a function, and `(help "distance")` looks for a keyword in the names and

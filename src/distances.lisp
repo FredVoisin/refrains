@@ -22,7 +22,7 @@
 
 ;;;; distances.lisp
 ;;;;
-;;;; Distances and similarities: euclidian, city-block, Hamming, edit
+;;;; Distances and similarities: euclidean, city-block, Hamming, edit
 ;;;; distances, Jaccard, Sorensen, Mountford, structures.
 
 (in-package :refrains)
@@ -32,8 +32,8 @@
 ;; 1. Distance euclidienne
 
 (defgeneric dist-euclid (a b &optional key)
-  (:documentation "Euclidian distance between points a and b.
-Point coordinates are represented by a list of values in any euclidian space.
+  (:documentation "Euclidean distance between points a and b.
+Point coordinates are represented by a list of values in any euclidean space.
  if a is a list of coordinates (lists) and b null,
 output is the list of distances for all points to all others ;
  if a or b is a number, consider b or a as list of numbers (1 dim).
@@ -66,22 +66,22 @@ If a and b are lists with not same size (i.e points with not same dimensions),
       (loop for j from (1+ i) to (1- (length a))
             do (push (list i j (dist-euclid (nth i a) (nth j a) key)) r)))))
 
-(defgeneric city-bloc (a b)
-  (:documentation "City-bloc distance between a and b in euclidian space with n dimensions (with integer n > 0)."))
+(defgeneric city-block (a b)
+  (:documentation "City-block distance between a and b in euclidean space with n dimensions (with integer n > 0)."))
 
-(defmethod city-bloc ((a number) (b number))
+(defmethod city-block ((a number) (b number))
  (if (> a b) (- a b) (- b a)))
 
-(defmethod city-bloc ((a list) (b list))
+(defmethod city-block ((a list) (b list))
   (assert (= (length a) (length b)))
-  (apply #'+ (mapcar #'(lambda (x y) (city-bloc x y)) a b)))
+  (apply #'+ (mapcar #'(lambda (x y) (city-block x y)) a b)))
 
-(defmethod city-bloc ((a list) (b null))
+(defmethod city-block ((a list) (b null))
   (assert (apply #'= (mapcar #'length a)))
   (let ((r (list)))
     (dotimes (i (length a) (nreverse (remove 'nil r)))
       (loop for j from (1+ i) to (1- (length a)) do
-	 (push (list i j (city-bloc (nth i a) (nth j a))) r)))))
+	 (push (list i j (city-block (nth i a) (nth j a))) r)))))
 
 (defgeneric close-p (a b thresh &optional dist)
   (:documentation "Tests if a and b are close according to their distance."))

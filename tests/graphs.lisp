@@ -52,8 +52,8 @@
   ;; mixed nodes: numbers first, then the others by name
   (is (equal '(1 2.5 10 a "b" c) (graph-nodes '((c 10 1) ("b" 2.5 1) (a 1 2))))))
 
-(test graph-extrem
-  (is (null (set-exclusive-or '(a d) (graph-extrem *chain*)))))
+(test graph-leaves
+  (is (null (set-exclusive-or '(a d) (graph-leaves *chain*)))))
 
 (test graph-span-max-distance-edges
   ;; used to loop forever when the tree needed an edge of maximum length,
@@ -180,29 +180,29 @@
 (defparameter *semi-matrix*
   '((a b 1) (a c 4) (a d 6) (a e 8) (b c 2) (b d 5) (b e 7) (c d 5) (c e 6) (d e 1)))
 
-(test graph-hierarc
+(test graph>dendrogram
   (let ((*standard-output* (make-broadcast-stream))
         (g '((a b 1) (a c 4) (b c 2) (c d 5) (d e 1) (b e 7))))
-    (multiple-value-bind (fusions tree) (graph-hierarc g)
+    (multiple-value-bind (fusions tree) (graph>dendrogram g)
       (is (equal '((1 (a) (b)) (1 (d) (e)) (2 (a b) (c)) (5 (a b c) (d e))) fusions))
       (is (equal '(5 (2 (1 a b) c) (1 d e)) tree)))
     ;; a tree gives one fusion for each edge
-    (is (= 3 (length (graph-hierarc *chain*))))
+    (is (= 3 (length (graph>dendrogram *chain*))))
     ;; nodes compared with equal
-    (is (equal '((1 ("x") ("y"))) (graph-hierarc (list (list (copy-seq "x") (copy-seq "y") 1)))))
+    (is (equal '((1 ("x") ("y"))) (graph>dendrogram (list (list (copy-seq "x") (copy-seq "y") 1)))))
     ;; a graph not connected: the list of the dendrograms of its parts
-    (is (equal '((1 a b) (2 c d)) (nth-value 1 (graph-hierarc '((a b 1) (c d 2))))))
-    (is (null (graph-hierarc '())))
-    (signals error (graph-hierarc g :linkage :ward))))
+    (is (equal '((1 a b) (2 c d)) (nth-value 1 (graph>dendrogram '((a b 1) (c d 2))))))
+    (is (null (graph>dendrogram '())))
+    (signals error (graph>dendrogram g :linkage :ward))))
 
-(test graph-hierarc-linkage
-  (is (equal '(5 (2 (1 a b) c) (1 d e)) (nth-value 1 (graph-hierarc *semi-matrix*))))
-  (multiple-value-bind (fusions tree) (graph-hierarc *semi-matrix* :linkage :complete)
+(test graph>dendrogram-linkage
+  (is (equal '(5 (2 (1 a b) c) (1 d e)) (nth-value 1 (graph>dendrogram *semi-matrix*))))
+  (multiple-value-bind (fusions tree) (graph>dendrogram *semi-matrix* :linkage :complete)
     (is (equal '((1 (a) (b)) (1 (d) (e)) (4 (a b) (c)) (8 (a b c) (d e))) fusions))
     (is (equal '(8 (4 (1 a b) c) (1 d e)) tree)))
   ;; mean of the 6 distances between (a b c) and (d e)
   (is (equal '(37/6 (3 (1 a b) c) (1 d e))
-             (nth-value 1 (graph-hierarc *semi-matrix* :linkage :average))))
+             (nth-value 1 (graph>dendrogram *semi-matrix* :linkage :average))))
   ;; complete and average need all the distances
-  (signals error (graph-hierarc '((a b 1) (b c 2)) :linkage :complete))
-  (is (null (graph-hierarc '() :linkage :average))))
+  (signals error (graph>dendrogram '((a b 1) (b c 2)) :linkage :complete))
+  (is (null (graph>dendrogram '() :linkage :average))))

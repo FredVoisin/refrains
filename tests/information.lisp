@@ -36,8 +36,8 @@
     (is (approx= 1.0 (entropy '(a b a b))))
     (is (approx= 2.0 (entropy '(a b c d))))))
 
-(test elt-info
-  (is (approx= 1.0 (elt-info '(a b a c) 'a))))
+(test self-info
+  (is (approx= 1.0 (self-info '(a b a c) 'a))))
 
 (test histogram-test-and-order
   ;; the default test was eq: equal strings or lists were not counted together
@@ -71,16 +71,16 @@
   (is (every #'floatp (entropy '(a b) :shannon-2 5)))
   (is (equal '(1.0 1.0 0.0 0.0) (entropy '(a b a b a a a a) :shannon-2 4))))
 
-(test elt-info-any-element
+(test self-info-any-element
   ;; an absent element, or empty data, divided by zero: nil (the information is infinite)
-  (is (null (elt-info '(a b c) 'z)))
-  (is (null (elt-info '() 'a)))
-  (is (null (elt-info '() nil)))
+  (is (null (self-info '(a b c) 'z)))
+  (is (null (self-info '() 'a)))
+  (is (null (self-info '() nil)))
   ;; strings, decimal numbers and lists had no applicable method
-  (is (approx= (- (log 2/3 2)) (elt-info '("x" "y" "x") "x")))
-  (is (approx= 1 (elt-info '(1.5 2.5 1.5 3.5) 1.5)))
-  (is (approx= (- (log 2/3 2)) (elt-info '((1 2) (3) (1 2)) '(1 2))))
+  (is (approx= (- (log 2/3 2)) (self-info '("x" "y" "x") "x")))
+  (is (approx= 1 (self-info '(1.5 2.5 1.5 3.5) 1.5)))
+  (is (approx= (- (log 2/3 2)) (self-info '((1 2) (3) (1 2)) '(1 2))))
   ;; nil: every element, with test, equal amounts in the order of first appearance
-  (is (equal '((b 2.0) (c 2.0) (a 1.0)) (elt-info '(a b a c) nil)))
-  (is (equal '("The" "the" "cat") (mapcar #'first (elt-info '("The" "the" "cat") nil #'equal))))
-  (is (approx= 0 (elt-info '(a a a) 'a))))
+  (is (equal '((b 2.0) (c 2.0) (a 1.0)) (self-info '(a b a c) nil)))
+  (is (equal '("The" "the" "cat") (mapcar #'first (self-info '("The" "the" "cat") nil #'equal))))
+  (is (approx= 0 (self-info '(a a a) 'a))))

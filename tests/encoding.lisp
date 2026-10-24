@@ -49,9 +49,9 @@
   (is (eq 'x (concaten 'x)))
   (is (= 123 (list>sym '(1 2 3)))))
 
-(test str->symb
-  (is (equal '(a b c) (str->symb "a b c")))
-  (is (equal '((a b) (c)) (str->symb '("a b" "c")))))
+(test str>sym
+  (is (equal '(a b c) (str>sym "a b c")))
+  (is (equal '((a b) (c)) (str>sym '("a b" "c")))))
 
 (test no-self-recursive-wrappers
   ;; used to loop forever

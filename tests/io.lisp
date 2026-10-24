@@ -72,7 +72,7 @@
                  (read-text file :mode :charcode :sep (list #\- #\!))))
       (is (equal '((97 98 45 99 100) (101 102) (103 104) (105 106))
                  (read-text file :mode :charcode :sep (list :ignore #\-))))
-      ;; the old PWGL modes, and any unknown mode, are errors (:ascii-7b gave the lines)
+      ;; the old modes, and any unknown mode, are errors (:ascii-7b gave the lines)
       (signals error (read-text file :mode :ascii-7b))
       (signals error (read-text file :mode :foo)))
     (uiop:with-temporary-file (:pathname file :type "txt")

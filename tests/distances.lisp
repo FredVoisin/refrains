@@ -26,12 +26,12 @@
   :description "3. Evaluation: distances and similarities.")
 (in-suite distances)
 
-(test dist-euclidian
-  (is (approx= 5.0 (dist-euclidian '(0 0) '(3 4))))
-  (is (approx= 0.0 (dist-euclidian '(1 2) '(1 2)))))
+(test dist-euclidean
+  (is (approx= 5.0 (dist-euclidean '(0 0) '(3 4))))
+  (is (approx= 0.0 (dist-euclidean '(1 2) '(1 2)))))
 
-(test dist-citybloc
-  (is (= 7 (dist-citybloc '(0 0) '(3 4)))))
+(test dist-cityblock
+  (is (= 7 (dist-cityblock '(0 0) '(3 4)))))
 
 (test dist-hamming
   (is (approx= 0.5 (dist-hamming '(a b c d) '(a x c y))))

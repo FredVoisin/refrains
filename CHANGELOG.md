@@ -6,38 +6,65 @@ follow [Semantic Versioning](https://semver.org/).
 
 refrains continues [fv-morphologie](https://github.com/FredVoisin/fv-morphologie):
 refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
-(1.4.0 to 0.2.0) are those of fv-morphologie.
+(fv-morphologie 1.4.0 to 0.1.0) are those of fv-morphologie.
 
-## [Unreleased]
+## [0.2.0] - 2026-10-24
+
+### Changed
+
+- The functions are renamed consistently, without aliases for the former
+  names (fv-morphologie keeps them). The names follow two conventions:
+  `family-object` (`filt-`, `graph-`, `dist-`, `mark-`, `motif-`, `class-`)
+  and `source>target` for conversions; whole words rather than truncations;
+  as far as possible an etymology common to French and English. The family
+  `graph-` is kept for the functions on trees as well: the word is common to
+  French and English, and graph theory applies to trees.
+
+  | 0.0.1 | 0.2.0 |
+  |---|---|
+  | `str->symb` | `str>sym` |
+  | `filt-local-rep` | `filt-repeat` |
+  | `filt-fct` | `filt-function` |
+  | `graph-extrem` | `graph-leaves` |
+  | `dist-euclidian` | `dist-euclidean` |
+  | `dist-citybloc` | `dist-cityblock` |
+  | `motif-find` | `motif-position` |
+  | `elt-info` | `self-info` |
+
+- The arguments are named consistently: `window` (not `wind`) in
+  `filt-mean` and `filt-function`; `:sub :ins :del :uncom` for the costs of
+  the edit distance in `motif-position`, `motif-list` and `class-sym`
+  (`:change`, `:insert`, `:delete` before, as in `dist-edit` already);
+  `:mark-test` and `:seg-test` (`:mark-t` and `:seg-t` before) in
+  `mark-list`.
+- The internal function `self-info` is renamed `self-information`.
 
 ### Added
 
-- `filt-extrema (seq window &optional mode)`, the PWGL box: maximum (`:max`,
+- `filt-extrema (seq window &optional mode)`: maximum (`:max`,
   dilation) or minimum (`:min`, erosion) over a window centred on each
   value, and their compositions `:open` (removes the narrow peaks) and
-  `:close` (fills the narrow hollows). The window was not centred and
-  looked forward, and the end of the sequence repeated a maximum already
-  passed: `(filt-extrema '(1 5 2 8 3 3 9 1 0 4) 3)` gives
-  `(5 5 8 8 8 9 9 9 4 4)`.
-- `morph-lists (seq1 seq2 &key test random)`, the PWGL box (legacy menu
-  1.4, Interpolate): the sequences from `seq1` to `seq2` changing one
-  element at a time along an edit path of minimal cost. The path is now the
-  same at each call (at random with `:random t`), substituting an element
-  by itself is no longer a step (`(morph-lists '(a b c) '(a b c))` gives
-  `((A B C))`, not 4 copies), the elements are compared with `equalp` (not
-  `eql`), and two strings give strings.
-- `graph-hierarc (mat-dist &key linkage)`, named in the PWGL tutorial but
-  never written: the dendrogram of the agglomerative hierarchical
-  classification of a semi-matrix of distances. Returns the list of the
-  fusions `(distance group-a group-b)` and the dendrogram as a nested tree
-  `(distance tree-a tree-b)`. `:linkage` is `:single` (by default, from the
-  minimum spanning tree, for any graph), `:complete` or `:average` (UPGMA;
-  both need a complete semi-matrix). Experimental.
-- Documentation: the PWGL box `group` with intersection of adjacent lists
-  is `motif-group` with the test `(lambda (a b) (intersection a b))`.
+  `:close` (fills the narrow hollows):
+  `(filt-extrema '(1 5 2 8 3 3 9 1 0 4) 3)` gives `(5 5 8 8 8 9 9 9 4 4)`.
+- `morph-seq (seq1 seq2 &key test random)` (menu 1.4, Interpolate): the
+  sequences from `seq1` to `seq2` changing one element at a time along an
+  edit path of minimal cost, the same at each call (at random with
+  `:random t`); the elements are compared with `equalp` by default, and two
+  strings give strings.
+- `graph>dendrogram (mat-dist &key linkage)`: the dendrogram of the agglomerative
+  hierarchical classification of a semi-matrix of distances. Returns the
+  list of the fusions `(distance group-a group-b)` and the dendrogram as a
+  nested tree `(distance tree-a tree-b)`. `:linkage` is `:single` (by
+  default, from the minimum spanning tree, for any graph), `:complete` or
+  `:average` (UPGMA; both need a complete semi-matrix). Experimental.
+- Documentation: to group the adjacent lists that intersect, use
+  `motif-group` with the test `(lambda (a b) (intersection a b))`.
 
 ### Removed
 
+- `dist-euclid`, `concaten` and `split-string` are no longer exported: they
+  were the same functions as `dist-euclidean`, `list>sym` and `separate`
+  (on a string). The package exports 53 functions.
 - The internal function `regroup-if-intersection`, used by no function: it
   compared all the pairs of lists, not only adjacent ones, and did not
   regroup again after a fusion.
@@ -56,7 +83,7 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   they stay in the fv-morphologie repository. The figure used by the
   documentation is in `doc/pictures/`.
 
-## [1.4.0] - 2026-10-24
+## [fv-morphologie 1.4.0] - 2026-10-24
 
 ### Added
 
@@ -75,7 +102,7 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 
 - `split`: use `separate`.
 
-## [1.3.0] - 2026-10-24
+## [fv-morphologie 1.3.0] - 2026-10-24
 
 ### Changed
 
@@ -101,7 +128,7 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 - `exsample` looked the points up in the list one by one, in quadratic time
   (2.1 s for 50,000 values with `:resampled`): it is linear (12 ms).
 
-## [1.2.0] - 2026-10-24
+## [fv-morphologie 1.2.0] - 2026-10-24
 
 ### Fixed
 
@@ -117,7 +144,7 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `thres` 3 gives `((1 1 6))`, not `((3 1 5))`. The documentation gives this
   order.
 
-## [1.1.1] - 2026-10-24
+## [fv-morphologie 1.1.1] - 2026-10-24
 
 ### Fixed
 
@@ -131,7 +158,7 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 - The documentation of `:major-extrema` gives how Fink & Gandhi's algorithm
   treats the ends of the sequence and equal extrema.
 
-## [1.1.0] - 2026-10-23
+## [fv-morphologie 1.1.0] - 2026-10-23
 
 ### Changed
 
@@ -157,7 +184,7 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `notzerop`, `sign`), and `next-sign`; `derivee` gives the signs of the
   successive differences.
 
-## [1.0.0] - 2026-10-22
+## [fv-morphologie 1.0.0] - 2026-10-22
 
 The first stable release: from this version on, the public interface (the
 54 functions exported by the package `fv-morphologie`, their arguments and
@@ -173,7 +200,7 @@ their documented results) changes only with a new major version.
   tests are organized the same way. The code itself is unchanged: the
   functions give the same results as in 0.2.0.
 
-## [0.2.0] - 2026-10-22
+## [fv-morphologie 0.2.0] - 2026-10-22
 
 The first release as a Common Lisp library loadable with ASDF and Quicklisp,
 with a test suite (FiveAM) run on SBCL and ECL.
@@ -266,14 +293,14 @@ These changes alter results which were documented or relied upon:
   replaced by `:major-extrema` and `:landmarks`), and unused internal
   functions.
 
-## [0.1.0]
+## [fv-morphologie 0.1.0]
 
 The PWGL / OpenMusic library adapted to Common Lisp, before this changelog.
 
-[1.4.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.4.0
-[1.3.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.3.0
-[1.2.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.2.0
-[1.1.1]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.1.1
-[1.1.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.1.0
-[1.0.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.0.0
-[0.2.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v0.2.0
+[fv-morphologie 1.4.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.4.0
+[fv-morphologie 1.3.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.3.0
+[fv-morphologie 1.2.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.2.0
+[fv-morphologie 1.1.1]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.1.1
+[fv-morphologie 1.1.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.1.0
+[fv-morphologie 1.0.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.0.0
+[fv-morphologie 0.2.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v0.2.0

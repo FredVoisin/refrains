@@ -116,7 +116,7 @@ Argument :mode defines the algorithm used for partitioning the points:
 :centroids for centroids algorithm (in French: nuees dynamiques);
 :1d-centroids, initial centres taken between the largest differences of the sorted data (one dimension, deterministic).
 Keyword argument :iter to set the number of runs of the algorithm (with :centroids);
-:dist to set the distance or metric to be used (by default: euclidian distance)."))
+:dist to set the distance or metric to be used (by default: euclidean distance)."))
 
 (defmethod class-num ((data t) (classes integer) (mode symbol) &key (iter nil) (dist nil))
   (setf classes (max 2 classes))   ; at least 2 classes
@@ -138,28 +138,28 @@ Keyword argument :iter to set the number of runs of the algorithm (with :centroi
            (refrains::1d-class data classes (if dist dist #'identity)))
           (t (error "class-num: unknown mode ~S, use :centroids (or nil) or :1d-centroids." mode)))))
 
-(defgeneric class-sym (data classes mode &key uncom ins del change excluded mst)
+(defgeneric class-sym (data classes mode &key sub ins del uncom excluded mst)
   (:documentation "CLASS-SYM: classify a set of segments or sequences into different classes according to their editing distance to each other and
 by partitioning the resulting spanning tree (see class-graph).
 The output is a list of numbers (from zero) as instances of the different classes retrieved.
-Keyword arguments :uncom :ins/del :change for tuning editing distance (see dist-edit).
+Keyword arguments :sub :ins :del :uncom for tuning editing distance (see dist-edit).
 The argument :excluded is a list of elements of data excluded from classification ;
 in the output, the numbering of the different instances begins by numbering these elements first (from zero), 
 in the order defined with the argument :excluded."))
 
 (defmethod class-sym ((data t) (classes integer) (mode symbol)
-		      &key (uncom .5) (ins 1) (del 1) (change 1) (excluded nil) (mst nil))
+		      &key (sub 1) (ins 1) (del 1) (uncom .5) (excluded nil) (mst nil))
   (setf classes (max 2 classes))
   (if (not excluded)
       (cond ((or (eq mode :edit-nn) (not mode))
-             (refrains::s-class data classes nil change ins del uncom mst))
+             (refrains::s-class data classes nil sub ins del uncom mst))
             ((eq mode :edit-norm)
-             (refrains::s-class data classes t change ins del uncom mst))
+             (refrains::s-class data classes t sub ins del uncom mst))
             (t nil))
     (cond ((eq mode :edit-nn)
-           (refrains::s-class-with-fixed data classes excluded nil nil nil change ins del uncom mst))
+           (refrains::s-class-with-fixed data classes excluded nil nil nil sub ins del uncom mst))
           ((eq mode :edit-norm)
-           (refrains::s-class-with-fixed data classes excluded nil nil t change ins del uncom mst))
+           (refrains::s-class-with-fixed data classes excluded nil nil t sub ins del uncom mst))
           (t nil))))
 
 ;; 2.5 CONCATENATION
