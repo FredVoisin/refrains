@@ -13,7 +13,7 @@ applies to the functions of refrains.
 A complete example in Common Lisp, which uses only functions of refrains:
 [lisp/refrains-trees.lisp](../lisp/refrains-trees.lisp) links the
 functions of refrains by their names (`dist-edit`) and by the vocabulary of
-their documentation (`separate`, `histogram`, Jaccard distance), computes
+their documentation (`separate`, `dist-edit`, Jaccard distance), computes
 their minimum spanning trees (`graph-span`) and dendrograms
 (`graph-dendrogram`), and draws them (`graph>dot`, `dendrogram>dot`). The
 images and the method are presented in the
@@ -81,14 +81,32 @@ entre leurs objets (noms ou vocabulaires), arrondie au centième."
 
 ;;; 2. Par la documentation : distance de Jaccard entre les vocabulaires
 
-(defparameter *articles* '("a" "an" "the"))
+;; les mots grammaticaux de l'anglais des docstrings, qui ne disent rien du rôle des fonctions
+(defparameter *mots-grammaticaux*
+  '(;; articles et déterminants
+    "a" "an" "the" "this" "that" "these" "those" "each" "every" "all" "any" "some" "no"
+    "other" "another" "such" "both" "either" "neither"
+    ;; pronoms
+    "it" "its" "they" "them" "their" "theirs" "which" "who" "whom" "whose" "what" "there"
+    ;; auxiliaires et verbes modaux
+    "is" "are" "was" "were" "be" "been" "being" "am" "has" "have" "had" "do" "does" "did"
+    "can" "could" "may" "might" "must" "shall" "should" "will" "would"
+    ;; conjonctions
+    "and" "or" "but" "nor" "so" "yet" "if" "then" "else" "than" "as" "because" "while"
+    "when" "where" "whether" "not"
+    ;; prépositions
+    "of" "to" "in" "on" "at" "by" "for" "with" "from" "into" "onto" "over" "under" "between"
+    "among" "through" "during" "before" "after" "about" "against" "without" "within" "along"
+    "across" "per" "via" "up" "down" "out" "off"
+    ;; adverbes
+    "also" "only" "just" "very" "too" "more" "most" "less" "least"))
 
 (defun vocabulaire (f)
-  "Les mots de la documentation de f, en minuscules, sans le nom de f, les articles,
+  "Les mots de la documentation de f, en minuscules, sans le nom de f, les mots grammaticaux,
 les nombres et les symboles d'une lettre (a, b, x...)."
   (remove-duplicates
    (remove-if (lambda (word)
-                (or (member word *articles* :test #'string=)
+                (or (member word *mots-grammaticaux* :test #'string=)
                     (= (length word) 1)
                     (every #'digit-char-p word)
                     (string= word (string-downcase f))))
@@ -130,18 +148,21 @@ les nombres et les symboles d'une lettre (a, b, x...)."
   (remove-duplicates (mapcar (lambda (word) (gethash word *termes-generiques* word)) vocabulaire)
                      :test #'string=))
 
-(defparameter *termes* (mapcar #'vocabulaire-generique *vocabulaires*))
+;; les mots du style des docstrings, qui reviennent dans toutes les fonctions qui ont des
+;; options, sans dire ce qu'elles font : retirés après la fusion des variantes (define,
+;; defined et defines ont pour terme générique define)
+(defparameter *mots-de-documentation*
+  '("argument" "keyword" "optional" "option" "default" "nil" "equalp"
+    "return" "returns" "returned" "define" "give" "according" "use" "using" "mode"))
 
-;; les termes présents dans plus de 10 des 52 documentations (list, with...),
-;; trop courants pour distinguer les fonctions
-(defparameter *termes-courants*
-  (loop for (term count) in (histogram (reduce #'append *termes*) :test #'equal)
-        when (> count 10) collect term))
+(defparameter *termes*
+  (mapcar (lambda (v) (set-difference (vocabulaire-generique v) *mots-de-documentation*
+                                      :test #'string=))
+          *vocabulaires*))
 
 (defparameter *docstrings-tree*
   (graph-span
-   (semi-matrix (mapcar (lambda (v) (set-difference v *termes-courants* :test #'string=))
-                        *termes*)
+   (semi-matrix *termes*
                 ;; jaccard-dist : fonction interne de refrains, non exportée
                 (lambda (a b) (refrains::jaccard-dist a b :test #'string=)))))
 

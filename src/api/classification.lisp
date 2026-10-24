@@ -66,9 +66,9 @@ Empty segments are removed."))
   (split-string seq marks keep))
 
 (defgeneric mark-structure  (seq out &key diss rem-loc-dup test)
-  (:documentation "MARK-STRUCTURE: returns possible structures of input <seq> based on marks retrieved from <seq>.
-The output is sorted by structures's length.
-Use output menu <out> to define result form (another output is an error):
+  (:documentation "MARK-STRUCTURE: returns the possible structures of <seq> given by its marks: each mark opens segments,
+and the repetitions of these segments give a structure. The structures are sorted by length.
+Argument <out> defines the form of the result (another value is an error):
 :struct (or nil) lists all possible structures according to different marks of <seq>
 :pos each structure is consed to the list of positions for each segment followed by the list of the segments themselves
 :raw each structure is consed to the list of the different segments, each followed by all its positions in <seq>.

@@ -44,7 +44,13 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   images in `doc/pictures/`), and its commented code, which is its
   documentation, is embedded in the page of the example. Every Lisp file of
   `doc/lisp/` is under CC BY 4.0, like the documentation (`doc/lisp/README.md`),
-  which a test checks (`doc-lisp-license`). The documentation links from its beginning to the list of the
+  which a test checks (`doc-lisp-license`).
+  In the vocabulary of the docstrings, the trees remove a list of the
+  grammatical words of English (articles, pronouns, auxiliaries,
+  conjunctions, prepositions) instead of the words found in more than 10
+  docstrings, which also removed words such as *distance* or *graph*, and
+  a list of the words of the style of the docstrings (*argument*,
+  *keyword*, *default*, *returns*...). The documentation links from its beginning to the list of the
   functions and to the examples.
 
 ### Changed
@@ -72,6 +78,8 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   symbols. The docstring of `class-sym` referred to `class-graph`, which
   does not exist: it refers to `graph-part`.
 - The docstring of `class-num` is reworded (it said "into s space").
+- The docstring of `mark-structure` is reworded (it spoke of an "output
+  menu", as in PWGL).
 - `graph-path` is in the section 3.1 (enumerate: find), after
   `graph-degree`, instead of 1.3 (delineate): it does not build a graph,
   it finds paths in a graph, as `graph-nodes`, `graph-leaves` and
