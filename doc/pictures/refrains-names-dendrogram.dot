@@ -1,5 +1,5 @@
 graph "refrains-names-dendrogram" {
-/* generated with refrains:dendrogram>dot, 24 Oct 2026 21:17:04, to be drawn with neato -n2 */
+/* generated with refrains:dendrogram>dot, 24 Oct 2026 21:20:49, to be drawn with neato -n2 */
  graph [splines=false, bgcolor=black];
  node [shape=point, width=0, color=white, fontcolor=white, fontname=Courier, fontsize=11];
  edge [color=white];
@@ -76,29 +76,29 @@ graph "refrains-names-dendrogram" {
  p30 -- p32;
  p31 -- p33;
  p33 -- p32;
- l13 [shape=plaintext, label="graph>dot", pos="81.9,624.0"];
+ l13 [shape=plaintext, label="graph-dendrogram", pos="58.8,624.0"];
  p34 [pos="117.6,624.0"];
- p35 [pos="467.6,677.0"];
- p36 [pos="467.6,624.0"];
- p37 [pos="467.6,650.5"];
+ p35 [pos="450.1,677.0"];
+ p36 [pos="450.1,624.0"];
+ p37 [pos="450.1,650.5"];
  p33 -- p35;
  p34 -- p36;
  p35 -- p37;
  p37 -- p36;
- l14 [shape=plaintext, label="graph>matrix", pos="72.0,608.0"];
+ l14 [shape=plaintext, label="graph>dot", pos="81.9,608.0"];
  p38 [pos="117.6,608.0"];
- p39 [pos="485.1,650.5"];
- p40 [pos="485.1,608.0"];
- p41 [pos="485.1,629.3"];
+ p39 [pos="467.6,650.5"];
+ p40 [pos="467.6,608.0"];
+ p41 [pos="467.6,629.3"];
  p37 -- p39;
  p38 -- p40;
  p39 -- p41;
  p41 -- p40;
- l15 [shape=plaintext, label="graph>dendrogram", pos="58.8,592.0"];
+ l15 [shape=plaintext, label="graph>matrix", pos="72.0,592.0"];
  p42 [pos="117.6,592.0"];
- p43 [pos="502.6,629.3"];
- p44 [pos="502.6,592.0"];
- p45 [pos="502.6,610.6"];
+ p43 [pos="485.1,629.3"];
+ p44 [pos="485.1,592.0"];
+ p45 [pos="485.1,610.6"];
  p41 -- p43;
  p42 -- p44;
  p43 -- p45;

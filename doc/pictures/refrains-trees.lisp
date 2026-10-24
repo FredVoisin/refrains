@@ -84,7 +84,7 @@ les nombres et les symboles d'une lettre (a, b, x...)."
 ;; dendrogram-leaves : fonction interne de refrains, non exportée
 (defparameter *termes-generiques*
   (let ((terms (make-hash-table :test #'equal))
-        (forest (nth-value 1 (graph>dendrogram (mots-voisins *mots*)))))
+        (forest (nth-value 1 (graph-dendrogram (mots-voisins *mots*)))))
     (dolist (tree (if (realp (first forest)) (list forest) forest) terms)
       (let* ((group (refrains::dendrogram-leaves tree))
              (generic (first (stable-sort (sort (copy-list group) #'string<) #'< :key #'length))))
@@ -119,13 +119,13 @@ les nombres et les symboles d'une lettre (a, b, x...)."
 (graph>dot *docstrings-tree* (namestring (merge-pathnames "refrains-docstrings.png" *here*))
            :overlap nil :invert t)
 
-;;; 4. Les dendrogrammes de chaque arbre : graph>dendrogram (lien simple) range les
+;;; 4. Les dendrogrammes de chaque arbre : graph-dendrogram (lien simple) range les
 ;;; fusions de l'arbre par distance croissante ; dendrogram>dot place les feuilles à
 ;;; gauche et chaque fusion à l'abscisse de sa distance, et appelle neato -n2.
 
-(dendrogram>dot (nth-value 1 (graph>dendrogram *names-tree*))
+(dendrogram>dot (nth-value 1 (graph-dendrogram *names-tree*))
                 (namestring (merge-pathnames "refrains-names-dendrogram.png" *here*))
                 :invert t)
-(dendrogram>dot (nth-value 1 (graph>dendrogram *docstrings-tree*))
+(dendrogram>dot (nth-value 1 (graph-dendrogram *docstrings-tree*))
                 (namestring (merge-pathnames "refrains-docstrings-dendrogram.png" *here*))
                 :invert t)

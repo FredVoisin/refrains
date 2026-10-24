@@ -110,9 +110,9 @@
     (let ((d (dot '((1 "x" "y") (2 "c" "d")))))
       (is (search "label=\"x\"" d))
       (is (search "label=\"d\"" d)))
-    ;; with graph>dendrogram
+    ;; with graph-dendrogram
     (is (search "label=\"E\""
-                (dot (nth-value 1 (graph>dendrogram '((a b 1) (a c 4) (b c 2) (c d 5) (d e 1)))))))))
+                (dot (nth-value 1 (graph-dendrogram '((a b 1) (a c 4) (b c 2) (c d 5) (d e 1)))))))))
 
 (test dendrogram>dot-neato
   ;; draws a dendrogram with neato -n2, if Graphviz is installed (else the test is skipped)

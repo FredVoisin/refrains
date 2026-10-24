@@ -1,5 +1,5 @@
 graph "refrains-names" {
-/* generated with refrains:graph>dot, 24 Oct 2026 21:17:03 */
+/* generated with refrains:graph>dot, 24 Oct 2026 21:20:48 */
  graph [overlap="false", sep="+4"];
  graph [bgcolor=black];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
@@ -16,6 +16,7 @@ graph "refrains-names" {
  "graph-leaves" -- "graph-nodes" [w=1, len=0.330000, label="0.33"];
  "graph-length" -- "graph-path" [w=1, len=0.330000, label="0.33"];
  "filt-mean" -- "filt-repeat" [w=1, len=0.360000, label="0.36"];
+ "graph-degree" -- "graph-dendrogram" [w=1, len=0.380000, label="0.38"];
  "list>sym" -- "str>sym" [w=1, len=0.380000, label="0.38"];
  "dist-edit" -- "dist-multi-edit" [w=1, len=0.400000, label="0.4"];
  "dist-graph" -- "histogram" [w=1, len=0.400000, label="0.4"];
@@ -25,7 +26,6 @@ graph "refrains-names" {
  "graph-part" -- "graph>matrix" [w=1, len=0.420000, label="0.42"];
  "motif-list" -- "motif-position" [w=1, len=0.430000, label="0.43"];
  "class-sym" -- "list>sym" [w=1, len=0.440000, label="0.44"];
- "graph-degree" -- "graph>dendrogram" [w=1, len=0.440000, label="0.44"];
  "dist-edit" -- "filt-median" [w=1, len=0.450000, label="0.45"];
  "filt-median" -- "filt-noise" [w=1, len=0.450000, label="0.45"];
  "motif-group" -- "motif-list" [w=1, len=0.450000, label="0.45"];
@@ -45,7 +45,7 @@ graph "refrains-names" {
  "dist-edit" -- "dist-structure" [w=1, len=0.570000, label="0.57"];
  "display-list" -- "dist-edit" [w=1, len=0.580000, label="0.58"];
  "graph-span" -- "morph-seq" [w=1, len=0.600000, label="0.6"];
- "graph>dendrogram" -- "histogram" [w=1, len=0.620000, label="0.62"];
+ "graph-dendrogram" -- "histogram" [w=1, len=0.620000, label="0.62"];
  "graph-length" -- "read-text" [w=1, len=0.670000, label="0.67"];
  "read-text" -- "separate" [w=1, len=0.670000, label="0.67"];
  "filt-function" -- "self-info" [w=1, len=0.690000, label="0.69"];

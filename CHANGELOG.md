@@ -20,10 +20,10 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 - `graph>dot` takes `:invert`: `t` draws white on black instead of black on
   white (`nil` by default).
 - `dendrogram>dot (dendrogram out &key width step invert)`: draws a
-  dendrogram of `graph>dendrogram`, or a list of them, in dot with the
+  dendrogram of `graph-dendrogram`, or a list of them, in dot with the
   position of each point, for `neato -n2`: the leaves on the left, each
   fusion at the abscissa of its distance, and a scale of the distances.
-- `graph>dendrogram` takes `:linkage :ward` (Ward, 1963): the fusion that
+- `graph-dendrogram` takes `:linkage :ward` (Ward, 1963): the fusion that
   increases the least the within-group inertia, computed with Lance and
   Williams' formula; the height of a fusion is the square root of twice
   this increase (the distance itself for two objects). The documentation
@@ -32,13 +32,17 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 - Documentation: two minimum spanning trees of the functions, by their names
   and by the vocabulary of their docstrings, computed with refrains by
   `doc/pictures/refrains-trees.lisp` (which uses `:overlap nil` and
-  `:invert t`), with their dendrograms (`graph>dendrogram` and
+  `:invert t`), with their dendrograms (`graph-dendrogram` and
   `dendrogram>dot`), and the figure
   of the operations, in white on black; what to do
   when the system "refrains" is not found.
 
 ### Changed
 
+- `graph>dendrogram` is renamed `graph-dendrogram`: it computes a
+  classification (an analysis), as `graph-span` or `graph-part` do, while
+  `>` is kept for the changes of representation without analysis
+  (`graph>dot`, `dendrogram>dot`, `graph>matrix`, `num>base`...).
 - `graph>dot` and `dendrogram>dot` are in the section 4 of the menu
   (reading and writing files), since they write files, and `graph>matrix`
   in the section 1.3 (delineate), in `help`, in the documentation and in the

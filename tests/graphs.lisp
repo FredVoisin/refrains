@@ -184,40 +184,40 @@
 (defparameter *semi-matrix*
   '((a b 1) (a c 4) (a d 6) (a e 8) (b c 2) (b d 5) (b e 7) (c d 5) (c e 6) (d e 1)))
 
-(test graph>dendrogram
+(test graph-dendrogram
   (let ((*standard-output* (make-broadcast-stream))
         (g '((a b 1) (a c 4) (b c 2) (c d 5) (d e 1) (b e 7))))
-    (multiple-value-bind (fusions tree) (graph>dendrogram g)
+    (multiple-value-bind (fusions tree) (graph-dendrogram g)
       (is (equal '((1 (a) (b)) (1 (d) (e)) (2 (a b) (c)) (5 (a b c) (d e))) fusions))
       (is (equal '(5 (2 (1 a b) c) (1 d e)) tree)))
     ;; a tree gives one fusion for each edge
-    (is (= 3 (length (graph>dendrogram *chain*))))
+    (is (= 3 (length (graph-dendrogram *chain*))))
     ;; nodes compared with equal
-    (is (equal '((1 ("x") ("y"))) (graph>dendrogram (list (list (copy-seq "x") (copy-seq "y") 1)))))
+    (is (equal '((1 ("x") ("y"))) (graph-dendrogram (list (list (copy-seq "x") (copy-seq "y") 1)))))
     ;; a graph not connected: the list of the dendrograms of its parts
-    (is (equal '((1 a b) (2 c d)) (nth-value 1 (graph>dendrogram '((a b 1) (c d 2))))))
-    (is (null (graph>dendrogram '())))
-    (signals error (graph>dendrogram g :linkage :ward))))
+    (is (equal '((1 a b) (2 c d)) (nth-value 1 (graph-dendrogram '((a b 1) (c d 2))))))
+    (is (null (graph-dendrogram '())))
+    (signals error (graph-dendrogram g :linkage :ward))))
 
-(test graph>dendrogram-linkage
-  (is (equal '(5 (2 (1 a b) c) (1 d e)) (nth-value 1 (graph>dendrogram *semi-matrix*))))
-  (multiple-value-bind (fusions tree) (graph>dendrogram *semi-matrix* :linkage :complete)
+(test graph-dendrogram-linkage
+  (is (equal '(5 (2 (1 a b) c) (1 d e)) (nth-value 1 (graph-dendrogram *semi-matrix*))))
+  (multiple-value-bind (fusions tree) (graph-dendrogram *semi-matrix* :linkage :complete)
     (is (equal '((1 (a) (b)) (1 (d) (e)) (4 (a b) (c)) (8 (a b c) (d e))) fusions))
     (is (equal '(8 (4 (1 a b) c) (1 d e)) tree)))
   ;; mean of the 6 distances between (a b c) and (d e)
   (is (equal '(37/6 (3 (1 a b) c) (1 d e))
-             (nth-value 1 (graph>dendrogram *semi-matrix* :linkage :average))))
+             (nth-value 1 (graph-dendrogram *semi-matrix* :linkage :average))))
   ;; complete and average need all the distances
-  (signals error (graph>dendrogram '((a b 1) (b c 2)) :linkage :complete))
-  (is (null (graph>dendrogram '() :linkage :average))))
+  (signals error (graph-dendrogram '((a b 1) (b c 2)) :linkage :complete))
+  (is (null (graph-dendrogram '() :linkage :average))))
 
-(test graph>dendrogram-ward
+(test graph-dendrogram-ward
   ;; points of a line: a=0 b=1 c=3 d=10 e=11, euclidean distances
   (let* ((points '((a . 0) (b . 1) (c . 3) (d . 10) (e . 11)))
          (m (loop for (p . others) on points
                   nconc (loop for q in others
                               collect (list (car p) (car q) (abs (- (cdr p) (cdr q))))))))
-    (multiple-value-bind (fusions tree) (graph>dendrogram m :linkage :ward)
+    (multiple-value-bind (fusions tree) (graph-dendrogram m :linkage :ward)
       (is (equal '(((a) (b)) ((d) (e)) ((a b) (c)) ((a b c) (d e))) (mapcar #'rest fusions)))
       ;; two objects: their distance
       (is (= 1 (first (first fusions))))
@@ -226,4 +226,4 @@
       (is (< (abs (- (first (third fusions)) (sqrt (* 2 2/3 (expt (- 3 1/2) 2))))) 1e-5))
       (is (< (abs (- (first tree) (sqrt (* 2 6/5 (expt (- 21/2 4/3) 2))))) 1e-4))))
   ;; Ward needs all the distances
-  (signals error (graph>dendrogram '((a b 1) (b c 2)) :linkage :ward)))
+  (signals error (graph-dendrogram '((a b 1) (b c 2)) :linkage :ward)))

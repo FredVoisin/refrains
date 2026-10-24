@@ -257,7 +257,7 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
        filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-noise,
        filt-function
 ;;  1.3 DÉLINÉER : tracer des graphes
-       graph-span, graph>dendrogram, graph-path, graph>matrix
+       graph-span, graph-dendrogram, graph-path, graph>matrix
 ;;  1.4 INTERPOLER
        morph-seq
 ;;; 2. CLASSIFICATION
@@ -590,7 +590,7 @@ Par exemple, des profils mélodiques aléatoires peuvent être comparés entre e
 par la distance d'édition de leurs signatures : `graph-span` donne alors
 l'arbre de leurs ressemblances.
 
-#### `graph>dendrogram (mat-dist &key linkage)`
+#### `graph-dendrogram (mat-dist &key linkage)`
 
 Dendrogramme de la classification hiérarchique ascendante des objets d'une
 semi-matrice de distances ou des nœuds d'un graphe : à chaque étape, les deux
@@ -626,12 +626,12 @@ distances sont entières. Expérimental.
 ```lisp
 (defparameter *m* '((a b 1) (a c 4) (a d 6) (a e 8) (b c 2)
                     (b d 5) (b e 7) (c d 5) (c e 6) (d e 1)))
-(graph>dendrogram *m*)
+(graph-dendrogram *m*)
 ;=> ((1 (A) (B)) (1 (D) (E)) (2 (A B) (C)) (5 (A B C) (D E)))
 ;   (5 (2 (1 A B) C) (1 D E))
-(nth-value 1 (graph>dendrogram *m* :linkage :complete))
+(nth-value 1 (graph-dendrogram *m* :linkage :complete))
 ;=> (8 (4 (1 A B) C) (1 D E))
-(nth-value 1 (graph>dendrogram *m* :linkage :average))
+(nth-value 1 (graph-dendrogram *m* :linkage :average))
 ;=> (37/6 (3 (1 A B) C) (1 D E))
 ```
 
@@ -670,7 +670,7 @@ mots, il s'applique encore, mais à titre empirique.
 
 ```lisp
 ;; cinq points du plan, comparés par dist-euclidean
-(graph>dendrogram (dist-euclidean '((0 0) (1 0) (0 3) (10 10) (11 10)) nil)
+(graph-dendrogram (dist-euclidean '((0 0) (1 0) (0 3) (10 10) (11 10)) nil)
                   :linkage :ward)
 ;=> ((1.0 (0) (1)) (1.0 (3) (4)) (3.5118845 (0 1) (2)) (21.034891 (0 1 2) (3 4)))
 ;   (21.034891 (3.5118845 (1.0 0 1) 2) (1.0 3 4))
@@ -1649,7 +1649,7 @@ Le fichier dot peut aussi être tracé à la main :
 
 #### `dendrogram>dot (dendrogram out &key width step invert)`
 
-Trace un dendrogramme, tel que le renvoie `graph>dendrogram`
+Trace un dendrogramme, tel que le renvoie `graph-dendrogram`
 (`(distance arbre-a arbre-b)`), ou une liste de dendrogrammes (pour un graphe
 non connexe). Les feuilles sont à gauche, une par ligne, dans l'ordre du
 dendrogramme ; chaque fusion est placée à l'abscisse de sa distance, et une
@@ -1666,7 +1666,7 @@ il se trace avec `neato -n2`.
 - `:invert` : `t` trace en blanc sur fond noir (`nil` par défaut).
 
 ```lisp
-(dendrogram>dot (nth-value 1 (graph>dendrogram *m*)) "/tmp/dendrogramme.png")
+(dendrogram>dot (nth-value 1 (graph-dendrogram *m*)) "/tmp/dendrogramme.png")
 ;=> "/tmp/dendrogramme.png"   ; écrit /tmp/dendrogramme.dot et .png
 ```
 
@@ -1846,7 +1846,7 @@ et [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisin
 
 - Benzécri, Jean-Paul et al., *L'Analyse des données*, t. 1 : *La
   Taxinomie*, Paris, Dunod, 1973 (classification ascendante hiérarchique,
-  `graph>dendrogram`).
+  `graph-dendrogram`).
 - Diday, E. et al., *Éléments d'analyse de données*, Paris, Dunod, 1982
   (nuées dynamiques, `class-num` ; critère de Ward ; ancien arbre de
   recouvrement).
@@ -1858,13 +1858,13 @@ et [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisin
   `graph>dot`).
 - Lance, G. N. & Williams, W. T., « A general theory of classificatory
   sorting strategies. 1. Hierarchical systems », *The Computer Journal*
-  9(4), 1967, p. 373–380 (`graph>dendrogram`).
+  9(4), 1967, p. 373–380 (`graph-dendrogram`).
 - Perng, Parker & Leung, « Representing time series by landmarks »,
   *Conference on Information and Knowledge Management*, 1999
   (`exsample :landmarks`).
 - Ward, Joe H., « Hierarchical grouping to optimize an objective
   function », *Journal of the American Statistical Association* 58(301),
-  1963, p. 236–244 (`graph>dendrogram :linkage :ward`).
+  1963, p. 236–244 (`graph-dendrogram :linkage :ward`).
 
 ## Liste des fonctions
 

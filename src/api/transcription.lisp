@@ -135,8 +135,8 @@ For instance (lambda (x l) (declare (ignore x)) (nth (random (length l)) l)) rep
 (defmethod graph-span ((mat-dist list) &optional (verbose nil))
   (minimum-spanning-tree mat-dist verbose))
 
-(defgeneric graph>dendrogram (mat-dist &key linkage)
-  (:documentation "GRAPH>DENDROGRAM: dendrogram of the hierarchical classification of the objects of a semi-matrix of
+(defgeneric graph-dendrogram (mat-dist &key linkage)
+  (:documentation "GRAPH-DENDROGRAM: dendrogram of the hierarchical classification of the objects of a semi-matrix of
 distances or of a graph <mat-dist>, a list of edges (node-a node-b distance). Returns two values: the list of the
 successive fusions (distance group-a group-b), by increasing distance, where a group is the list of its nodes;
 and the dendrogram, where each fusion is (distance tree-a tree-b) and the leaves are the objects.
@@ -147,11 +147,11 @@ fusion that increases the least the inertia within the groups, its distance bein
 this increase (the distance itself for two objects). :complete, :average and :ward need a complete semi-matrix
 of distances; :ward supposes euclidean distances."))
 
-(defmethod graph>dendrogram ((mat-dist list) &key (linkage :single))
+(defmethod graph-dendrogram ((mat-dist list) &key (linkage :single))
   (case linkage
     (:single (refrains::single-linkage mat-dist))
     ((:complete :average :ward) (refrains::agglomerative-clustering mat-dist linkage))
-    (t (error "graph>dendrogram: unknown linkage ~S, use :single, :complete, :average or :ward." linkage))))
+    (t (error "graph-dendrogram: unknown linkage ~S, use :single, :complete, :average or :ward." linkage))))
 
 (defgeneric graph-path (from to graph)
   (:documentation "GRAPH-PATH: returns path(s) from node(s) or leave(s) to one or some other node(s) or leave(s) of a graph; in a graph with cycles, the shortest path by distance."))
