@@ -1,8 +1,25 @@
 # Changelog
 
-All notable changes to fv-morphologie are listed here. The format follows
+All notable changes to refrains are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the versions
 follow [Semantic Versioning](https://semver.org/).
+
+refrains continues [fv-morphologie](https://github.com/FredVoisin/fv-morphologie):
+the versions up to 1.4.0 are those of fv-morphologie.
+
+## [Unreleased]
+
+### Changed
+
+- fv-morphologie becomes refrains: the system, the package and the
+  documentation files are named `refrains` (`(asdf:load-system :refrains)`,
+  `(in-package :refrains)`, `doc/refrains.md`, `doc/refrains.fr.md`).
+
+### Removed
+
+- `pwgl-legacy/` (the PWGL boxes, their documentation and the tutorial):
+  they stay in the fv-morphologie repository. The figure used by the
+  documentation is in `doc/pictures/`.
 
 ## [1.4.0] - 2026-10-24
 

@@ -1,20 +1,22 @@
-# fv-morphologie
+# refrains
 
 Experimental tools to analyse musical and syntagmatic sequences as symbolic expressions, in Common Lisp
 
-Analysis-oriented branch of the legacy library [Morphologie](https://github.com/openmusic-project/Morphologie) for OpenMusic (Ircam)
+Continuation of [fv-morphologie](https://github.com/FredVoisin/fv-morphologie), without its PWGL legacy, itself an
+analysis-oriented branch of the legacy library [Morphologie](https://github.com/openmusic-project/Morphologie) for OpenMusic (Ircam)
 and PWGL (Mikael Laurson, Sibelius Academy).
 
 
 ## Documentation
 
-- Documentation: [English](doc/fv-morphologie.md),
-  [français](doc/fv-morphologie.fr.md) (reference version).
+- Documentation: [English](doc/refrains.md),
+  [français](doc/refrains.fr.md) (reference version).
 - The 54 exported functions, with their arguments and docstrings:
-  [English](doc/fv-morphologie-functions.md),
-  [français](doc/fv-morphologie-fonctions.fr.md).
+  [English](doc/refrains-functions.md),
+  [français](doc/refrains-fonctions.fr.md).
 - Changes between versions: [CHANGELOG.md](CHANGELOG.md).
-- The PWGL tutorial and bindings are kept in [pwgl-legacy/](pwgl-legacy/).
+- The PWGL tutorial and bindings are kept in the
+  [`pwgl-legacy/`](https://github.com/FredVoisin/fv-morphologie/tree/master/pwgl-legacy) directory of fv-morphologie.
 
 In Lisp, `(doc)` lists the functions, `(doc 'dist-edit)` prints the docstring
 of a function, and `(help "distance")` looks for a keyword in the names and
@@ -22,7 +24,7 @@ docstrings.
 
 ## Loading (Common Lisp)
 
-fv-morphologie has no dependency besides ASDF/UIOP, which come with every
+refrains has no dependency besides ASDF/UIOP, which come with every
 modern Common Lisp implementation.
 
 ### With Quicklisp
@@ -32,12 +34,12 @@ it there), then quickload it:
 
 ```sh
 cd ~/quicklisp/local-projects/
-git clone https://github.com/FredVoisin/fv-morphologie.git
+git clone https://github.com/FredVoisin/refrains.git
 ```
 
 ```lisp
-(ql:quickload :fv-morphologie)
-(in-package :fv-morphologie)
+(ql:quickload :refrains)
+(in-package :refrains)
 (help)
 ```
 
@@ -45,8 +47,8 @@ If the system is not found after cloning, run `(ql:register-local-projects)`
 once.
 
 The public functions are exported, so they can also be used from another
-package, e.g. `(fv-morphologie:dist-edit '(a b c) '(a c))`, or with
-`(:use :cl :fv-morphologie)` in your own `defpackage`.
+package, e.g. `(refrains:dist-edit '(a b c) '(a c))`, or with
+`(:use :cl :refrains)` in your own `defpackage`.
 
 ### With ASDF only
 
@@ -54,14 +56,14 @@ Put (or symlink) the project directory in a place ASDF looks into, such as
 `~/common-lisp/`, then:
 
 ```lisp
-(asdf:load-system :fv-morphologie)
+(asdf:load-system :refrains)
 ```
 
 ### In your own system
 
 ```lisp
 (asdf:defsystem :my-project
-  :depends-on (:fv-morphologie)
+  :depends-on (:refrains)
   ...)
 ```
 
@@ -76,32 +78,27 @@ Put (or symlink) the project directory in a place ASDF looks into, such as
   `transcription`, `classification`, `evaluation`, `files`, and `help`
   (the menu, `doc` and `help`).
 - `tests/`: one test file per domain.
-- `pwgl-legacy/`: the PWGL / OpenMusic library and tutorial.
 
 ## Testing
 
 The tests live in `tests/` and use [FiveAM](https://github.com/lispci/fiveam).
-FiveAM is used only for testing the code: `fv-morphologie` itself does not
-depend on it, only the `fv-morphologie/tests` system does.
+FiveAM is used only for testing the code: `refrains` itself does not
+depend on it, only the `refrains/tests` system does.
 
 ```lisp
-(ql:quickload :fv-morphologie/tests)  ; fetches FiveAM if needed
-(asdf:test-system :fv-morphologie)
+(ql:quickload :refrains/tests)  ; fetches FiveAM if needed
+(asdf:test-system :refrains)
 ```
 
 ## License
 
 Copyright (C) 1992-2026 Frederic Voisin.
 
-fv-morphologie is derived from
+refrains is derived from [fv-morphologie](https://github.com/FredVoisin/fv-morphologie), itself derived from
 [Morphologie](https://github.com/openmusic-project/Morphologie), released
 under GPL-3.0.
 
 - **Code** (`.lisp` and `.asd` files): GNU General Public License,
   version 3 only (GPL-3.0-only), see [LICENSE](LICENSE).
-- **Documentation** (`doc/`) and **PWGL tutorial**
-  (`pwgl-legacy/tutorial/`): Creative Commons Attribution 4.0 International
-  (CC BY 4.0), see [doc/LICENSE](doc/LICENSE) and
-  [pwgl-legacy/tutorial/LICENSE](pwgl-legacy/tutorial/LICENSE). A few example
-  texts by other authors in the tutorial keep their own status, see
-  [pwgl-legacy/README.md](pwgl-legacy/README.md#license).
+- **Documentation** (`doc/`): Creative Commons Attribution 4.0 International
+  (CC BY 4.0), see [doc/LICENSE](doc/LICENSE).

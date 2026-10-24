@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -18,9 +20,9 @@
 ;;;;
 ;;;; SPDX-License-Identifier: GPL-3.0-only
 
-(in-package :fv-morphologie/tests)
+(in-package :refrains/tests)
 
-(def-suite marks :in fv-morphologie
+(def-suite marks :in refrains
   :description "Marks: positions, lists, structures, inner dynamic.")
 (in-suite marks)
 
@@ -58,8 +60,8 @@
   ;; the bounds of the sequence were the symbols *xstart* and *xstop*: the same symbols
   ;; in the sequence were mistaken for them
   (is (equal '(12 7 6) (inner-dynamic '(a z a))))
-  (is (equal '(12 7 6) (inner-dynamic (list 'a 'fv-morphologie::*xstart* 'a))))
-  (is (equal '(12 7 6) (inner-dynamic (list 'a 'fv-morphologie::*xstop* 'a))))
+  (is (equal '(12 7 6) (inner-dynamic (list 'a 'refrains::*xstart* 'a))))
+  (is (equal '(12 7 6) (inner-dynamic (list 'a 'refrains::*xstop* 'a))))
   ;; one value per element; the documented example
   (is (equal '(34 24 25 125 17 145 10 154) (inner-dynamic '(a b a c a d a e))))
   (is (null (inner-dynamic '()))))

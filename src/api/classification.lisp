@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -23,7 +25,7 @@
 ;;;; Public functions: differentiation (signatures, sampling, marks, motifs,
 ;;;; classification) and graph partition.
 
-(in-package :fv-morphologie)
+(in-package :refrains)
 
 (defgeneric exsample (seq method thres &key diff duration out)
   (:documentation "EXSAMPLE: samples a sequence of numerical values <seq> according to its signature, its salient points with some threshold <thres> for variation in intensity.
@@ -97,7 +99,7 @@ A motif is a segment repeated at least once, later and without overlapping.
               (and (listp lengths) (= 2 (length lengths)) (every #'integerp lengths)
                    (<= 1 (first lengths) (second lengths))))
     (error "motif-structure: :lengths must be (min max) or a maximum length, not ~S." lengths))
-  (fv-morphologie::rep-strct seq :diss diss :l-var l-var :n lengths :criteria criteria
+  (refrains::rep-strct seq :diss diss :l-var l-var :n lengths :criteria criteria
                                  :distance-fct distance :test test))
 
 (defgeneric motif-group (seq test &optional key)
@@ -128,12 +130,12 @@ Keyword argument :iter to set the number of runs of the algorithm (with :centroi
                (error "class-num: the points of data must all be numbers, or lists of the same number of coordinates."))
              (if (and numbers data (null iter))
                  ;; the centres of numbers are numbers (they were (x 0), the points used internally)
-                 (let ((r (fv-morphologie::n-class data classes iter dist)))
+                 (let ((r (refrains::n-class data classes iter dist)))
                    (list (first r) (mapcar #'car (second r)) (third r)))
                  ;; all the values (with an integer iter: the partition and its frequency)
-                 (fv-morphologie::n-class data classes iter dist))))
+                 (refrains::n-class data classes iter dist))))
           ((string= name "1D-CENTROIDS")
-           (fv-morphologie::1d-class data classes (if dist dist #'identity)))
+           (refrains::1d-class data classes (if dist dist #'identity)))
           (t (error "class-num: unknown mode ~S, use :centroids (or nil) or :1d-centroids." mode)))))
 
 (defgeneric class-sym (data classes mode &key uncom ins del change excluded mst)
@@ -150,14 +152,14 @@ in the order defined with the argument :excluded."))
   (setf classes (max 2 classes))
   (if (not excluded)
       (cond ((or (eq mode :edit-nn) (not mode))
-             (fv-morphologie::s-class data classes nil change ins del uncom mst))
+             (refrains::s-class data classes nil change ins del uncom mst))
             ((eq mode :edit-norm)
-             (fv-morphologie::s-class data classes t change ins del uncom mst))
+             (refrains::s-class data classes t change ins del uncom mst))
             (t nil))
     (cond ((eq mode :edit-nn)
-           (fv-morphologie::s-class-with-fixed data classes excluded nil nil nil change ins del uncom mst))
+           (refrains::s-class-with-fixed data classes excluded nil nil nil change ins del uncom mst))
           ((eq mode :edit-norm)
-           (fv-morphologie::s-class-with-fixed data classes excluded nil nil t change ins del uncom mst))
+           (refrains::s-class-with-fixed data classes excluded nil nil t change ins del uncom mst))
           (t nil))))
 
 ;; 2.5 CONCATENATION
@@ -165,12 +167,12 @@ in the order defined with the argument :excluded."))
 ;(defmethod concaten ((list nil))
 ;  :non-generic t
 ;  :class morphologie-box
-;  (fv-morphologie::concaten list))
+;  (refrains::concaten list))
 
 ;(defmethod adj-group ((seq nil) (test #'eq) &optional (key nil))
 ;  :non-generic t
 ;  :class morphologie-box
-;  (fv-morphologie::adj-group seq test key))
+;  (refrains::adj-group seq test key))
 
 (defgeneric graph-part (graph &optional mode n)
   (:documentation  "GRAPH-PART: partition a graph according to edges which have maximum length.

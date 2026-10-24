@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -18,13 +20,13 @@
 ;;;;
 ;;;; SPDX-License-Identifier: GPL-3.0-only
 
-;;;; fv-morphologie tests
+;;;; refrains tests
 ;;;; FiveAM is used here only for testing the code.
-;;;; Run with (asdf:test-system :fv-morphologie)
+;;;; Run with (asdf:test-system :refrains)
 
-(defpackage :fv-morphologie/tests
+(defpackage :refrains/tests
   (:use :cl :fiveam)
-  (:import-from :fv-morphologie
+  (:import-from :refrains
                 ;; encodage
                 #:transcode #:alpha>num #:num>alpha #:num>base #:concaten #:list>sym
                 #:str->symb #:separate #:split-string
@@ -44,10 +46,10 @@
                 #:read-text #:write-list #:date-string #:date+time-string
                 #:help #:doc))
 
-(in-package :fv-morphologie/tests)
+(in-package :refrains/tests)
 
-(def-suite fv-morphologie
-  :description "All fv-morphologie tests.")
+(def-suite refrains
+  :description "All refrains tests.")
 
 (defun seeded-random-state (&optional (seed 42))
   "A random state seeded with SEED, where the implementation allows it,

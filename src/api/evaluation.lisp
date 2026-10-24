@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -23,7 +25,7 @@
 ;;;; Public functions: evaluation (positions, motifs, distances, information)
 ;;;; and graph measures.
 
-(in-package :fv-morphologie)
+(in-package :refrains)
 
 (defgeneric mark-position (seq mark &optional test cons)
   (:documentation "MARK-POSITION: returns all positions of marks in seq."))
@@ -73,7 +75,7 @@ arguments :change :ins/sup :uncom and :test for tuning the editing distance (see
   (when (not out) (setf out :length))
   (unless (member out '(:length :freq))
     (error "motif-list: unknown output ~S, use :length or :freq." out))
-  (fv-morphologie::find-self
+  (refrains::find-self
    seq out diss l-var n
    ;; the default distance (nil) gives the same results faster: with diss 0 and positive costs,
    ;; a distance of 0 means identical elements by test; with the default costs, it is the same
@@ -95,20 +97,20 @@ If a and b are lists with not same size (i.e points with not same dimensions),
  returns NIL (no distance)."))
 
 (defmethod dist-euclidian ((a t) (b t))
-  (fv-morphologie::dist-euclid a b))
+  (refrains::dist-euclid a b))
 
 (defgeneric dist-citybloc (a b)
   (:documentation "DIST-CITYBLOC: city-bloc distance between <x> and <y> which represent 'points' into kind of euclidian space.
 If <y> is null, <x> may represent a list of points, then the output is the list of city-bloc distances for all points to all others."))
 
 (defmethod dist-citybloc ((a t) (b t))
-  (fv-morphologie::city-bloc a b))
+  (refrains::city-bloc a b))
 
 (defgeneric dist-hamming (a b &optional norm test)
   (:documentation "DIST-HAMMING: Hamming distance between list a and list b."))
 
 (defmethod dist-hamming ((a t) (b t) &optional (norm t) (test #'eq))
-  (fv-morphologie::hamming-dist a b norm test))
+  (refrains::hamming-dist a b norm test))
 
 (defgeneric dist-edit (seq1 seq2 &key sub ins del uncom norm test)
   (:documentation "DIST-EDIT: editing distance from seq1 to seq2.
@@ -122,7 +124,7 @@ Keywords arguments are:
 
 (defmethod dist-edit ((seq1 t) (seq2 t)
 		      &key (sub 1) (ins 1) (del 1) (uncom 0) (norm NIL) (test #'equalp))
-  (fv-morphologie::edit-dist seq1 seq2 sub ins del uncom norm test))
+  (refrains::edit-dist seq1 seq2 sub ins del uncom norm test))
 
 (defgeneric dist-multi-edit (seq1 seq2 wgth &key sub ins del uncom test)
   (:documentation "DIST-MULTI-EDIT: edit distance between seq1 and seq2, whose elements are lists of descriptors (one per dimension),
@@ -130,7 +132,7 @@ the distances of the dimensions being weighted by wgth: a number (same weight fo
 (a list too short is completed with its last weight, a list too long is cut). The weights are normalized to sum to 1."))
 
 (defmethod dist-multi-edit ((seq1 t) (seq2 t) (wgth t) &key (sub 1) (ins 1) (del 1) (uncom 0) (test #'equalp))
-  (fv-morphologie::multi-edit-dist seq1 seq2 wgth :change sub :insert ins :delete del :inex uncom :test test))
+  (refrains::multi-edit-dist seq1 seq2 wgth :change sub :insert ins :delete del :inex uncom :test test))
 
 (defgeneric dist-structure  (a b &key w-occ w-rep test)
   (:documentation "DIST-STRUCTURE: dissimilarity between the sequences <a> and <b> from the point of view of their structure,
@@ -140,14 +142,14 @@ are compared with the edit distance. Experimental.
 If <b> is nil, the distances between all the sequences of <a>."))
 
 (defmethod dist-structure  ((a t) (b t) &key (w-occ 1.) (w-rep 1.) (test #'equalp))
-  (fv-morphologie::struct-dist a b w-occ w-rep test))
+  (refrains::struct-dist a b w-occ w-rep test))
 
 (defgeneric dist-graph (v1 v2 graph)
   (:documentation "DIST-GRAPH: distance between the nodes <v1> and <v2> of a graph: the length of the shortest path
 between them (Dijkstra, see graph-path), 0 from a node to itself, nil if there is no path."))
 
 (defmethod dist-graph ((v1 t) (v2 t) (graph t))
-  (fv-morphologie::tree-dist v1 v2 graph))
+  (refrains::tree-dist v1 v2 graph))
 
 (defgeneric histogram (data &key test thes)
   (:documentation "HISTOGRAM: histogram of data, as a list of (element count): sorted by increasing value for numbers,
@@ -156,7 +158,7 @@ test: identity test (equalp by default)
 thes: thesaurus or list of symbols to be considered."))
 
 (defmethod histogram ((data t) &key (test #'equalp) (thes nil))
-  (fv-morphologie::histogramme data :test test :thes thes))
+  (refrains::histogramme data :test test :thes thes))
 
 (defgeneric entropy (data &optional mode samples test)
   (:documentation "ENTROPY: entropy of the set or sequence <data>, according to <mode> (a symbol of any package, a keyword or a string):
@@ -169,7 +171,7 @@ cond-sh: conditional entropy (experimental).
 
 (defmethod entropy ((data t) &optional (mode nil) (samples nil) (test #'equalp))
   ;; modes are recognized by their names: 'shannon-2 from any package, :shannon-2 or "shannon-2"
-  ;; (they were compared with eq to the symbols of fv-morphologie)
+  ;; (they were compared with eq to the symbols of refrains)
   (let* ((name (if mode (string-upcase (string mode)) "SHANNON-2"))
          (r (cond ((string= name "SHANNON-2") (shannon-entropy data 2 samples test))
                   ((string= name "SHANNON-E") (shannon-entropy data (exp 1) samples test))
@@ -184,12 +186,12 @@ is absent or <data> is empty. With <elt> nil, each element with its information,
 (elements of equal information in their order of first appearance). <test>: identity of the elements (equalp by default)."))
 
 (defmethod elt-info ((data t) (elt t) &optional (test #'equalp))
-  (fv-morphologie::self-info data elt test))
+  (refrains::self-info data elt test))
 
 ;(defmethod redundancy ((data t))
 ;  :non-generic t
 ;  :class morphologie-box
-;  (fv-morphologie::redondance data))
+;  (refrains::redondance data))
 
 (defgeneric inner-dynamic (seq &optional test)
   (:documentation "INNER-DYNAMIC: a kind of inner dynamic of the distribution of the symbols (marks) of the sequence <seq>,
@@ -201,29 +203,29 @@ del messaggio, attivita' mnemonico-percettiva e risposta psichica', Prisma 01, E
 (sections 3 'New/Old-Analysis' and 5 'Energy-profile')."))
 
 (defmethod  inner-dynamic ((seq t) &optional (test #'equalp))
-  (fv-morphologie::mark-dynamic seq test))
+  (refrains::mark-dynamic seq test))
 
 (defgeneric graph-length (graph)
   (:documentation "GRAPH-LENGTH: returns the (minimum) length of a graph (the graph must have no cycles, i.e. to a tree."))
 
 (defmethod graph-length ((graph list))
-  (fv-morphologie::tree-minlen graph))
+  (refrains::tree-minlen graph))
 
 (defgeneric graph-degree (node graph)
   (:documentation "GRAPH-DEGREE: degree of a node in a graph, the number of its edges (0 if it is not in the graph).
 A list of nodes gives the list of their degrees, nil the degrees of all the nodes, in the order of graph-nodes."))
 
 (defmethod graph-degree ((node t) (graph list))
-  (fv-morphologie::tree-deg node graph))
+  (refrains::tree-deg node graph))
 
 (defgeneric graph-nodes (graph)
   (:documentation "GRAPH-NODES: list of all nodes of a graph, each node once, sorted."))
 
 (defmethod graph-nodes ((graph list))
-  (fv-morphologie::all-vertices graph))
+  (refrains::all-vertices graph))
 
 (defgeneric graph-extrem (graph)
   (:documentation "GRAPH-EXTREM: returns all extremities (leaves) of a graph."))
 
 (defmethod graph-extrem ((graph list))
-  (fv-morphologie::tree-leaves graph))
+  (refrains::tree-leaves graph))

@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -18,9 +20,9 @@
 ;;;;
 ;;;; SPDX-License-Identifier: GPL-3.0-only
 
-(in-package :fv-morphologie/tests)
+(in-package :refrains/tests)
 
-(def-suite graphs :in fv-morphologie
+(def-suite graphs :in refrains
   :description "Graphs: spanning trees, paths, measures, partitions.")
 (in-suite graphs)
 
@@ -65,17 +67,17 @@
 (test graph-part-n-parts
   (let ((g (list '(0 1 1) '(1 2 2) '(2 3 2) '(3 4 1))))
     ;; without n, all the longest edges are cut
-    (is (equal '((0 1) (2) (3 4)) (nth-value 1 (fv-morphologie::graph-part g))))
+    (is (equal '((0 1) (2) (3 4)) (nth-value 1 (refrains::graph-part g))))
     ;; the graph given used to be sorted destructively
     (is (equal '((0 1 1) (1 2 2) (2 3 2) (3 4 1)) g))
-    (is (equal '(((0 1 1)) ((2 3 2) (3 4 1))) (fv-morphologie::graph-part g :distance 2)))
-    (is (equal '((0 1) (2 3 4)) (nth-value 1 (fv-morphologie::graph-part g :distance 2))))
+    (is (equal '(((0 1 1)) ((2 3 2) (3 4 1))) (refrains::graph-part g :distance 2)))
+    (is (equal '((0 1) (2 3 4)) (nth-value 1 (refrains::graph-part g :distance 2))))
     (loop for n from 1 to 5
-          do (is (= n (length (fv-morphologie::graph-part g :distance n)))))
+          do (is (= n (length (refrains::graph-part g :distance n)))))
     ;; no more parts than nodes
-    (is (= 5 (length (fv-morphologie::graph-part g :distance 9))))
+    (is (= 5 (length (refrains::graph-part g :distance 9))))
     ;; nodes may be any symbols
-    (is (equal '((a b) (c d)) (nth-value 1 (fv-morphologie::graph-part '((a b 1) (b c 5) (c d 1)) :distance 2))))))
+    (is (equal '((a b) (c d)) (nth-value 1 (refrains::graph-part '((a b 1) (b c 5) (c d 1)) :distance 2))))))
 
 (test graph-path-nodes-not-lengths
   ;; edge lengths were taken for nodes: 3 and 1 looked adjacent through (1 2 3)
@@ -167,10 +169,10 @@
 (test graph>matrix-vertices
   ;; vertices were looked up with eq: string vertices (and bignums) failed
   (is (equal '((0 1 0) (1 0 2) (0 2 0))
-             (fv-morphologie:graph>matrix (list (list (copy-seq "x") (copy-seq "y") 1)
+             (refrains:graph>matrix (list (list (copy-seq "x") (copy-seq "y") 1)
                                                 (list (copy-seq "y") (copy-seq "z") 2)))))
-  (is (equal '((0 5) (5 0)) (fv-morphologie:graph>matrix (list (list (expt 10 30) 1 5)))))
+  (is (equal '((0 5) (5 0)) (refrains:graph>matrix (list (list (expt 10 30) 1 5)))))
   ;; rows and columns in the order of graph-nodes
-  (is (equal '((0 1 4) (1 0 2) (4 2 0)) (fv-morphologie:graph>matrix '((0 1 1) (1 2 2) (0 2 4)))))
-  (is (equal '((0 1 0) (1 0 2) (0 2 0)) (fv-morphologie:graph>matrix '((a b 1) (b c 2)))))
-  (is (null (fv-morphologie:graph>matrix '()))))
+  (is (equal '((0 1 4) (1 0 2) (4 2 0)) (refrains:graph>matrix '((0 1 1) (1 2 2) (0 2 4)))))
+  (is (equal '((0 1 0) (1 0 2) (0 2 0)) (refrains:graph>matrix '((a b 1) (b c 2)))))
+  (is (null (refrains:graph>matrix '()))))

@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -18,9 +20,9 @@
 ;;;;
 ;;;; SPDX-License-Identifier: GPL-3.0-only
 
-(in-package :fv-morphologie/tests)
+(in-package :refrains/tests)
 
-(def-suite classification :in fv-morphologie
+(def-suite classification :in refrains
   :description "2. Classification of numbers and symbols.")
 (in-suite classification)
 
@@ -73,14 +75,14 @@
 
 (test normalize-class
   ;; repeated values that are equal by test but not eql used to give nil
-  (is (equal '(0 1 0) (fv-morphologie::normalize-class '((a) (b) (a)))))
-  (is (equal '(0 1 0) (fv-morphologie::normalize-class '("x" "y" "x"))))
-  (is (equal '(0 1 0) (fv-morphologie::normalize-class '(1 2 1.0) #'=)))
+  (is (equal '(0 1 0) (refrains::normalize-class '((a) (b) (a)))))
+  (is (equal '(0 1 0) (refrains::normalize-class '("x" "y" "x"))))
+  (is (equal '(0 1 0) (refrains::normalize-class '(1 2 1.0) #'=)))
   ;; a test given as a symbol used to be evaluated as a variable
-  (is (equal '(0 1 0) (fv-morphologie::normalize-class '(a b a) 'eq)))
-  (is (equal '(0 1 2 0) (fv-morphologie::normalize-class "abca")))
-  (is (equal '(0 1 1 2 0) (fv-morphologie::normalize-class '(3 1 1 2 3) #'=)))
-  (is (null (fv-morphologie::normalize-class '()))))
+  (is (equal '(0 1 0) (refrains::normalize-class '(a b a) 'eq)))
+  (is (equal '(0 1 2 0) (refrains::normalize-class "abca")))
+  (is (equal '(0 1 1 2 0) (refrains::normalize-class '(3 1 1 2 3) #'=)))
+  (is (null (refrains::normalize-class '()))))
 
 (test nuees-finds-all-classes
   ;; a random start partition with equal barycentres used to give a single
@@ -114,14 +116,14 @@
 (test random-dot-in-bounds
   (let ((*random-state* (seeded-random-state)))
     ;; one coordinate too many: it always failed
-    (is (= 2 (length (fv-morphologie::random-dot '((0 0) (1 0) (0 -1) (2 -0.1) (0.1 -2))))))
+    (is (= 2 (length (refrains::random-dot '((0 0) (1 0) (0 -1) (2 -0.1) (0.1 -2))))))
     ;; within the bounds, also for negative coordinates (it drew below the minimum)
     (is (loop repeat 500
-              always (destructuring-bind (x y) (fv-morphologie::random-dot '((-5 -1) (-2 -3) (-4 -2)))
+              always (destructuring-bind (x y) (refrains::random-dot '((-5 -1) (-2 -3) (-4 -2)))
                        (and (<= -5 x -2) (<= -3 y -1)))))
     ;; a coordinate equal in all the points (random 0 failed)
-    (is (equal '(3.0 3.0) (fv-morphologie::random-dot '((3 3) (3 3)))))
-    (is (null (fv-morphologie::random-dot '())))))
+    (is (equal '(3.0 3.0) (refrains::random-dot '((3 3) (3 3)))))
+    (is (null (refrains::random-dot '())))))
 
 (test class-num-modes-and-points
   (let ((*random-state* (seeded-random-state))

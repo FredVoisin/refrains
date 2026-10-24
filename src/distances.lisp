@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -23,7 +25,7 @@
 ;;;; Distances and similarities: euclidian, city-block, Hamming, edit
 ;;;; distances, Jaccard, Sorensen, Mountford, structures.
 
-(in-package :fv-morphologie)
+(in-package :refrains)
 
 ;;; DISTANCES DISSEMBLANCE ETC
 
@@ -356,7 +358,7 @@ By symbolic dimensions, I consider a structured list of 'arbitrary' symbols desc
 (defgeneric jaccard-dist (a b &key test key)
   (:documentation "Jaccard distance.
 If a is null, Jaccard distance of both lists of b ;
-if b null, as usual in fv-morphologie, matrix of Jaccard distances of lists of a."))
+if b null, as usual in refrains, matrix of Jaccard distances of lists of a."))
 
 (defmethod jaccard-dist ((a list) (b list) &key (test #'equalp) (key #'identity))
   ;; the union counted with key and test, like the intersection (it used equalp only);

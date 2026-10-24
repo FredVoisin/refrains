@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -18,9 +20,9 @@
 ;;;;
 ;;;; SPDX-License-Identifier: GPL-3.0-only
 
-(in-package :fv-morphologie/tests)
+(in-package :refrains/tests)
 
-(def-suite io :in fv-morphologie
+(def-suite io :in refrains
   :description "4. Read and write files.")
 (in-suite io)
 
@@ -44,16 +46,16 @@
   (uiop:with-temporary-file (:pathname file :type "txt")
     (with-open-file (out file :direction :output :if-exists :supersede :external-format :utf-8)
       (format out "~a~%~a" (coerce (list (code-char 233) #\t (code-char 233)) 'string) "abc"))
-    (let ((s (fv-morphologie::slurp-file file))
-          (lines (fv-morphologie::read-text-lines file)))
+    (let ((s (refrains::slurp-file file))
+          (lines (refrains::read-text-lines file)))
       (is (equal 2 (length lines)))
       (is (= (length s) (+ (reduce #'+ (mapcar #'length lines)) (1- (length lines)))))
       (is (notany #'(lambda (c) (member (char-code c) '(0))) s))
       (is (char= #\c (char s (1- (length s)))))))
   ;; an empty file
   (uiop:with-temporary-file (:pathname file :type "txt")
-    (is (equal "" (fv-morphologie::slurp-file file)))
-    (is (null (fv-morphologie::read-text-lines file)))))
+    (is (equal "" (refrains::slurp-file file)))
+    (is (null (refrains::read-text-lines file)))))
 
 (test read-text-charcode
   (flet ((write-file (file text)
@@ -115,12 +117,12 @@
     (setf (symbol-function 'read-without-eval-marker) #'(lambda () (setf ran t) 'injected))
     (uiop:with-temporary-file (:pathname file :type "txt")
       (with-open-file (out file :direction :output :if-exists :supersede)
-        (format out "hello #.(fv-morphologie/tests::read-without-eval-marker) world~%a ) # (~%3 4.5 abc~%"))
+        (format out "hello #.(refrains/tests::read-without-eval-marker) world~%a ) # (~%3 4.5 abc~%"))
       (let ((r (read-text file)))
         (is (not ran))
         ;; unreadable words are kept as strings
-        (is (equal '(hello "#.(fv-morphologie/tests::read-without-eval-marker)" world) (first r)))
+        (is (equal '(hello "#.(refrains/tests::read-without-eval-marker)" world) (first r)))
         (is (equal '(a ")" "#" "(") (second r)))
         (is (equal '(3 4.5 abc) (third r))))))
-  (signals reader-error (fv-morphologie::safe-read-from-string "#.(+ 1 2)"))
-  (is (= 3 (fv-morphologie::safe-read-from-string "3"))))
+  (signals reader-error (refrains::safe-read-from-string "#.(+ 1 2)"))
+  (is (= 3 (refrains::safe-read-from-string "3"))))

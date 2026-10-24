@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -18,9 +20,9 @@
 ;;;;
 ;;;; SPDX-License-Identifier: GPL-3.0-only
 
-(in-package :fv-morphologie/tests)
+(in-package :refrains/tests)
 
-(def-suite help :in fv-morphologie
+(def-suite help :in refrains
   :description "Documentation: menu, doc and help.")
 (in-suite help)
 
@@ -42,10 +44,10 @@
 (test menu-lists-all-functions
   ;; 23 exported functions were missing from the menu: (doc) did not list them, help could not find them
   (let (missing)
-    (do-external-symbols (s :fv-morphologie)
-      (unless (member s fv-morphologie::*fv-morphologie-menu*) (push s missing)))
+    (do-external-symbols (s :refrains)
+      (unless (member s refrains::*refrains-menu*) (push s missing)))
     (is (null missing)))
-  (is (every #'fboundp fv-morphologie::*fv-morphologie-menu*))
-  (is (every #'(lambda (f) (documentation f 'function)) fv-morphologie::*fv-morphologie-menu*))
+  (is (every #'fboundp refrains::*refrains-menu*))
+  (is (every #'(lambda (f) (documentation f 'function)) refrains::*refrains-menu*))
   (let ((*standard-output* (make-broadcast-stream)))
     (is (member 'filt-median (help 'median)))))

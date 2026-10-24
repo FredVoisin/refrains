@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -18,9 +20,9 @@
 ;;;;
 ;;;; SPDX-License-Identifier: GPL-3.0-only
 
-(in-package :fv-morphologie/tests)
+(in-package :refrains/tests)
 
-(def-suite motifs :in fv-morphologie
+(def-suite motifs :in refrains
   :description "Motifs: find, list, structure, groups.")
 (in-suite motifs)
 
@@ -107,15 +109,15 @@
     (is (loop repeat 500
               always (let* ((a (loop repeat (random 8) collect (nth (random 3) '(a b c))))
                             (b (loop repeat (random 8) collect (nth (random 3) '(a b c))))
-                            (d (fv-morphologie::edit-dist1 a b))
+                            (d (refrains::edit-dist1 a b))
                             (bound (random 6))
-                            (r (fv-morphologie::edit-dist-bounded (coerce a 'simple-vector)
+                            (r (refrains::edit-dist-bounded (coerce a 'simple-vector)
                                                                   (coerce b 'simple-vector)
                                                                   0 (length b) bound)))
                        (if (<= d bound) (eql r d) (null r)))))
     ;; from an offset in b
-    (is (= 1 (fv-morphologie::edit-dist-bounded #(a b c) #(x x a b d x) 2 3 1)))
-    (is (null (fv-morphologie::edit-dist-bounded #(a b c) #(x x a d d x) 2 3 1))))
+    (is (= 1 (refrains::edit-dist-bounded #(a b c) #(x x a b d x) 2 3 1)))
+    (is (null (refrains::edit-dist-bounded #(a b c) #(x x a d d x) 2 3 1))))
   ;; a search with a tolerance, which took about 30 s for 120 elements
   (let* ((*random-state* (seeded-random-state))
          (s (loop repeat 120 collect (nth (random 4) '(a b c d)))))

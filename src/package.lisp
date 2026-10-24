@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -20,7 +22,7 @@
 
 ;;;; package.lisp
 ;;;;
-;;;; The OMPW package (PWGL/OpenMusic bindings, see pwgl-legacy/) is used
+;;;; The OMPW package (PWGL/OpenMusic bindings, see fv-morphologie) is used
 ;;;; only when it is already loaded, so the system also loads in a plain
 ;;;; LispWorks image.
 
@@ -37,7 +39,7 @@
 ;;;; adding a som somewhere in classification - with save weigths then analysing weigth (> tutorial) ?
 ;;;; ...
 
-(defpackage :fv-morphologie
+(defpackage :refrains
   (:use :cl . #.(if (find-package :ompw) '(:ompw) '()))
   (:export
    ;; 1. transcription

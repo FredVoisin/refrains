@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -18,9 +20,9 @@
 ;;;;
 ;;;; SPDX-License-Identifier: GPL-3.0-only
 
-(in-package :fv-morphologie/tests)
+(in-package :refrains/tests)
 
-(def-suite dot :in fv-morphologie
+(def-suite dot :in refrains
   :description "Graphs drawn in the DOT format (neato).")
 (in-suite dot)
 
@@ -36,12 +38,12 @@
 
 (test graph-name-from-path
   ;; a path without "/" crashed, and blanks cut the name
-  (is (equal "out" (fv-morphologie::make-name-from-path "out.dot")))
-  (is (equal "out" (fv-morphologie::make-name-from-path "out")))
-  (is (equal "my graph" (fv-morphologie::make-name-from-path "my graph.dot")))
-  (is (equal "c" (fv-morphologie::make-name-from-path "a.b/c.dot")))
-  (is (equal "y" (fv-morphologie::make-name-from-path #p"/x/y.png")))
-  (is (equal "span-graph" (fv-morphologie::make-name-from-path t))))
+  (is (equal "out" (refrains::make-name-from-path "out.dot")))
+  (is (equal "out" (refrains::make-name-from-path "out")))
+  (is (equal "my graph" (refrains::make-name-from-path "my graph.dot")))
+  (is (equal "c" (refrains::make-name-from-path "a.b/c.dot")))
+  (is (equal "y" (refrains::make-name-from-path #p"/x/y.png")))
+  (is (equal "span-graph" (refrains::make-name-from-path t))))
 
 (test graph>dot-output
   (flet ((dot (graph &rest keys)
@@ -57,7 +59,7 @@
     (is (search "shape=\"Mrecord\"" (dot '((a b 1)) :shape "Mrecord")))
     ;; no package prefix for the names of the nodes
     (let ((*package* (find-package :cl-user)))
-      (is (search "\"A\" -- \"B\"" (dot (list (list 'fv-morphologie/tests::a 'fv-morphologie/tests::b 1))))))
+      (is (search "\"A\" -- \"B\"" (dot (list (list 'refrains/tests::a 'refrains/tests::b 1))))))
     ;; quotes in names are escaped
     (is (search "\"q\\\"t\"" (dot '(("z" "q\"t" 2)))))
     ;; only edges of length 0, or no edge, used to fail

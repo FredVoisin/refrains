@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -18,9 +20,9 @@
 ;;;;
 ;;;; SPDX-License-Identifier: GPL-3.0-only
 
-(in-package :fv-morphologie/tests)
+(in-package :refrains/tests)
 
-(def-suite encoding :in fv-morphologie
+(def-suite encoding :in refrains
   :description "1. Transcription: encoding.")
 (in-suite encoding)
 
@@ -58,9 +60,9 @@
 
 (test alphanump-list
   ;; the list method returned a list of booleans, always true
-  (is-true (fv-morphologie::alphanump '(#\a #\B #\1)))
-  (is-false (fv-morphologie::alphanump '(#\! #\?)))
-  (is-true (fv-morphologie::alphanump '(#\! #\a) '(#\!))))
+  (is-true (refrains::alphanump '(#\a #\B #\1)))
+  (is-false (refrains::alphanump '(#\! #\?)))
+  (is-true (refrains::alphanump '(#\! #\a) '(#\!))))
 
 (test split-string-always-a-list
   ;; a string without marks used to be returned as is, not as a list

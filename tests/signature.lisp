@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -18,9 +20,9 @@
 ;;;;
 ;;;; SPDX-License-Identifier: GPL-3.0-only
 
-(in-package :fv-morphologie/tests)
+(in-package :refrains/tests)
 
-(def-suite signature :in fv-morphologie
+(def-suite signature :in refrains
   :description "2. Classification: signatures, sampling and separation.")
 (in-suite signature)
 
@@ -219,12 +221,12 @@
 
 (test local-extrema
   ;; the inner local extrema, a flat extremum at its first position, integers or floats
-  (is (equal '((1 -1 0) (3 1 1)) (fv-morphologie::local-extrema '(1 0 0 1 1 0))))
-  (is (equal '((1 1 1)) (fv-morphologie::local-extrema '(0 1 1.0 0))))
-  (is (equal '((1 1 2.5)) (fv-morphologie::local-extrema #(0.0 2.5 1.0))))
-  (is (null (fv-morphologie::local-extrema '(3 3 3))))
-  (is (null (fv-morphologie::local-extrema '())))
+  (is (equal '((1 -1 0) (3 1 1)) (refrains::local-extrema '(1 0 0 1 1 0))))
+  (is (equal '((1 1 1)) (refrains::local-extrema '(0 1 1.0 0))))
+  (is (equal '((1 1 2.5)) (refrains::local-extrema #(0.0 2.5 1.0))))
+  (is (null (refrains::local-extrema '(3 3 3))))
+  (is (null (refrains::local-extrema '())))
   ;; the important extrema with no threshold
   (dotimes (k 200)
     (let ((s (loop repeat (random 30) collect (random 4))))
-      (is (equal (fv-morphologie::major-extrema s 0) (fv-morphologie::local-extrema s))))))
+      (is (equal (refrains::major-extrema s 0) (refrains::local-extrema s))))))

@@ -1,8 +1,10 @@
-;;;; This file is part of fv-morphologie.
+;;;; This file is part of refrains.
 ;;;; Copyright (C) 1992-2026 Frederic Voisin
 ;;;;
-;;;; fv-morphologie is derived from Morphologie
-;;;; (https://github.com/openmusic-project/Morphologie), released under GPL-3.0.
+;;;; refrains is derived from fv-morphologie
+;;;; (https://github.com/FredVoisin/fv-morphologie), itself derived from
+;;;; Morphologie (https://github.com/openmusic-project/Morphologie), released
+;;;; under GPL-3.0.
 ;;;;
 ;;;; This program is free software: you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License version 3
@@ -25,7 +27,7 @@
 ;;;; at first, to update morphologie 'draw-tree', which was representing undirected graphs from
 ;;;; Thanks to neato program, the job is to convert list of (node-A node-B dist) into dot format
 
-(in-package :fv-morphologie)
+(in-package :refrains)
 
 (defun make-name-from-path (path)
   "The name of the file path (without directory and type), for naming the graph."
@@ -53,7 +55,7 @@
         (nid (remove-if #'(lambda (x) (zerop (third x))) graph))
         (ide (remove-if-not #'(lambda (x) (zerop (third x))) graph)))
     (format out "graph ~A {~&" (dot-id (make-name-from-path name)))
-    (format out "/* generated with fv-morphologie:graph>dot ~S ~D ~:R at ~Sh~S */~&"
+    (format out "/* generated with refrains:graph>dot ~S ~D ~:R at ~Sh~S */~&"
             (first date) (nth (1- (cadr date)) *months*) (third date) (fourth date) (fifth date))
     (format out " node [shape=~A, font=Helvetica, fontsize=12, color=black, fontcolor=black];~&"
 	    (dot-id (dot-shape shape1)))
