@@ -297,6 +297,7 @@ These changes alter results which were documented or relied upon:
 
 The PWGL / OpenMusic library adapted to Common Lisp, before this changelog.
 
+[0.2.0]: https://github.com/FredVoisin/refrains/releases/tag/v0.2.0
 [fv-morphologie 1.4.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.4.0
 [fv-morphologie 1.3.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.3.0
 [fv-morphologie 1.2.0]: https://github.com/FredVoisin/fv-morphologie/releases/tag/v1.2.0
