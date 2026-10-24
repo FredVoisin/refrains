@@ -35,7 +35,7 @@
                        (uiop:subpathname *load-pathname* "README.md"))
   :author "Frederic Voisin"
   :license "GPL-3.0-only"
-  :version "1.4.0"
+  :version "0.0.1"
   :homepage "https://github.com/FredVoisin/refrains"
   :bug-tracker "https://github.com/FredVoisin/refrains/issues"
   :source-control (:git "https://github.com/FredVoisin/refrains.git")

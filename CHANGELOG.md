@@ -5,9 +5,10 @@ All notable changes to refrains are listed here. The format follows
 follow [Semantic Versioning](https://semver.org/).
 
 refrains continues [fv-morphologie](https://github.com/FredVoisin/fv-morphologie):
-the versions up to 1.4.0 are those of fv-morphologie.
+refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
+(1.4.0 to 0.2.0) are those of fv-morphologie.
 
-## [Unreleased]
+## [0.0.1] - 2026-10-24
 
 ### Changed
 
