@@ -256,8 +256,7 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
 ;;  1.2 FILTRER
        filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-function
 ;;  1.3 DÉLINÉER : tracer des graphes
-       graph-span, graph>dendrogram, graph-path, graph>dot, dendrogram>dot,
-       graph>matrix
+       graph-span, graph>dendrogram, graph-path, graph>matrix
 ;;  1.4 INTERPOLER
        morph-seq
 ;;; 2. CLASSIFICATION
@@ -276,7 +275,7 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
 ;;  3.3 QUANTIFIER : information propre
        histogram, entropy, self-info, inner-dynamic, graph-length, graph-degree
 ;;; 4. LIRE/ÉCRIRE des fichiers
-       read-text, write-list, display-list
+       read-text, write-list, display-list, graph>dot, dendrogram>dot
 ```
 
 Dans le REPL, `(doc)` liste les fonctions documentées et `(doc 'dist-edit)`
@@ -634,7 +633,10 @@ distances sont entières. Expérimental.
 ;=> (37/6 (3 (1 A B) C) (1 D E))
 ```
 
-Le dendrogramme se trace avec `dendrogram>dot`.
+Le dendrogramme se trace avec
+[`dendrogram>dot`](#dendrogramdot-dendrogram-out-key-width-step-invert) (voir
+[4](#4-lecture-et-écriture-de-fichiers)), et le graphe avec
+[`graph>dot`](#graphdot-graph-out-key-dis-scale-shape-legend-overlap-invert).
 
 **Le lien de Ward.** À chaque étape, le lien de Ward (Ward, 1963) fusionne les
 deux groupes dont la réunion augmente le moins l'*inertie intra-classe*, la
@@ -693,86 +695,6 @@ listes (une liste représente plusieurs nœuds).
 (graph-path 'a nil '((a b 1) (b c 2) (b d 1)))  ;=> ((A B C) (A B D))
 (graph-path nil nil '((a b 1) (b c 2) (b d 1))) ;=> ((A B C) (A B D) (C B D))
 ```
-
-#### `graph>dot (graph out &key dis scale shape legend overlap invert)`
-
-Trace un graphe non orienté au format **dot**.
-
-Tracer automatiquement de grands graphes, de manière lisible et agréable, est
-un problème complexe et encore un sujet de recherche. Le langage dot décrit
-des graphes (orientés ou non) dans des fichiers texte (`.dot`) ; il est
-utilisé par plusieurs logiciels libres, sur toutes les plateformes.
-
-`neato` (Stephen C. North, laboratoires AT&T) trace des graphes non orientés.
-Il repose sur un modèle physique qui cherche itérativement des équilibres
-stables ou métastables entre des forces attachées aux nœuds (cf. Kamada &
-Kawai, *Information Processing Letters* 31:1, 1989). Le calcul peut être long
-et, son état initial étant aléatoire, le tracé peut différer d'une exécution à
-l'autre. neato peut écrire des fichiers png, gif ou svg ; le svg est
-préférable pour les grands graphes. neato fait partie de
-[Graphviz](https://graphviz.org/)
-([guide de neato](https://graphviz.org/pdf/neatoguide.pdf)).
-
-Arguments :
-
-- `out` : `t` ou `nil` affiche le texte dot dans le listener ; un flux (stream)
-  y écrit ; un chemin écrit un fichier `.dot` et, sauf si son type est `dot`,
-  lance aussi `neato` pour produire l'image au format de son type (`svg`,
-  `pdf`, `png`, `gif`…, `png` sans type). Si `neato` ne peut pas être lancé,
-  le fichier `.dot` est tout de même écrit, et une erreur le signale.
-- `:dis` : de combien le tracé peut déformer les longueurs (0.0–1.0), transmis
-  à `neato` comme attribut `w` des arêtes.
-- `:scale` : échelle de l'arête la plus courte, pour tracer les arêtes de
-  longueur 0 (un nombre ; `t` vaut 1, `nil` 0.2).
-- `:shape` : forme des nœuds (un nom de forme Graphviz comme `"ellipse"`,
-  `"plaintext"`, `"point"`), ou une liste de deux formes : nœuds ordinaires,
-  et nœuds reliés par des arêtes de longueur nulle.
-- `:legend` : étiqueter les arêtes avec leur longueur (`t` par défaut).
-- `:overlap` : `t` (par défaut) laisse les nœuds se chevaucher ; `nil` demande
-  à `neato` de les écarter (attribut `overlap=false` du graphe), ce qui est
-  utile quand les longueurs sont courtes par rapport aux noms des nœuds, par
-  exemple des distances de 0 à 1 ; une chaîne donne la valeur de l'attribut
-  `overlap` de Graphviz (`"scale"`, `"prism"`…).
-- `:invert` : `t` trace en blanc sur fond noir au lieu de noir sur fond blanc
-  (`nil` par défaut) ; les arêtes de longueur 0 sont alors bleu clair.
-
-Les arêtes de longueur 0 sont tracées en bleu, avec la longueur de la plus
-courte autre arête multipliée par `:scale` (ou `:scale` si toutes les arêtes
-sont de longueur 0).
-
-```lisp
-(graph>dot '((a b 1) (a c 2) (b d 0)) "/tmp/graph.png")
-;=> "/tmp/graph.png"     ; écrit /tmp/graph.dot et /tmp/graph.png
-```
-
-Le fichier dot peut aussi être tracé à la main :
-`neato -Tpng graph.dot -o graph.png`.
-
-#### `dendrogram>dot (dendrogram out &key width step invert)`
-
-Trace un dendrogramme, tel que le renvoie `graph>dendrogram`
-(`(distance arbre-a arbre-b)`), ou une liste de dendrogrammes (pour un graphe
-non connexe). Les feuilles sont à gauche, une par ligne, dans l'ordre du
-dendrogramme ; chaque fusion est placée à l'abscisse de sa distance, et une
-échelle des distances, graduée de 1, 2 ou 5 fois une puissance de 10, est
-tracée sous les feuilles. Le fichier dot donne la position de chaque point :
-il se trace avec `neato -n2`.
-
-- `out` : comme pour `graph>dot`, `t` ou `nil` affiche le texte dot, un flux y
-  écrit, et un chemin écrit un fichier `.dot` puis, sauf si son type est
-  `dot`, lance `neato -n2` pour produire l'image au format de son type (`png`
-  sans type).
-- `:width` : largeur de l'échelle, en points (700 par défaut).
-- `:step` : espace entre deux feuilles, en points (16 par défaut).
-- `:invert` : `t` trace en blanc sur fond noir (`nil` par défaut).
-
-```lisp
-(dendrogram>dot (nth-value 1 (graph>dendrogram *m*)) "/tmp/dendrogramme.png")
-;=> "/tmp/dendrogramme.png"   ; écrit /tmp/dendrogramme.dot et .png
-```
-
-Le fichier dot peut aussi être tracé à la main :
-`neato -n2 -Tpng dendrogramme.dot -o dendrogramme.png`.
 
 #### `graph>matrix (graph)`
 
@@ -1650,6 +1572,86 @@ virgules ou des points-virgules, sont mis entre guillemets).
 
 Affiche chaque élément d'une liste sur sa propre ligne, indenté selon sa
 profondeur.
+
+#### `graph>dot (graph out &key dis scale shape legend overlap invert)`
+
+Trace un graphe non orienté au format **dot**.
+
+Tracer automatiquement de grands graphes, de manière lisible et agréable, est
+un problème complexe et encore un sujet de recherche. Le langage dot décrit
+des graphes (orientés ou non) dans des fichiers texte (`.dot`) ; il est
+utilisé par plusieurs logiciels libres, sur toutes les plateformes.
+
+`neato` (Stephen C. North, laboratoires AT&T) trace des graphes non orientés.
+Il repose sur un modèle physique qui cherche itérativement des équilibres
+stables ou métastables entre des forces attachées aux nœuds (cf. Kamada &
+Kawai, *Information Processing Letters* 31:1, 1989). Le calcul peut être long
+et, son état initial étant aléatoire, le tracé peut différer d'une exécution à
+l'autre. neato peut écrire des fichiers png, gif ou svg ; le svg est
+préférable pour les grands graphes. neato fait partie de
+[Graphviz](https://graphviz.org/)
+([guide de neato](https://graphviz.org/pdf/neatoguide.pdf)).
+
+Arguments :
+
+- `out` : `t` ou `nil` affiche le texte dot dans le listener ; un flux (stream)
+  y écrit ; un chemin écrit un fichier `.dot` et, sauf si son type est `dot`,
+  lance aussi `neato` pour produire l'image au format de son type (`svg`,
+  `pdf`, `png`, `gif`…, `png` sans type). Si `neato` ne peut pas être lancé,
+  le fichier `.dot` est tout de même écrit, et une erreur le signale.
+- `:dis` : de combien le tracé peut déformer les longueurs (0.0–1.0), transmis
+  à `neato` comme attribut `w` des arêtes.
+- `:scale` : échelle de l'arête la plus courte, pour tracer les arêtes de
+  longueur 0 (un nombre ; `t` vaut 1, `nil` 0.2).
+- `:shape` : forme des nœuds (un nom de forme Graphviz comme `"ellipse"`,
+  `"plaintext"`, `"point"`), ou une liste de deux formes : nœuds ordinaires,
+  et nœuds reliés par des arêtes de longueur nulle.
+- `:legend` : étiqueter les arêtes avec leur longueur (`t` par défaut).
+- `:overlap` : `t` (par défaut) laisse les nœuds se chevaucher ; `nil` demande
+  à `neato` de les écarter (attribut `overlap=false` du graphe), ce qui est
+  utile quand les longueurs sont courtes par rapport aux noms des nœuds, par
+  exemple des distances de 0 à 1 ; une chaîne donne la valeur de l'attribut
+  `overlap` de Graphviz (`"scale"`, `"prism"`…).
+- `:invert` : `t` trace en blanc sur fond noir au lieu de noir sur fond blanc
+  (`nil` par défaut) ; les arêtes de longueur 0 sont alors bleu clair.
+
+Les arêtes de longueur 0 sont tracées en bleu, avec la longueur de la plus
+courte autre arête multipliée par `:scale` (ou `:scale` si toutes les arêtes
+sont de longueur 0).
+
+```lisp
+(graph>dot '((a b 1) (a c 2) (b d 0)) "/tmp/graph.png")
+;=> "/tmp/graph.png"     ; écrit /tmp/graph.dot et /tmp/graph.png
+```
+
+Le fichier dot peut aussi être tracé à la main :
+`neato -Tpng graph.dot -o graph.png`.
+
+#### `dendrogram>dot (dendrogram out &key width step invert)`
+
+Trace un dendrogramme, tel que le renvoie `graph>dendrogram`
+(`(distance arbre-a arbre-b)`), ou une liste de dendrogrammes (pour un graphe
+non connexe). Les feuilles sont à gauche, une par ligne, dans l'ordre du
+dendrogramme ; chaque fusion est placée à l'abscisse de sa distance, et une
+échelle des distances, graduée de 1, 2 ou 5 fois une puissance de 10, est
+tracée sous les feuilles. Le fichier dot donne la position de chaque point :
+il se trace avec `neato -n2`.
+
+- `out` : comme pour `graph>dot`, `t` ou `nil` affiche le texte dot, un flux y
+  écrit, et un chemin écrit un fichier `.dot` puis, sauf si son type est
+  `dot`, lance `neato -n2` pour produire l'image au format de son type (`png`
+  sans type).
+- `:width` : largeur de l'échelle, en points (700 par défaut).
+- `:step` : espace entre deux feuilles, en points (16 par défaut).
+- `:invert` : `t` trace en blanc sur fond noir (`nil` par défaut).
+
+```lisp
+(dendrogram>dot (nth-value 1 (graph>dendrogram *m*)) "/tmp/dendrogramme.png")
+;=> "/tmp/dendrogramme.png"   ; écrit /tmp/dendrogramme.dot et .png
+```
+
+Le fichier dot peut aussi être tracé à la main :
+`neato -n2 -Tpng dendrogramme.dot -o dendrogramme.png`.
 
 ## 5. FV-exemples
 

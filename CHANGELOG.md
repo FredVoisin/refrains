@@ -39,6 +39,10 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 
 ### Changed
 
+- `graph>dot` and `dendrogram>dot` are in the section 4 of the menu
+  (reading and writing files), since they write files, and `graph>matrix`
+  in the section 1.3 (delineate), in `help`, in the documentation and in the
+  function tables.
 - `date-string` and `date+time-string` are merged into
   `date-string (&optional time u)`: the date of the universal time `u` (now
   by default), such as `"22 Oct 2026"`, or with `time` true the date and

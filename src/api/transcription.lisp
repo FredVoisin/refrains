@@ -23,7 +23,7 @@
 ;;;; api/transcription.lisp
 ;;;;
 ;;;; Public functions: transcription (encoding, filters) and graphs
-;;;; (spanning tree, paths, matrices, DOT).
+;;;; (spanning tree, dendrogram, paths, matrices).
 ;;;;
 ;;;; copyright (c) Frederic Voisin, 1992-2012
 ;;;; Morphologie tool suite (Library) for Common-Lisp, OpenMusic (Ircam, 1997) and PWGL (Sibelius Academy, 2007).
@@ -158,41 +158,6 @@ of distances; :ward supposes euclidean distances."))
 
 (defmethod graph-path ((from t) (to t) (graph list))
   (refrains::tree-path from to graph))
-
-(defgeneric graph>dot (graph out &key dis scale shape legend overlap invert)
-  (:documentation   "GRAPH>DOT: converts a graph (list of edges) into an undirected graph into dot langage to be processed using neato program.
-Arguments:
-<graph> : the graph, as a structured list.
-<out> : if NIL or T, print out in listener; if a string, it defines the pathname of the output. Type of file define output.
-Keywords:
- :dis : amount of distortion allowed for distances fir drawing the graph (from 0.0 for minimum distorsion to 1.0 maximum distorsion)
- :scale : scaling factor for the mininum distance
- :shape : string or list of strings to define node's shape, using 'neato' definitions
- :legend : label the edges with their lengths (t by default)
- :overlap : t (default) lets the nodes overlap; nil makes neato move them apart (useful when the lengths
-are short compared with the names of the nodes); a string is the value of the Graphviz overlap attribute (\"scale\", \"prism\"...)
- :invert : t draws white on black instead of black on white (nil by default)
-"))
-
-(defmethod graph>dot  ((graph t) (out t) &key (dis 1) (scale t) (shape "ellipse") (legend t) (overlap t) (invert nil))
-  (refrains::graph2dot graph dis scale shape out legend overlap invert))
-
-(defgeneric dendrogram>dot (dendrogram out &key width step invert)
-  (:documentation "DENDROGRAM>DOT: draws a dendrogram, as given by graph>dendrogram (distance tree-a tree-b), or a list of
-dendrograms, in dot langage with the position of each point, to be drawn by neato -n2: the leaves on the left, one by
-line, and each fusion at the abscissa of its distance, with a scale of the distances under the leaves.
-Arguments:
-<dendrogram> : the dendrogram, or a list of dendrograms (the second value of graph>dendrogram for a graph not connected).
-<out> : if NIL or T, print out in listener; a stream, write into it; if a string, it defines the pathname of the output:
-a dot file, and, unless its type is dot, the image made by neato -n2 in the format of its type (png without type).
-Keywords:
- :width : the width of the scale, in points (700 by default)
- :step : the space between two leaves, in points (16 by default)
- :invert : t draws white on black instead of black on white (nil by default)
-"))
-
-(defmethod dendrogram>dot ((dendrogram t) (out t) &key (width 700) (step 16) (invert nil))
-  (refrains::dendrogram2dot dendrogram out :width width :step step :invert invert))
 
 (defgeneric morph-seq (seq1 seq2 &key test random)
   (:documentation "MORPH-SEQ: interpolates the sequence <seq1> to the sequence <seq2> with the minimum of steps,

@@ -56,7 +56,7 @@
   '(;; 1. transcription
     transcode num>base num>alpha alpha>num list>sym str>sym filt-noise
     filt-median filt-extrema filt-mean filt-lowpass filt-repeat filt-function
-    graph-span graph>dendrogram graph-path graph>dot dendrogram>dot graph>matrix
+    graph-span graph>dendrogram graph-path graph>matrix
     morph-seq
     ;; 2. classification
     exsample separate graph-part
@@ -68,7 +68,7 @@
     dist-structure dist-graph
     histogram entropy self-info inner-dynamic graph-length graph-degree
     ;; 4. reading and writing files
-    read-text write-list display-list
+    read-text write-list display-list graph>dot dendrogram>dot
     ;; documentation
     help doc)
   "The refrains functions, in the order of the documentation (all the exported functions).")

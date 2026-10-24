@@ -208,8 +208,7 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
 ;;  1.2 FILTER
        filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-function
 ;;  1.3 DELINEATE : trace graphs
-       graph-span, graph>dendrogram, graph-path, graph>dot, dendrogram>dot,
-       graph>matrix
+       graph-span, graph>dendrogram, graph-path, graph>matrix
 ;;  1.4 INTERPOLATE
        morph-seq
 ;;; 2. CLASSIFICATION
@@ -228,7 +227,7 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
 ;;  3.3 QUANTIFY : self information
        histogram, entropy, self-info, inner-dynamic, graph-length, graph-degree
 ;;; 4. READ/WRITE files
-       read-text, write-list, display-list
+       read-text, write-list, display-list, graph>dot, dendrogram>dot
 ```
 
 In the REPL, `(doc)` lists the documented functions and `(doc 'dist-edit)`
@@ -573,7 +572,10 @@ Experimental.
 ;=> (37/6 (3 (1 A B) C) (1 D E))
 ```
 
-The dendrogram is drawn with `dendrogram>dot`.
+The dendrogram is drawn with
+[`dendrogram>dot`](#dendrogramdot-dendrogram-out-key-width-step-invert) (see
+[4](#4-reading-and-writing-files)), and the graph with
+[`graph>dot`](#graphdot-graph-out-key-dis-scale-shape-legend-overlap-invert).
 
 **Ward's linkage.** At each step, Ward's linkage (Ward, 1963) merges the two
 groups whose union increases the least the *within-group inertia*, the sum
@@ -630,83 +632,6 @@ nodes cannot be lists (a list stands for several nodes).
 (graph-path 'a nil '((a b 1) (b c 2) (b d 1)))  ;=> ((A B C) (A B D))
 (graph-path nil nil '((a b 1) (b c 2) (b d 1))) ;=> ((A B C) (A B D) (C B D))
 ```
-
-#### `graph>dot (graph out &key dis scale shape legend overlap invert)`
-
-Draws an undirected graph in the **dot** format.
-
-Drawing large graphs automatically, in a readable and pleasant way, is a
-complex problem and still a research subject. The dot language describes
-graphs (directed or not) in text files (`.dot`); it is used by several free
-programs on all platforms.
-
-`neato` (Stephen C. North, AT&T labs) draws undirected graphs. It is based on
-a physical model that iteratively looks for stable or metastable equilibria
-between forces attached to the nodes (cf. Kamada & Kawai, *Information
-Processing Letters* 31:1, 1989). The computation can be long and, as its
-initial state is random, the drawing may differ from one run to the next.
-neato can write png, gif or svg files; svg is preferable for large graphs.
-neato is part of [Graphviz](https://graphviz.org/)
-([neato guide](https://graphviz.org/pdf/neatoguide.pdf)).
-
-Arguments:
-
-- `out`: `t` or `nil` prints the dot text to the listener; a stream writes to
-  it; a pathname writes a `.dot` file and, unless its type is `dot`, also
-  runs `neato` to make the image in the format of its type (`svg`, `pdf`,
-  `png`, `gif`..., `png` without type). If `neato` cannot be run, the `.dot`
-  file is still written, and an error says so.
-- `:dis`: how much the drawing may distort the lengths (0.0–1.0), passed to
-  `neato` as the `w` attribute of the edges.
-- `:scale`: scale of the shortest edge, for drawing the edges of length 0
-  (a number; `t` is 1, `nil` 0.2).
-- `:shape`: node shape (a Graphviz shape name such as `"ellipse"`,
-  `"plaintext"`, `"point"`), or a list of two shapes: ordinary nodes, and
-  nodes joined by zero-length edges.
-- `:legend`: label the edges with their lengths (`t` by default).
-- `:overlap`: `t` (by default) lets the nodes overlap; `nil` makes `neato`
-  move them apart (graph attribute `overlap=false`), useful when the lengths
-  are short compared with the names of the nodes, such as distances from 0
-  to 1; a string is the value of the Graphviz `overlap` attribute
-  (`"scale"`, `"prism"`…).
-- `:invert`: `t` draws white on black instead of black on white (`nil` by
-  default); the edges of length 0 are then light blue.
-
-Edges of length 0 are drawn in blue, with the length of the shortest other
-edge times `:scale` (or `:scale` if all the edges have length 0).
-
-```lisp
-(graph>dot '((a b 1) (a c 2) (b d 0)) "/tmp/graph.png")
-;=> "/tmp/graph.png"     ; writes /tmp/graph.dot and /tmp/graph.png
-```
-
-The dot file can also be drawn by hand: `neato -Tpng graph.dot -o graph.png`.
-
-#### `dendrogram>dot (dendrogram out &key width step invert)`
-
-Draws a dendrogram, as returned by `graph>dendrogram`
-(`(distance tree-a tree-b)`), or a list of dendrograms (for a graph not
-connected). The leaves are on the left, one by line, in the order of the
-dendrogram; each fusion is placed at the abscissa of its distance, and a
-scale of the distances, graduated by 1, 2 or 5 times a power of 10, is drawn
-under the leaves. The dot file gives the position of each point: it is drawn
-with `neato -n2`.
-
-- `out`: as for `graph>dot`, `t` or `nil` prints the dot text, a stream is
-  written into, and a path writes a `.dot` file and, unless its type is
-  `dot`, runs `neato -n2` to make the image in the format of its type (`png`
-  without type).
-- `:width`: width of the scale, in points (700 by default).
-- `:step`: space between two leaves, in points (16 by default).
-- `:invert`: `t` draws white on black (`nil` by default).
-
-```lisp
-(dendrogram>dot (nth-value 1 (graph>dendrogram *m*)) "/tmp/dendrogram.png")
-;=> "/tmp/dendrogram.png"   ; writes /tmp/dendrogram.dot and .png
-```
-
-The dot file can also be drawn by hand:
-`neato -n2 -Tpng dendrogram.dot -o dendrogram.png`.
 
 #### `graph>matrix (graph)`
 
@@ -1553,6 +1478,83 @@ strings, or symbols with spaces, commas or semicolons, are quoted).
 #### `display-list (list &optional recursive)`
 
 Prints each element of a list on its own line, indented by depth.
+
+#### `graph>dot (graph out &key dis scale shape legend overlap invert)`
+
+Draws an undirected graph in the **dot** format.
+
+Drawing large graphs automatically, in a readable and pleasant way, is a
+complex problem and still a research subject. The dot language describes
+graphs (directed or not) in text files (`.dot`); it is used by several free
+programs on all platforms.
+
+`neato` (Stephen C. North, AT&T labs) draws undirected graphs. It is based on
+a physical model that iteratively looks for stable or metastable equilibria
+between forces attached to the nodes (cf. Kamada & Kawai, *Information
+Processing Letters* 31:1, 1989). The computation can be long and, as its
+initial state is random, the drawing may differ from one run to the next.
+neato can write png, gif or svg files; svg is preferable for large graphs.
+neato is part of [Graphviz](https://graphviz.org/)
+([neato guide](https://graphviz.org/pdf/neatoguide.pdf)).
+
+Arguments:
+
+- `out`: `t` or `nil` prints the dot text to the listener; a stream writes to
+  it; a pathname writes a `.dot` file and, unless its type is `dot`, also
+  runs `neato` to make the image in the format of its type (`svg`, `pdf`,
+  `png`, `gif`..., `png` without type). If `neato` cannot be run, the `.dot`
+  file is still written, and an error says so.
+- `:dis`: how much the drawing may distort the lengths (0.0–1.0), passed to
+  `neato` as the `w` attribute of the edges.
+- `:scale`: scale of the shortest edge, for drawing the edges of length 0
+  (a number; `t` is 1, `nil` 0.2).
+- `:shape`: node shape (a Graphviz shape name such as `"ellipse"`,
+  `"plaintext"`, `"point"`), or a list of two shapes: ordinary nodes, and
+  nodes joined by zero-length edges.
+- `:legend`: label the edges with their lengths (`t` by default).
+- `:overlap`: `t` (by default) lets the nodes overlap; `nil` makes `neato`
+  move them apart (graph attribute `overlap=false`), useful when the lengths
+  are short compared with the names of the nodes, such as distances from 0
+  to 1; a string is the value of the Graphviz `overlap` attribute
+  (`"scale"`, `"prism"`…).
+- `:invert`: `t` draws white on black instead of black on white (`nil` by
+  default); the edges of length 0 are then light blue.
+
+Edges of length 0 are drawn in blue, with the length of the shortest other
+edge times `:scale` (or `:scale` if all the edges have length 0).
+
+```lisp
+(graph>dot '((a b 1) (a c 2) (b d 0)) "/tmp/graph.png")
+;=> "/tmp/graph.png"     ; writes /tmp/graph.dot and /tmp/graph.png
+```
+
+The dot file can also be drawn by hand: `neato -Tpng graph.dot -o graph.png`.
+
+#### `dendrogram>dot (dendrogram out &key width step invert)`
+
+Draws a dendrogram, as returned by `graph>dendrogram`
+(`(distance tree-a tree-b)`), or a list of dendrograms (for a graph not
+connected). The leaves are on the left, one by line, in the order of the
+dendrogram; each fusion is placed at the abscissa of its distance, and a
+scale of the distances, graduated by 1, 2 or 5 times a power of 10, is drawn
+under the leaves. The dot file gives the position of each point: it is drawn
+with `neato -n2`.
+
+- `out`: as for `graph>dot`, `t` or `nil` prints the dot text, a stream is
+  written into, and a path writes a `.dot` file and, unless its type is
+  `dot`, runs `neato -n2` to make the image in the format of its type (`png`
+  without type).
+- `:width`: width of the scale, in points (700 by default).
+- `:step`: space between two leaves, in points (16 by default).
+- `:invert`: `t` draws white on black (`nil` by default).
+
+```lisp
+(dendrogram>dot (nth-value 1 (graph>dendrogram *m*)) "/tmp/dendrogram.png")
+;=> "/tmp/dendrogram.png"   ; writes /tmp/dendrogram.dot and .png
+```
+
+The dot file can also be drawn by hand:
+`neato -n2 -Tpng dendrogram.dot -o dendrogram.png`.
 
 ## 5. FV-examples
 
