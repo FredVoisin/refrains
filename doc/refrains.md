@@ -214,11 +214,11 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
        morph-seq
 ;;; 2. CLASSIFICATION
 ;;  2.1 SEGMENT : cut, split
-       exsample, separate, graph-part
+       exsample, separate
 ;;  2.2 CONCATENATE : group, assemble
        motif-group, list>sym
 ;;  2.3 DIFFERENTIATE : classify, identify
-       mark-structure, motif-structure, class-num, class-sym
+       mark-structure, motif-structure, class-num, class-sym, graph-part
 ;;; 3. EVALUATION
 ;;  3.1 ENUMERATE : sample, find, count
        mark-position, mark-list, motif-position, motif-list, graph-nodes, graph-leaves,
@@ -848,29 +848,6 @@ always removed). Empty segments are removed. The result is a list of segments
 (separate "hello")                               ;=> ("hello")
 ```
 
-#### `graph-part (graph &optional mode n)`
-
-Partitions a tree by removing its longest edge(s). The only mode is
-`:distance` (the default). Experimental.
-
-- Without `n`, all the edges of maximum length are cut, so the number of
-  parts depends on how many edges share that length.
-- With an integer `n`, exactly the `n − 1` longest edges are cut (among equal
-  edges, the first one in the tree), giving `n` parts — never more than the
-  number of nodes.
-
-Returns two values: the edges of each part (`((node))` for a part made of a
-single node), and the nodes of each part.
-
-```lisp
-(graph-part '((0 1 1) (1 2 2) (2 3 2) (3 4 1)))
-;=> (((0 1 1)) ((2)) ((3 4 1)))
-;   ((0 1) (2) (3 4))
-(graph-part '((0 1 1) (1 2 2) (2 3 2) (3 4 1)) :distance 2)
-;=> (((0 1 1)) ((2 3 2) (3 4 1)))
-;   ((0 1) (2 3 4))
-```
-
 ### 2.2 Concatenate
 
 #### `motif-group (seq test &optional key)`
@@ -1067,6 +1044,34 @@ appearance; there are never more classes than distinct forms.
              (k l m n o p) (k l m n o q))
            3 :edit-norm)
 ;=> (0 0 1 1 0 2 2)
+```
+
+#### `graph-part (graph &optional mode n)`
+
+Partitions a tree by removing its longest edge(s). The only mode is
+`:distance` (the default). Experimental.
+
+It is a classification of the nodes by single linkage: applied to the
+minimum spanning tree of a set of objects (`graph-span`), it divides them
+into groups of close objects. `class-sym` does the same for sequences of
+symbols, compared by their edit distance.
+
+- Without `n`, all the edges of maximum length are cut, so the number of
+  parts depends on how many edges share that length.
+- With an integer `n`, exactly the `n − 1` longest edges are cut (among equal
+  edges, the first one in the tree), giving `n` parts — never more than the
+  number of nodes.
+
+Returns two values: the edges of each part (`((node))` for a part made of a
+single node), and the nodes of each part.
+
+```lisp
+(graph-part '((0 1 1) (1 2 2) (2 3 2) (3 4 1)))
+;=> (((0 1 1)) ((2)) ((3 4 1)))
+;   ((0 1) (2) (3 4))
+(graph-part '((0 1 1) (1 2 2) (2 3 2) (3 4 1)) :distance 2)
+;=> (((0 1 1)) ((2 3 2) (3 4 1)))
+;   ((0 1) (2 3 4))
 ```
 
 ## 3. Evaluation

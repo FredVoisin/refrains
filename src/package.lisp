@@ -49,9 +49,9 @@
    #:graph-span #:graph>dendrogram #:graph-path #:graph>matrix
    #:morph-seq
    ;; 2. classification
-   #:exsample #:separate #:graph-part
+   #:exsample #:separate
    #:motif-group
-   #:mark-structure #:motif-structure #:class-num #:class-sym
+   #:mark-structure #:motif-structure #:class-num #:class-sym #:graph-part
    ;; 3. evaluation
    #:mark-position #:mark-list #:motif-position #:motif-list
    #:graph-nodes #:graph-leaves #:graph-degree

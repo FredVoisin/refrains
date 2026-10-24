@@ -52,6 +52,11 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   information, diversity": for a minimum spanning tree, it measures the
   diversity of the objects. Its docstring is rewritten (it said the graph
   must have no cycles, but it sums all the edges).
+- `graph-part` is in the section 2.3 (differentiate: classify), after
+  `class-sym`, instead of 2.1 (segment): it partitions a set of objects
+  into groups (single linkage), as `class-sym` does for sequences of
+  symbols. The docstring of `class-sym` referred to `class-graph`, which
+  does not exist: it refers to `graph-part`.
 - `date-string` and `date+time-string` are merged into
   `date-string (&optional time u)`: the date of the universal time `u` (now
   by default), such as `"22 Oct 2026"`, or with `time` true the date and

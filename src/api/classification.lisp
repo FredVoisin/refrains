@@ -140,7 +140,7 @@ Keyword argument :iter to set the number of runs of the algorithm (with :centroi
 
 (defgeneric class-sym (data classes mode &key sub ins del uncom excluded mst)
   (:documentation "CLASS-SYM: classify a set of segments or sequences into different classes according to their editing distance to each other and
-by partitioning the resulting spanning tree (see class-graph).
+by partitioning the resulting spanning tree (see graph-part).
 The output is a list of numbers (from zero) as instances of the different classes retrieved.
 Keyword arguments :sub :ins :del :uncom for tuning editing distance (see dist-edit).
 The argument :excluded is a list of elements of data excluded from classification ;

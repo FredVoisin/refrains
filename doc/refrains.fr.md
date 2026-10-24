@@ -262,11 +262,11 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
        morph-seq
 ;;; 2. CLASSIFICATION
 ;;  2.1 SEGMENTER : couper, scinder
-       exsample, separate, graph-part
+       exsample, separate
 ;;  2.2 CONCATÉNER : grouper, assembler
        motif-group, list>sym
 ;;  2.3 DIFFÉRENCIER : classer, identifier
-       mark-structure, motif-structure, class-num, class-sym
+       mark-structure, motif-structure, class-num, class-sym, graph-part
 ;;; 3. ÉVALUATION
 ;;  3.1 ÉNUMÉRER : échantillonner, trouver, compter
        mark-position, mark-list, motif-position, motif-list, graph-nodes, graph-leaves,
@@ -916,29 +916,6 @@ Le résultat est une liste de segments (`nil` pour une chaîne vide).
 (separate "hello")                               ;=> ("hello")
 ```
 
-#### `graph-part (graph &optional mode n)`
-
-Partitionne un arbre en supprimant sa ou ses arêtes les plus longues. Le seul
-mode est `:distance` (par défaut). Expérimental.
-
-- Sans `n`, toutes les arêtes de longueur maximale sont coupées : le nombre de
-  parties dépend donc du nombre d'arêtes qui partagent cette longueur.
-- Avec un entier `n`, exactement les `n − 1` arêtes les plus longues sont
-  coupées (à longueurs égales, la première de l'arbre), ce qui donne `n`
-  parties — jamais plus que le nombre de nœuds.
-
-Renvoie deux valeurs : les arêtes de chaque partie (`((nœud))` pour une partie
-formée d'un seul nœud), et les nœuds de chaque partie.
-
-```lisp
-(graph-part '((0 1 1) (1 2 2) (2 3 2) (3 4 1)))
-;=> (((0 1 1)) ((2)) ((3 4 1)))
-;   ((0 1) (2) (3 4))
-(graph-part '((0 1 1) (1 2 2) (2 3 2) (3 4 1)) :distance 2)
-;=> (((0 1 1)) ((2 3 2) (3 4 1)))
-;   ((0 1) (2 3 4))
-```
-
 ### 2.2 Concaténer
 
 #### `motif-group (seq test &optional key)`
@@ -1142,6 +1119,34 @@ que de formes distinctes.
              (k l m n o p) (k l m n o q))
            3 :edit-norm)
 ;=> (0 0 1 1 0 2 2)
+```
+
+#### `graph-part (graph &optional mode n)`
+
+Partitionne un arbre en supprimant sa ou ses arêtes les plus longues. Le seul
+mode est `:distance` (par défaut). Expérimental.
+
+C'est une classification des nœuds par le lien simple : appliquée à l'arbre
+de recouvrement minimal d'un ensemble d'objets (`graph-span`), elle les
+répartit en groupes d'objets proches. `class-sym` fait de même pour des
+suites de symboles, comparées par leur distance d'édition.
+
+- Sans `n`, toutes les arêtes de longueur maximale sont coupées : le nombre de
+  parties dépend donc du nombre d'arêtes qui partagent cette longueur.
+- Avec un entier `n`, exactement les `n − 1` arêtes les plus longues sont
+  coupées (à longueurs égales, la première de l'arbre), ce qui donne `n`
+  parties — jamais plus que le nombre de nœuds.
+
+Renvoie deux valeurs : les arêtes de chaque partie (`((nœud))` pour une partie
+formée d'un seul nœud), et les nœuds de chaque partie.
+
+```lisp
+(graph-part '((0 1 1) (1 2 2) (2 3 2) (3 4 1)))
+;=> (((0 1 1)) ((2)) ((3 4 1)))
+;   ((0 1) (2) (3 4))
+(graph-part '((0 1 1) (1 2 2) (2 3 2) (3 4 1)) :distance 2)
+;=> (((0 1 1)) ((2 3 2) (3 4 1)))
+;   ((0 1) (2 3 4))
 ```
 
 ## 3. Évaluation
