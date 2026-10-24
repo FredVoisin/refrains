@@ -231,6 +231,16 @@ le dossier du projet, ou créez-en un lien symbolique, dans
 
 Tous les exemples ci-dessous sont évalués dans le paquet `:refrains`.
 
+Le lien symbolique doit avoir un chemin absolu
+(`ln -s /chemin/vers/refrains ~/quicklisp/local-projects/refrains`) : une
+cible relative comme `ln -s refrains` crée un lien qui pointe sur lui-même.
+Si le chargement signale `System "refrains" not found`, vérifiez le lien
+(`ls -l ~/quicklisp/local-projects/refrains`), puis évaluez
+`(ql:register-local-projects)` avant `(ql:quickload :refrains)` ; dans
+Emacs/SLIME, un Lisp déjà lancé peut garder l'ancienne recherche : évaluez-y
+ces formes, ou redémarrez-le (`M-x slime-restart-inferior-lisp`). Voir aussi
+le [README](../README.md#if-the-system-refrains-is-not-found).
+
 - `graph>dot` a besoin de [Graphviz](https://graphviz.org/) (`neato`) pour
   produire des images.
 - Les tests utilisent [FiveAM](https://github.com/lispci/fiveam), uniquement
