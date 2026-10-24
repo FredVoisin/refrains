@@ -153,12 +153,6 @@ of distances; :ward supposes euclidean distances."))
     ((:complete :average :ward) (refrains::agglomerative-clustering mat-dist linkage))
     (t (error "graph-dendrogram: unknown linkage ~S, use :single, :complete, :average or :ward." linkage))))
 
-(defgeneric graph-path (from to graph)
-  (:documentation "GRAPH-PATH: returns path(s) from node(s) or leave(s) to one or some other node(s) or leave(s) of a graph; in a graph with cycles, the shortest path by distance."))
-
-(defmethod graph-path ((from t) (to t) (graph list))
-  (refrains::tree-path from to graph))
-
 (defgeneric morph-seq (seq1 seq2 &key test random)
   (:documentation "MORPH-SEQ: interpolates the sequence <seq1> to the sequence <seq2> with the minimum of steps,
 changing one element at a time (substitution, deletion or insertion) along an edit path of minimal cost (see

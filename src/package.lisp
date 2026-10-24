@@ -46,7 +46,7 @@
    #:transcode #:num>base #:num>alpha #:alpha>num #:list>sym #:str>sym
    #:filt-median #:filt-extrema #:filt-mean #:filt-lowpass
    #:filt-repeat #:filt-noise #:filt-function
-   #:graph-span #:graph-dendrogram #:graph-path #:graph>matrix
+   #:graph-span #:graph-dendrogram #:graph>matrix
    #:morph-seq
    ;; 2. classification
    #:exsample #:separate
@@ -54,7 +54,7 @@
    #:mark-structure #:motif-structure #:class-num #:class-sym #:graph-part
    ;; 3. evaluation
    #:mark-position #:mark-list #:motif-position #:motif-list
-   #:graph-nodes #:graph-leaves #:graph-degree
+   #:graph-nodes #:graph-leaves #:graph-degree #:graph-path
    #:dist-euclidean #:dist-cityblock #:dist-hamming #:dist-edit
    #:dist-multi-edit #:dist-structure #:dist-graph
    #:histogram #:entropy #:self-info #:inner-dynamic

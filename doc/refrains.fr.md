@@ -257,7 +257,7 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
        filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-noise,
        filt-function
 ;;  1.3 DÉLINÉER : tracer des graphes
-       graph-span, graph-dendrogram, graph-path, graph>matrix
+       graph-span, graph-dendrogram, graph>matrix
 ;;  1.4 INTERPOLER
        morph-seq
 ;;; 2. CLASSIFICATION
@@ -270,7 +270,7 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
 ;;; 3. ÉVALUATION
 ;;  3.1 ÉNUMÉRER : échantillonner, trouver, compter
        mark-position, mark-list, motif-position, motif-list, graph-nodes, graph-leaves,
-       graph-degree
+       graph-degree, graph-path
 ;;  3.2 COMPARER : distances et dissimilarités
        dist-euclidean, dist-cityblock, dist-hamming, dist-edit,
        dist-multi-edit, dist-structure, dist-graph
@@ -674,28 +674,6 @@ mots, il s'applique encore, mais à titre empirique.
                   :linkage :ward)
 ;=> ((1.0 (0) (1)) (1.0 (3) (4)) (3.5118845 (0 1) (2)) (21.034891 (0 1 2) (3 4)))
 ;   (21.034891 (3.5118845 (1.0 0 1) 2) (1.0 3 4))
-```
-
-#### `graph-path (from to graph)`
-
-Les nœuds du chemin entre deux nœuds d'un arbre (`nil` s'ils ne sont pas
-reliés). Dans un graphe qui n'est pas un arbre, c'est le plus court chemin en
-distance (algorithme de Dijkstra ; les distances doivent être positives ou
-nulles). Seuls les deux nœuds de chaque arête `(nœud-a nœud-b distance)` sont
-comparés, jamais la distance. Les nœuds sont comparés avec `equal` : les
-chaînes sont sensibles à la casse, et les nœuds ne peuvent pas être des
-listes (une liste représente plusieurs nœuds).
-
-- `from` ou `to` à `nil` : les chemins de l'autre nœud vers chaque feuille de
-  l'arbre.
-- `from` et `to` à `nil` : les chemins entre toutes les paires de feuilles.
-- `from` et/ou `to` liste de nœuds : les chemins pour chacun d'eux.
-
-```lisp
-(graph-path 'a 'c '((a b 1) (b c 2) (b d 1)))   ;=> (A B C)
-(graph-path 'a 'b '((a b 1) (b c 2) (b d 1)))   ;=> (A B)
-(graph-path 'a nil '((a b 1) (b c 2) (b d 1)))  ;=> ((A B C) (A B D))
-(graph-path nil nil '((a b 1) (b c 2) (b d 1))) ;=> ((A B C) (A B D) (C B D))
 ```
 
 #### `graph>matrix (graph)`
@@ -1289,6 +1267,28 @@ degré 1.
 (graph-degree 'b '((a b 1) (b c 2) (b d 1)))    ;=> 3
 (graph-degree '(b d) '((a b 1) (b c 2) (b d 1))) ;=> (3 1)
 (graph-degree nil '((a b 1) (b c 2) (b d 1)))   ;=> (1 3 1 1), pour (A B C D)
+```
+
+#### `graph-path (from to graph)`
+
+Les nœuds du chemin entre deux nœuds d'un arbre (`nil` s'ils ne sont pas
+reliés). Dans un graphe qui n'est pas un arbre, c'est le plus court chemin en
+distance (algorithme de Dijkstra ; les distances doivent être positives ou
+nulles). Seuls les deux nœuds de chaque arête `(nœud-a nœud-b distance)` sont
+comparés, jamais la distance. Les nœuds sont comparés avec `equal` : les
+chaînes sont sensibles à la casse, et les nœuds ne peuvent pas être des
+listes (une liste représente plusieurs nœuds).
+
+- `from` ou `to` à `nil` : les chemins de l'autre nœud vers chaque feuille de
+  l'arbre.
+- `from` et `to` à `nil` : les chemins entre toutes les paires de feuilles.
+- `from` et/ou `to` liste de nœuds : les chemins pour chacun d'eux.
+
+```lisp
+(graph-path 'a 'c '((a b 1) (b c 2) (b d 1)))   ;=> (A B C)
+(graph-path 'a 'b '((a b 1) (b c 2) (b d 1)))   ;=> (A B)
+(graph-path 'a nil '((a b 1) (b c 2) (b d 1)))  ;=> ((A B C) (A B D))
+(graph-path nil nil '((a b 1) (b c 2) (b d 1))) ;=> ((A B C) (A B D) (C B D))
 ```
 
 ### 3.2 Comparer : distances et dissimilarités

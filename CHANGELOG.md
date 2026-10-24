@@ -62,6 +62,12 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   symbols. The docstring of `class-sym` referred to `class-graph`, which
   does not exist: it refers to `graph-part`.
 - The docstring of `class-num` is reworded (it said "into s space").
+- `graph-path` is in the section 3.1 (enumerate: find), after
+  `graph-degree`, instead of 1.3 (delineate): it does not build a graph,
+  it finds paths in a graph, as `graph-nodes`, `graph-leaves` and
+  `graph-degree` describe its nodes. Section 1.3 keeps the functions that
+  build or represent a graph (`graph-span`, `graph-dendrogram`,
+  `graph>matrix`).
 - `date-string` and `date+time-string` are merged into
   `date-string (&optional time u)`: the date of the universal time `u` (now
   by default), such as `"22 Oct 2026"`, or with `time` true the date and

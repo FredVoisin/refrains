@@ -230,3 +230,9 @@ A list of nodes gives the list of their degrees, nil the degrees of all the node
 
 (defmethod graph-leaves ((graph list))
   (refrains::tree-leaves graph))
+
+(defgeneric graph-path (from to graph)
+  (:documentation "GRAPH-PATH: returns path(s) from node(s) or leave(s) to one or some other node(s) or leave(s) of a graph; in a graph with cycles, the shortest path by distance."))
+
+(defmethod graph-path ((from t) (to t) (graph list))
+  (refrains::tree-path from to graph))

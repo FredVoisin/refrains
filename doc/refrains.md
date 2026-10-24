@@ -209,7 +209,7 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
        filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-noise,
        filt-function
 ;;  1.3 DELINEATE : trace graphs
-       graph-span, graph-dendrogram, graph-path, graph>matrix
+       graph-span, graph-dendrogram, graph>matrix
 ;;  1.4 INTERPOLATE
        morph-seq
 ;;; 2. CLASSIFICATION
@@ -222,7 +222,7 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
 ;;; 3. EVALUATION
 ;;  3.1 ENUMERATE : sample, find, count
        mark-position, mark-list, motif-position, motif-list, graph-nodes, graph-leaves,
-       graph-degree
+       graph-degree, graph-path
 ;;  3.2 COMPARE : distances and dissimilarities
        dist-euclidean, dist-cityblock, dist-hamming, dist-edit,
        dist-multi-edit, dist-structure, dist-graph
@@ -612,27 +612,6 @@ but empirically.
                   :linkage :ward)
 ;=> ((1.0 (0) (1)) (1.0 (3) (4)) (3.5118845 (0 1) (2)) (21.034891 (0 1 2) (3 4)))
 ;   (21.034891 (3.5118845 (1.0 0 1) 2) (1.0 3 4))
-```
-
-#### `graph-path (from to graph)`
-
-The nodes on the path between two nodes of a tree (`nil` if they are not
-connected). In a graph which is not a tree, it is the shortest path by
-distance (Dijkstra's algorithm; the distances must be positive or 0). Only
-the two nodes of each edge `(node-a node-b distance)` are compared, never the
-distance. Nodes are compared with `equal`: strings are case-sensitive, and
-nodes cannot be lists (a list stands for several nodes).
-
-- `from` or `to` `nil`: the paths from the other node to each leaf of the
-  tree.
-- `from` and `to` `nil`: the paths between all the pairs of leaves.
-- `from` and/or `to` a list of nodes: the paths for each of them.
-
-```lisp
-(graph-path 'a 'c '((a b 1) (b c 2) (b d 1)))   ;=> (A B C)
-(graph-path 'a 'b '((a b 1) (b c 2) (b d 1)))   ;=> (A B)
-(graph-path 'a nil '((a b 1) (b c 2) (b d 1)))  ;=> ((A B C) (A B D))
-(graph-path nil nil '((a b 1) (b c 2) (b d 1))) ;=> ((A B C) (A B D) (C B D))
 ```
 
 #### `graph>matrix (graph)`
@@ -1206,6 +1185,27 @@ order of `graph-nodes`. The leaves (`graph-leaves`) are the nodes of degree
 (graph-degree 'b '((a b 1) (b c 2) (b d 1)))    ;=> 3
 (graph-degree '(b d) '((a b 1) (b c 2) (b d 1))) ;=> (3 1)
 (graph-degree nil '((a b 1) (b c 2) (b d 1)))   ;=> (1 3 1 1), for (A B C D)
+```
+
+#### `graph-path (from to graph)`
+
+The nodes on the path between two nodes of a tree (`nil` if they are not
+connected). In a graph which is not a tree, it is the shortest path by
+distance (Dijkstra's algorithm; the distances must be positive or 0). Only
+the two nodes of each edge `(node-a node-b distance)` are compared, never the
+distance. Nodes are compared with `equal`: strings are case-sensitive, and
+nodes cannot be lists (a list stands for several nodes).
+
+- `from` or `to` `nil`: the paths from the other node to each leaf of the
+  tree.
+- `from` and `to` `nil`: the paths between all the pairs of leaves.
+- `from` and/or `to` a list of nodes: the paths for each of them.
+
+```lisp
+(graph-path 'a 'c '((a b 1) (b c 2) (b d 1)))   ;=> (A B C)
+(graph-path 'a 'b '((a b 1) (b c 2) (b d 1)))   ;=> (A B)
+(graph-path 'a nil '((a b 1) (b c 2) (b d 1)))  ;=> ((A B C) (A B D))
+(graph-path nil nil '((a b 1) (b c 2) (b d 1))) ;=> ((A B C) (A B D) (C B D))
 ```
 
 ### 3.2 Compare: distances and dissimilarities
