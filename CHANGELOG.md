@@ -36,6 +36,12 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `dendrogram>dot`), and the figure
   of the operations, in white on black; what to do
   when the system "refrains" is not found.
+- Documentation: the examples (section 5, "FV-examples", now "Examples")
+  have one file each, in `doc/exemples/` (reference) and `doc/examples/`,
+  listed with a short description in `doc/exemples.md` and
+  `doc/examples.md`; the function trees are the first example in Common
+  Lisp. The documentation links from its beginning to the list of the
+  functions and to the examples.
 
 ### Changed
 

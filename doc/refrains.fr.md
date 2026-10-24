@@ -8,6 +8,9 @@ Frédéric Voisin, 2026.
 > Ce document est la version de référence de la documentation. Tous les exemples ont été exécutés avec SBCL. Les points restant
 > à mettre à jour sont listés à la fin, dans les [Notes pour la mise à jour](#notes-pour-la-mise-à-jour).
 > refrains est la continuation de [fv-morphologie](https://github.com/FredVoisin/fv-morphologie).
+> Les fonctions, avec leurs arguments et leur documentation, sont listées dans
+> [refrains-fonctions.fr.md](refrains-fonctions.fr.md) ; des exemples
+> d'utilisation sont réunis dans [exemples.md](exemples.md).
 > In English, see: [refrains.md](refrains.md).
 
 ## Sommaire
@@ -31,7 +34,7 @@ Frédéric Voisin, 2026.
   - [3.2 Comparer : distances et dissimilarités](#32-comparer--distances-et-dissimilarités)
   - [3.3 Quantifier : information, diversité](#33-quantifier--information-diversité)
 - [4. Lecture et écriture de fichiers](#4-lecture-et-écriture-de-fichiers)
-- [5. FV-exemples](#5-fv-exemples)
+- [5. Exemples](#5-exemples)
 - [Références](#références)
 - [Liste des fonctions](#liste-des-fonctions)
 - [Notes pour la mise à jour](#notes-pour-la-mise-à-jour)
@@ -1677,109 +1680,13 @@ il se trace avec `neato -n2`.
 Le fichier dot peut aussi être tracé à la main :
 `neato -n2 -Tpng dendrogramme.dot -o dendrogramme.png`.
 
-## 5. FV-exemples
+## 5. Exemples
 
-Des analyses de Frédéric Voisin sont conservées, avec leurs données, dans le
-dépôt [fv-morphologie](https://github.com/FredVoisin/fv-morphologie). Leurs
-principes sont résumés ici, en attendant d'être réécrits sous forme
-d'exemples Common Lisp.
-
-### Analyse contrastive : marques et ressemblance
-
-`mark-list` peut traiter comme un seul motif des segments qui ne sont pas
-strictement identiques mais proches en distance d'édition, avec `:seg-test` (voir
-[3.1](#31-énumérer)).
-
-### Classification, quantification et entropie : *Zoboko*
-
-Transcription automatique d'un passage de la partie rythmique du *Zoboko*,
-pièce instrumentale polyrythmique du répertoire des Aka de Centrafrique.
-Cette partie, appelée *diketo*, est jouée avec deux machettes entrechoquées.
-Les intensités de l'enregistrement (dB) ont été mesurées avec
-[Praat](https://www.praat.org) dans un fichier texte à deux colonnes (temps,
-amplitude) : `data/diketo-db.txt`. Les enregistrements ont été réalisés à
-Mongumba (République centrafricaine) le 5 mars 1990 par Simha Arom, Vincent
-Dehoux, Susanne Fürniss, Gilles Léothaud et Frédéric Voisin ; la partie du
-*diketo* a été enregistrée séparément, en *re-recording*.
-
-Pour chaque seuil d'intensité, du minimum (18 dB) au maximum (46 dB), par pas
-de 1 dB :
-
-1. garder les amplitudes supérieures au seuil, avec leurs dates ;
-2. calculer le temps entre pics successifs ;
-3. classer ces intervalles de temps en trois classes (`class-num`) ;
-4. calculer l'entropie de la classification (`entropy`).
-
-La structure la plus cohérente est supposée se trouver là où l'entropie est
-la plus basse (néguentropie) : à 39 dB (entropie 0.8), les valeurs nulles
-correspondant à des résultats vides étant écartées.
-
-### Quantification
-
-Utilisation de `class-num` pour quantifier un flux sur ses propres centres
-d'attraction (voir [2.3](#23-différencier)).
-
-### Délinéations : représentation rhizomatique d'un texte
-
-1. Un texte (ASCII 7 bits) est lu dans une liste de mots avec `read-text`,
-   toute la ponctuation servant de séparateur (`:sep`) et les mots de moins
-   de quatre lettres étant supprimés (`:rem-test`).
-2. Les mots répétés sont supprimés ; les mots qui diffèrent d'au plus un
-   caractère sont considérés comme identiques, la distance d'édition servant
-   de test à `remove-duplicates`.
-3. La semi-matrice des distances d'édition entre les mots donne l'arbre de
-   recouvrement minimal (`graph-span`). `:uncom` maximise la distance entre
-   des mots aux caractères non communs, dans l'espoir de rapprocher les mots
-   de même racine.
-4. `graph>dot` trace l'arbre avec neato.
-
-Variantes : distances d'édition normalisées, avec une mise à l'échelle
-logarithmique des distances ; somme de la distance d'édition et de la
-distance entre les fréquences des mots (« la somme de deux distances est une
-distance — le produit de deux distances est-il une distance ? »). Pour les
-grands graphes, préférez le format svg. Le calcul de l'arbre de recouvrement
-peut prendre de quelques secondes à plusieurs heures selon le nombre
-d'éléments (environ 12 heures pour les
-[« Délinéations différentielles »](https://fredvoisin.com/articles/220-delineations-differentielles.html), 2013).
-Données : `Difference&Repetition-*.txt`, `Alice.txt`, `Stalker.txt`.
-
-### Segmentation d'une fréquence fondamentale (F0)
-
-Segmentation automatique d'une analyse de F0 réalisée avec Praat, selon un
-écart temporel minimal entre segments. Seules les fonctions de lecture et
-d'écriture de refrains sont nécessaires ; les segments peuvent être
-exportés, par exemple sous forme de fichiers `coll` de Max
-(`data/babil-chant-3-*.coll`).
-
-### Transcription automatique d'un sonagramme : le rougequeue noir
-
-Méthode originale de Frédéric Voisin : un sonagramme est considéré uniquement
-comme une image (`data/rougequeue_noir.jpg`), dans laquelle on cherche des
-motifs. Un sonagramme représente l'évolution du son dans le temps : une
-succession d'instants décrits par leur spectre, chaque région étant plus ou
-moins sombre selon son intensité.
-
-1. L'image est convertie en texte avec
-   [jp2a](http://jp2a.sourceforge.net/) (`data/rougequeue_noir.txt`) : `x`
-   pour le blanc, `.` pour le noir ; 45 lignes de 300 caractères pour
-   5 secondes, soit 490 Hz et 17 ms par caractère.
-2. Chaque ligne est découpée en ses symboles (`alpha>num`), et la liste de
-   listes est pivotée, si bien que chaque colonne — le spectre instantané —
-   devient un « mot ».
-3. Les symboles sont transcodés en `0` et `1` pour la lisibilité
-   (`transcode`).
-4. Les mots sont classés avec `class-sym`, les mots silencieux étant exclus
-   (`:excluded`), si bien que les silences comptent dans la transcription mais
-   pas dans la classification. Le résultat est une suite de 12 classes de
-   spectres instantanés, plus le silence.
-
-Un second patch décompose le procédé : distances d'édition entre les mots
-spectraux (coût d'insertion et de suppression de 1.5, pour augmenter les
-distances dues aux transpositions), arbre de recouvrement minimal
-(`graph-span`), tracé (`graph>dot`), et classification à partir de cet arbre
-(`class-sym` avec `:mst`). Voir
-[« Dissemblance et espaces compositionnels »](https://fredvoisin.com/articles/185-dissemblance-et-espaces-compositionnels.html)
-et [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisin.com/articles/186-arbres-de-recouvrement-minimal-de-chants-d-oiseaux.html).
+Des exemples d'utilisation de refrains sont réunis dans
+[exemples.md](exemples.md) : les arbres des fonctions de refrains, calculés
+avec refrains, et les analyses de Frédéric Voisin (analyse contrastive,
+*Zoboko*, délinéations d'un texte, fréquence fondamentale, sonagramme du
+rougequeue noir).
 
 ## Références
 
@@ -1894,7 +1801,8 @@ et d'après leur documentation, avec leurs dendrogrammes, calculés avec refrain
 - **Fenêtres d'entropie** : l'ancienne documentation décrit des fenêtres
   glissantes avec 50 % de recouvrement (taille 2L/n) ; le code actuel utilise
   `samples` fenêtres consécutives de taille L/n, sans recouvrement.
-- **Les FV-exemples** restent à convertir en exemples Common Lisp.
+- **Les exemples** ([exemples.md](exemples.md)) restent à convertir en
+  exemples Common Lisp, sauf les arbres des fonctions.
 - **Analyse contrastive** : l'article de Frédéric Voisin, *L'analyse musicale
   contrastive*, cité par Aralla (2002) comme paru dans *Prisma 01*, reste à
   retrouver et à ajouter aux références.

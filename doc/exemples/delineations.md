@@ -1,0 +1,34 @@
+# Délinéations : représentation rhizomatique d'un texte
+
+[Exemples](../exemples.md) · In English: [Delineations: rhizomatic representation of a text](../examples/delineations.md)
+
+Frédéric Voisin, 2013.
+
+*Analyse conservée avec ses données dans le dépôt [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) ; son principe est résumé ici, en attendant d'être réécrit sous forme d'exemple Common Lisp.*
+
+1. Un texte (ASCII 7 bits) est lu dans une liste de mots avec `read-text`,
+   toute la ponctuation servant de séparateur (`:sep`) et les mots de moins
+   de quatre lettres étant supprimés (`:rem-test`).
+2. Les mots répétés sont supprimés ; les mots qui diffèrent d'au plus un
+   caractère sont considérés comme identiques, la distance d'édition servant
+   de test à `remove-duplicates`.
+3. La semi-matrice des distances d'édition entre les mots donne l'arbre de
+   recouvrement minimal (`graph-span`). `:uncom` maximise la distance entre
+   des mots aux caractères non communs, dans l'espoir de rapprocher les mots
+   de même racine.
+4. `graph>dot` trace l'arbre avec neato.
+
+Variantes : distances d'édition normalisées, avec une mise à l'échelle
+logarithmique des distances ; somme de la distance d'édition et de la
+distance entre les fréquences des mots (« la somme de deux distances est une
+distance — le produit de deux distances est-il une distance ? »). Pour les
+grands graphes, préférez le format svg. Le calcul de l'arbre de recouvrement
+peut prendre de quelques secondes à plusieurs heures selon le nombre
+d'éléments (environ 12 heures pour les
+[« Délinéations différentielles »](https://fredvoisin.com/articles/220-delineations-differentielles.html), 2013).
+Données : `Difference&Repetition-*.txt`, `Alice.txt`, `Stalker.txt`.
+
+---
+
+Cette documentation est placée sous licence
+[Creative Commons Attribution 4.0 International (CC BY 4.0)](../LICENSE).

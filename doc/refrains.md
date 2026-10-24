@@ -11,6 +11,9 @@ Frédéric Voisin, 2026.
 > Points still to be updated are listed at the end, in
 > [Notes for the update](#notes-for-the-update).
 > refrains continues [fv-morphologie](https://github.com/FredVoisin/fv-morphologie).
+> The functions, with their arguments and docstrings, are listed in
+> [refrains-functions.md](refrains-functions.md); examples of use are
+> gathered in [examples.md](examples.md).
 
 ## Contents
 
@@ -34,7 +37,7 @@ Frédéric Voisin, 2026.
   - [3.2 Compare: distances and dissimilarities](#32-compare-distances-and-dissimilarities)
   - [3.3 Quantify: information, diversity](#33-quantify-information-diversity)
 - [4. Reading and writing files](#4-reading-and-writing-files)
-- [5. FV-examples](#5-fv-examples)
+- [5. Examples](#5-examples)
 - [References](#references)
 - [List of functions](#list-of-functions)
 - [Notes for the update](#notes-for-the-update)
@@ -1579,105 +1582,12 @@ with `neato -n2`.
 The dot file can also be drawn by hand:
 `neato -n2 -Tpng dendrogram.dot -o dendrogram.png`.
 
-## 5. FV-examples
+## 5. Examples
 
-Analyses by Frédéric Voisin are kept, with their data, in the
-[fv-morphologie](https://github.com/FredVoisin/fv-morphologie) repository.
-Their principles are summarized here, to be rewritten as Common Lisp
-examples.
-
-### Contrastive analysis: marks and resemblance
-
-`mark-list` can treat segments that are not strictly identical but close in
-edit distance as one motif, with `:seg-test` (see [3.1](#31-enumerate)).
-
-### Classification, quantization and entropy: *Zoboko*
-
-Automatic transcription of a passage from the rhythmic part of *Zoboko*, a
-polyrhythmic instrumental piece from the repertoire of the Aka of Central
-Africa. This part, called *diketo*, is played by two machetes struck
-together. The intensities of the recording (dB) were measured with
-[Praat](https://www.praat.org) into a two-column text file (time,
-amplitude): `data/diketo-db.txt`. The recordings were made at Mongumba
-(Central African Republic) on 5 March 1990 by Simha Arom, Vincent Dehoux,
-Susanne Fürniss, Gilles Léothaud and Frédéric Voisin; the *diketo* part was
-recorded separately, by *re-recording*.
-
-For each intensity threshold, from the minimum (18 dB) to the maximum
-(46 dB) by steps of 1 dB:
-
-1. keep the amplitudes above the threshold, with their dates;
-2. compute the time between successive peaks;
-3. classify these time intervals into three classes (`class-num`);
-4. compute the entropy of the classification (`entropy`).
-
-The most coherent structure is assumed to be found where the entropy is
-lowest (negentropy): at 39 dB (entropy 0.8), the null values corresponding to
-empty results being discarded.
-
-### Quantization
-
-Using `class-num` to quantize a flow on its own centres of attraction (see
-[2.3](#23-differentiate)).
-
-### Delineations: rhizomatic representation of a text
-
-1. A text (7-bit ASCII) is read into a list of words with `read-text`, all
-   punctuation being separators (`:sep`) and words of less than four letters
-   being removed (`:rem-test`).
-2. Repeated words are removed; words differing by at most one character are
-   considered identical, using the edit distance as test of
-   `remove-duplicates`.
-3. The semi-matrix of the edit distances between the words gives the minimum
-   spanning tree (`graph-span`). `:uncom` maximizes the distance between
-   words with uncommon characters, hoping to bring words with the same root
-   closer.
-4. `graph>dot` draws the tree with neato.
-
-Variants: normalized edit distances with a logarithmic scaling of the
-distances; the sum of the edit distance and of the distance between the
-word frequencies ("the sum of two distances is a distance — is the product of
-two distances a distance?"). For large graphs, prefer the svg format.
-Computing the spanning tree can take from seconds to hours depending on the
-number of elements (about 12 hours for the
-[« Délinéations différentielles »](https://fredvoisin.com/articles/220-delineations-differentielles.html), 2013).
-Data: `Difference&Repetition-*.txt`, `Alice.txt`,
-`Stalker.txt`.
-
-### Segmentation of a fundamental frequency (F0)
-
-Automatic segmentation of an F0 analysis made with Praat, by a minimal time
-gap between segments. Only the read and write functions of refrains
-are needed; the segments can be exported, for example as Max `coll` files
-(`data/babil-chant-3-*.coll`).
-
-### Automatic transcription of a sonogram: the black redstart
-
-An original method by Frédéric Voisin: a sonogram is considered only as an
-image (`data/rougequeue_noir.jpg`), in which motifs are looked for. A
-sonogram represents the evolution of sound in time: a succession of instants
-described by their spectrum, each region darkened according to its
-intensity.
-
-1. The image is converted into text with
-   [jp2a](http://jp2a.sourceforge.net/) (`data/rougequeue_noir.txt`): `x`
-   for white, `.` for black; 45 lines of 300 characters for 5 seconds, i.e.
-   490 Hz and 17 ms per character.
-2. Each line is split into its symbols (`alpha>num`), and the list of lists
-   is rotated, so that each column — the instantaneous spectrum — becomes a
-   "word".
-3. The symbols are transcoded to `0` and `1` for readability (`transcode`).
-4. The words are classified with `class-sym`, the silent words being
-   excluded (`:excluded`), so that silences count in the transcription but
-   not in the classification. The result is a sequence of 12 classes of
-   instantaneous spectra, plus silence.
-
-A second patch decomposes the process: edit distances between the spectral
-words (insertion and deletion cost 1.5, to increase the distances due to
-transpositions), minimum spanning tree (`graph-span`), drawing (`graph>dot`),
-and classification from that tree (`class-sym` with `:mst`). See
-[« Dissemblance et espaces compositionnels »](https://fredvoisin.com/articles/185-dissemblance-et-espaces-compositionnels.html)
-and [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisin.com/articles/186-arbres-de-recouvrement-minimal-de-chants-d-oiseaux.html).
+Examples of use of refrains are gathered in [examples.md](examples.md):
+the function trees of refrains, computed with refrains, and the analyses by
+Frédéric Voisin (contrastive analysis, *Zoboko*, delineations of a text,
+fundamental frequency, sonogram of the black redstart).
 
 ## References
 
@@ -1781,7 +1691,8 @@ documentation, with their dendrograms, computed with refrains by
 - **Entropy windows**: the legacy doc describes sliding windows with 50 %
   overlap (size 2L/n); the current code uses `samples` consecutive windows of
   size L/n without overlap.
-- **FV-examples** are still to be converted into Common Lisp examples.
+- **The examples** ([examples.md](examples.md)) are still to be converted
+  into Common Lisp examples, except the function trees.
 - **Contrastive analysis**: Frédéric Voisin, *L'analyse musicale contrastive*,
   cited by Aralla (2002) as published in *Prisma 01*, is still to be found and
   added to the references.

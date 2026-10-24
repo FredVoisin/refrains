@@ -14,6 +14,8 @@ and PWGL (Mikael Laurson, Sibelius Academy).
 - The 52 exported functions, with their arguments and docstrings:
   [English](doc/refrains-functions.md),
   [français](doc/refrains-fonctions.fr.md).
+- Examples of use: [English](doc/examples.md),
+  [français](doc/exemples.md).
 - Changes between versions: [CHANGELOG.md](CHANGELOG.md).
 
 In Lisp, `(doc)` lists the functions, `(doc 'dist-edit)` prints the docstring
