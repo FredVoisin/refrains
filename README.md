@@ -2,7 +2,7 @@
 
 Experimental Common Lisp tools for the morphological analysis of musical transcriptions and other symbolic sequences: segmentation, motif search, classification, and measures of repetition and difference.
 
-Continuation of [fv-morphologie](https://github.com/FredVoisin/fv-morphologie), without its PWGL legacy, itself an
+Continuation of [fv-morphologie](https://github.com/FredVoisin/fv-morphologie), itself an
 analysis-oriented branch of the legacy library [Morphologie](https://github.com/openmusic-project/Morphologie) for OpenMusic (Ircam)
 and PWGL (Mikael Laurson, Sibelius Academy).
 
