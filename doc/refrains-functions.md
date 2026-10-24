@@ -2,7 +2,7 @@
 
 The reference version of this doc is in French, see: [refrains-fonctions.fr.md](refrains-fonctions.fr.md)
 
-The 54 functions exported by the `:refrains` package (version 0.2.1), grouped by the sections of the menu, with their arguments and their docstring (as printed by `doc` and `help`). The name of each function links to its description in the [documentation](refrains.md) when there is one.
+The 52 functions exported by the `:refrains` package (version 0.2.1), grouped by the sections of the menu, with their arguments and their docstring (as printed by `doc` and `help`). The name of each function links to its description in the [documentation](refrains.md) when there is one.
 
 The resemblances between these functions, by their names and by their documentation, are drawn in the [Function trees](#function-trees).
 
@@ -84,8 +84,6 @@ Deleuze : la pensée-musique*, CDMC, 2015).*
 | [`read-text`](refrains.md#read-text-file-key-mode-sep-rem-test) | `file &key mode sep rem-test` | READ-TEXT: reads text &lt;file&gt; using following &lt;mode&gt; formats (another mode is an error):<br> T : each line of file as a list of symbols or numbers<br> NIL : flat mode, reads file as a single list of strings<br> :charcode : the segments of the file, as lists of character codes.<br>Additional keyword :sep is a string defining all characters defining a separator, besides blanks<br>(spaces, tabulations, newlines), or t for the usual punctuation marks; with :charcode, it may also<br>be a list of characters or codes, or (:ignore c ...) to separate at all the characters which are<br>not letters or digits (in any alphabet), but c ...<br>Additional Keyword :rem-test defines a function to remove choosen words. |
 | [`write-list`](refrains.md#write-list-list-file-optional-mode) | `list file &optional mode` | WRITE-LIST: write list to a file using following optional argument &lt;mode&gt; format:<br>:flat (by default) : each element of list is written in a new line, sub-lists without parentheses (as read by read-text)<br>:lisp : list is written as a Lisp list<br>:coll : a Max coll file, one line index, data; for each element, from index 0. |
 | [`display-list`](refrains.md#display-list-list-optional-recursive) | `list &optional recursive` | DISPLAY-LIST: prints out to the Lisp listener each element of list within a newline with indentation relative to list level. |
-| `date-string` | `` | Today's date, as a string such as "22 Oct 2026". |
-| `date+time-string` | `&optional (u (get-universal-time))` | The date and time of the universal time u (now by default), as a string such as "22 Oct 2026 14:05:09". |
 
 ## Documentation
 
@@ -96,7 +94,7 @@ Deleuze : la pensée-musique*, CDMC, 2015).*
 
 ## Function trees
 
-The 54 functions linked by their resemblances, with refrains itself: two
+The 52 functions linked by their resemblances, with refrains itself: two
 minimum spanning trees (`graph-span`), drawn with `graph>dot` and neato. The
 shorter an edge, the closer the two functions. The dendrogram of each tree
 (`graph>dendrogram`, single linkage) orders its fusions by increasing
@@ -115,7 +113,7 @@ letter (`dist-edit` with `:norm t`). The families of names (`filt-`,
 
 **By their documentation**: Jaccard distance between the vocabularies of the
 docstrings, split into words with `separate`; the words found in more than 10
-of the 54 docstrings (*the*, *list*, *with*…), counted with `histogram`, are
+of the 52 docstrings (*the*, *list*, *with*…), counted with `histogram`, are
 left out. The groups there come from the vocabulary, no longer from the
 names.
 

@@ -1,18 +1,17 @@
 graph "refrains-docstrings" {
-/* generated with refrains:graph>dot 2026 october twenty-fourth at 19h47 */
+/* generated with refrains:graph>dot, 24 Oct 2026 19:56:39 */
  graph [overlap="false", sep="+4"];
  graph [bgcolor=black];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
  edge [font=Helvetica,fontsize=10, color=white, fontcolor=white, labelfloat=true];
  "motif-list" -- "motif-position" [w=1, len=0.450000, label="0.45"];
  "filt-extrema" -- "filt-median" [w=1, len=0.540000, label="0.54"];
- "date+time-string" -- "date-string" [w=1, len=0.570000, label="0.57"];
- "num>alpha" -- "str>sym" [w=1, len=0.570000, label="0.57"];
- "doc" -- "help" [w=1, len=0.710000, label="0.71"];
+ "num>alpha" -- "str>sym" [w=1, len=0.620000, label="0.62"];
+ "doc" -- "help" [w=1, len=0.690000, label="0.69"];
  "class-sym" -- "motif-position" [w=1, len=0.760000, label="0.76"];
  "dist-cityblock" -- "dist-euclidean" [w=1, len=0.760000, label="0.76"];
+ "dendrogram>dot" -- "graph>dot" [w=1, len=0.770000, label="0.77"];
  "motif-list" -- "motif-structure" [w=1, len=0.770000, label="0.77"];
- "dendrogram>dot" -- "graph>dot" [w=1, len=0.780000, label="0.78"];
  "histogram" -- "self-info" [w=1, len=0.780000, label="0.78"];
  "alpha>num" -- "num>alpha" [w=1, len=0.790000, label="0.79"];
  "graph-length" -- "graph-span" [w=1, len=0.800000, label="0.8"];
@@ -23,31 +22,31 @@ graph "refrains-docstrings" {
  "graph-degree" -- "graph>matrix" [w=1, len=0.840000, label="0.84"];
  "dist-graph" -- "graph-nodes" [w=1, len=0.850000, label="0.85"];
  "mark-structure" -- "motif-list" [w=1, len=0.850000, label="0.85"];
- "dendrogram>dot" -- "graph>dendrogram" [w=1, len=0.860000, label="0.86"];
  "dist-edit" -- "morph-seq" [w=1, len=0.860000, label="0.86"];
  "dist-multi-edit" -- "dist-structure" [w=1, len=0.860000, label="0.86"];
+ "list>sym" -- "str>sym" [w=1, len=0.860000, label="0.86"];
+ "dendrogram>dot" -- "graph>dendrogram" [w=1, len=0.870000, label="0.87"];
  "dist-euclidean" -- "dist-multi-edit" [w=1, len=0.870000, label="0.87"];
  "filt-function" -- "filt-median" [w=1, len=0.870000, label="0.87"];
- "graph-path" -- "list>sym" [w=1, len=0.870000, label="0.87"];
  "graph-span" -- "graph>dendrogram" [w=1, len=0.870000, label="0.87"];
  "alpha>num" -- "filt-repeat" [w=1, len=0.880000, label="0.88"];
- "alpha>num" -- "list>sym" [w=1, len=0.890000, label="0.89"];
+ "doc" -- "entropy" [w=1, len=0.880000, label="0.88"];
+ "graph-path" -- "list>sym" [w=1, len=0.880000, label="0.88"];
+ "read-text" -- "separate" [w=1, len=0.880000, label="0.88"];
  "class-num" -- "class-sym" [w=1, len=0.890000, label="0.89"];
  "motif-group" -- "motif-position" [w=1, len=0.890000, label="0.89"];
  "num>alpha" -- "num>base" [w=1, len=0.890000, label="0.89"];
  "transcode" -- "write-list" [w=1, len=0.890000, label="0.89"];
  "class-sym" -- "histogram" [w=1, len=0.900000, label="0.9"];
- "dendrogram>dot" -- "dist-cityblock" [w=1, len=0.900000, label="0.9"];
- "doc" -- "entropy" [w=1, len=0.900000, label="0.9"];
  "exsample" -- "filt-noise" [w=1, len=0.900000, label="0.9"];
  "filt-extrema" -- "filt-repeat" [w=1, len=0.900000, label="0.9"];
  "filt-noise" -- "motif-position" [w=1, len=0.900000, label="0.9"];
- "read-text" -- "separate" [w=1, len=0.900000, label="0.9"];
- "dendrogram>dot" -- "write-list" [w=1, len=0.910000, label="0.91"];
+ "dendrogram>dot" -- "dist-cityblock" [w=1, len=0.910000, label="0.91"];
+ "entropy" -- "list>sym" [w=1, len=0.910000, label="0.91"];
  "filt-function" -- "filt-noise" [w=1, len=0.910000, label="0.91"];
  "filt-lowpass" -- "filt-median" [w=1, len=0.910000, label="0.91"];
  "filt-noise" -- "read-text" [w=1, len=0.910000, label="0.91"];
- "class-num" -- "entropy" [w=1, len=0.920000, label="0.92"];
+ "read-text" -- "write-list" [w=1, len=0.910000, label="0.91"];
  "display-list" -- "doc" [w=1, len=0.920000, label="0.92"];
  "dist-graph" -- "dist-hamming" [w=1, len=0.920000, label="0.92"];
  "mark-list" -- "mark-structure" [w=1, len=0.920000, label="0.92"];
@@ -55,6 +54,5 @@ graph "refrains-docstrings" {
  "dist-edit" -- "inner-dynamic" [w=1, len=0.940000, label="0.94"];
  "mark-list" -- "mark-position" [w=1, len=0.940000, label="0.94"];
  "filt-mean" -- "filt-repeat" [w=1, len=0.950000, label="0.95"];
- "date+time-string" -- "morph-seq" [w=1, len=0.970000, label="0.97"];
  "dendrogram>dot" -- "graph-leaves" [w=1, len=0.980000, label="0.98"];
 }

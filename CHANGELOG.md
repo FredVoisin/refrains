@@ -22,8 +22,7 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 - `dendrogram>dot (dendrogram out &key width step invert)`: draws a
   dendrogram of `graph>dendrogram`, or a list of them, in dot with the
   position of each point, for `neato -n2`: the leaves on the left, each
-  fusion at the abscissa of its distance, and a scale of the distances. The
-  package exports 54 functions.
+  fusion at the abscissa of its distance, and a scale of the distances.
 - Documentation: two minimum spanning trees of the functions, by their names
   and by the vocabulary of their docstrings, computed with refrains by
   `doc/pictures/refrains-trees.lisp` (which uses `:overlap nil` and
@@ -31,6 +30,25 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `dendrogram>dot`), and the figure
   of the operations, in white on black; what to do
   when the system "refrains" is not found.
+
+### Changed
+
+- `date-string` and `date+time-string` are merged into
+  `date-string (&optional time u)`: the date of the universal time `u` (now
+  by default), such as `"22 Oct 2026"`, or with `time` true the date and
+  time, such as `"22 Oct 2026 14:05:09"`; `(date+time-string)` is
+  `(date-string t)`.
+- The dot files of `graph>dot` and `dendrogram>dot` are dated with
+  `date-string`, such as `22 Oct 2026 14:05:09` (it was
+  `2026 october twenty-second at 14h5`).
+
+### Removed
+
+- `date-string` is no longer exported: no function of refrains used it or
+  `date+time-string`, which had been exported only because the tests used
+  them. The package exports 52 functions.
+- The internal functions `date` and `time-string`, replaced by
+  `date-string`.
 
 ## [0.2.0] - 2026-10-24
 

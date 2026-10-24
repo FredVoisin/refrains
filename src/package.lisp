@@ -62,6 +62,5 @@
    #:graph-length #:graph-degree
    ;; 4. read/write
    #:read-text #:write-list #:display-list
-   #:date-string #:date+time-string
    ;; documentation
    #:help #:doc))

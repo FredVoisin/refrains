@@ -1,5 +1,5 @@
 graph "refrains-names" {
-/* generated with refrains:graph>dot 2026 october twenty-fourth at 19h47 */
+/* generated with refrains:graph>dot, 24 Oct 2026 19:56:39 */
  graph [overlap="false", sep="+4"];
  graph [bgcolor=black];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
@@ -11,7 +11,6 @@ graph "refrains-names" {
  "dist-structure" -- "mark-structure" [w=1, len=0.290000, label="0.29"];
  "mark-position" -- "motif-position" [w=1, len=0.290000, label="0.29"];
  "graph-part" -- "graph-span" [w=1, len=0.300000, label="0.3"];
- "date+time-string" -- "date-string" [w=1, len=0.310000, label="0.31"];
  "graph-degree" -- "graph-leaves" [w=1, len=0.330000, label="0.33"];
  "graph-leaves" -- "graph-length" [w=1, len=0.330000, label="0.33"];
  "graph-leaves" -- "graph-nodes" [w=1, len=0.330000, label="0.33"];
@@ -44,7 +43,6 @@ graph "refrains-names" {
  "dendrogram>dot" -- "graph>dot" [w=1, len=0.570000, label="0.57"];
  "dist-cityblock" -- "dist-edit" [w=1, len=0.570000, label="0.57"];
  "dist-edit" -- "dist-structure" [w=1, len=0.570000, label="0.57"];
- "date-string" -- "dist-hamming" [w=1, len=0.580000, label="0.58"];
  "display-list" -- "dist-edit" [w=1, len=0.580000, label="0.58"];
  "graph-span" -- "morph-seq" [w=1, len=0.600000, label="0.6"];
  "graph>dendrogram" -- "histogram" [w=1, len=0.620000, label="0.62"];

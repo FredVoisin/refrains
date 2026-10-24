@@ -26,27 +26,6 @@
 
 (in-package :refrains)
 
-;;; Date & Time
-
-(defparameter *short-months*
-  #("Jan" "Feb" "Mar" "Apr" "May" "June" "Jul" "Aug" "Sept" "Oct" "Nov" "Dec"))
-
-(defun time-string ()
-  (multiple-value-bind (s m h) (get-decoded-time)
-    (format nil "~A:~2,,,'0@A:~2,,,'0@A" h m s)))
-
-(defun date-string ()
-  "Today's date, as a string such as \"22 Oct 2026\"."
-  (multiple-value-bind (ig no re d mo y) (get-decoded-time)
-    (declare (ignore ig no re))
-    (format nil "~A ~A ~A" d (svref *short-months* (1- mo)) y)))
-
-(defun date+time-string (&optional (u (get-universal-time)))
-  "The date and time of the universal time u (now by default), as a string such as \"22 Oct 2026 14:05:09\"."
-  (multiple-value-bind (s m h d mo y) (decode-universal-time u)
-    (format nil "~A ~A ~A ~A:~2,,,'0@A:~2,,,'0@A"
-                d (svref *short-months* (1- mo)) y h m s)))
-
 ;;; FILE SYSTEM
 
 ;(defconstant whitechars '#(#\Space #\Tab #\Return #\Newline))

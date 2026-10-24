@@ -68,7 +68,7 @@
     dist-structure dist-graph
     histogram entropy self-info inner-dynamic graph-length graph-degree
     ;; 4. reading and writing files
-    read-text write-list display-list date-string date+time-string
+    read-text write-list display-list
     ;; documentation
     help doc)
   "The refrains functions, in the order of the documentation (all the exported functions).")

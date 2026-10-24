@@ -38,12 +38,18 @@ signals an error instead of evaluating its code."
 
 (defparameter *num* (quote (#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)))
 
-(defparameter *months* '("january" "february" "march" "april" "may" "june" "july" "august" "september" "october" "november" "december"))
+;;; Date & Time
 
-(defun date ()
-  (multiple-value-bind (s m h d mo y a b c) (get-decoded-time)
-    (declare (ignore a b c s))
-    (list y mo d h m)))
+(defparameter *short-months*
+  #("Jan" "Feb" "Mar" "Apr" "May" "June" "Jul" "Aug" "Sept" "Oct" "Nov" "Dec"))
+
+(defun date-string (&optional time (u (get-universal-time)))
+  "The date of the universal time u (now by default), as a string such as \"22 Oct 2026\";
+with time true, the date and time, such as \"22 Oct 2026 14:05:09\"."
+  (multiple-value-bind (s m h d mo y) (decode-universal-time u)
+    (if time
+        (format nil "~A ~A ~A ~A:~2,'0D:~2,'0D" d (svref *short-months* (1- mo)) y h m s)
+        (format nil "~A ~A ~A" d (svref *short-months* (1- mo)) y))))
     
 ;;; FOR WARNINGS ETC.
 

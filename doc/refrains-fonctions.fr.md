@@ -2,7 +2,7 @@
 
 In English, see: [refrains-functions.md](refrains-functions.md)
 
-Les 54 fonctions exportées du paquet `:refrains` (version 0.2.1), regroupées selon les sections du menu, avec leurs arguments et leur docstring en français (dans le code, les docstrings, affichées par `doc` et `help`, sont en anglais). Le nom de chaque fonction renvoie à sa description dans la [documentation](refrains.fr.md) quand elle y figure. Cette liste est la version de référence.
+Les 52 fonctions exportées du paquet `:refrains` (version 0.2.1), regroupées selon les sections du menu, avec leurs arguments et leur docstring en français (dans le code, les docstrings, affichées par `doc` et `help`, sont en anglais). Le nom de chaque fonction renvoie à sa description dans la [documentation](refrains.fr.md) quand elle y figure. Cette liste est la version de référence.
 
 Les ressemblances entre ces fonctions, d'après leurs noms et d'après leur documentation, sont tracées dans les [Arbres des fonctions](#arbres-des-fonctions).
 
@@ -77,8 +77,6 @@ A propos de terminologie : dans un souci de simplification et de cohérence, le 
 | [`read-text`](refrains.fr.md#read-text-file-key-mode-sep-rem-test) | `file &key mode sep rem-test` | READ-TEXT : lit le fichier texte &lt;file&gt; selon les formats &lt;mode&gt; suivants (un autre mode est une erreur) :<br> T : chaque ligne du fichier comme une liste de symboles ou de nombres<br> NIL : mode plat, lit le fichier comme une seule liste de chaînes<br> :charcode : les segments du fichier, comme listes de codes de caractères.<br>Le mot-clé :sep est une chaîne qui donne tous les caractères séparateurs, en plus des blancs<br>(espaces, tabulations, retours à la ligne), ou t pour les signes de ponctuation usuels ; avec :charcode, ce peut aussi<br>être une liste de caractères ou de codes, ou (:ignore c ...) pour séparer à tous les caractères qui ne sont<br>ni des lettres ni des chiffres (dans n'importe quel alphabet), sauf c ...<br>Le mot-clé :rem-test définit une fonction pour supprimer des mots choisis. |
 | [`write-list`](refrains.fr.md#write-list-list-file-optional-mode) | `list file &optional mode` | WRITE-LIST : écrit une liste dans un fichier selon le format donné par l'argument optionnel &lt;mode&gt; :<br>:flat (par défaut) : chaque élément de la liste est écrit sur une nouvelle ligne, les sous-listes sans parenthèses (comme les lit read-text)<br>:lisp : la liste est écrite comme une liste Lisp<br>:coll : un fichier coll de Max, une ligne « index, données » par élément, à partir de l'index 0. |
 | [`display-list`](refrains.fr.md#display-list-list-optional-recursive) | `list &optional recursive` | DISPLAY-LIST : affiche dans le listener Lisp chaque élément de la liste sur une nouvelle ligne, indenté selon son niveau dans la liste. |
-| `date-string` | `` | La date du jour, sous forme de chaîne comme "22 Oct 2026". |
-| `date+time-string` | `&optional (u (get-universal-time))` | La date et l'heure du temps universel u (maintenant par défaut), sous forme de chaîne comme "22 Oct 2026 14:05:09". |
 
 ## Documentation
 
@@ -89,7 +87,7 @@ A propos de terminologie : dans un souci de simplification et de cohérence, le 
 
 ## Arbres des fonctions
 
-Les 54 fonctions reliées par leurs ressemblances, avec refrains lui-même : deux
+Les 52 fonctions reliées par leurs ressemblances, avec refrains lui-même : deux
 arbres de recouvrement minimal (`graph-span`), dessinés avec `graph>dot` et
 neato. Plus une arête est courte, plus les deux fonctions sont proches. Le
 dendrogramme de chaque arbre (`graph>dendrogram`, lien simple) range ses
@@ -108,7 +106,7 @@ lettre (`dist-edit` avec `:norm t`). Les familles de noms (`filt-`, `graph-`,
 
 **Par la documentation** : distance de Jaccard entre les vocabulaires des
 docstrings, découpées en mots avec `separate` ; les mots présents dans plus de
-10 des 54 docstrings (*the*, *list*, *with*…), comptés avec `histogram`, sont
+10 des 52 docstrings (*the*, *list*, *with*…), comptés avec `histogram`, sont
 écartés. Les groupes y viennent du vocabulaire, et non plus des noms.
 
 ![Arbre de recouvrement minimal des fonctions de refrains d'après leur documentation](pictures/refrains-docstrings.png)

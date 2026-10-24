@@ -1688,7 +1688,7 @@ and [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisi
 
 ## List of functions
 
-The list of the 54 exported functions, with their arguments and docstrings, is
+The list of the 52 exported functions, with their arguments and docstrings, is
 in [refrains-functions.md](refrains-functions.md).
 
 Two minimum spanning trees link these functions by their names and by their

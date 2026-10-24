@@ -34,11 +34,15 @@
 
 (test dates
   (is (stringp (date-string)))
-  (is (stringp (date+time-string))))
+  (is (stringp (date-string t)))
+  (let ((u (encode-universal-time 5 4 12 15 1 2000)))
+    (is (equal "15 Jan 2000" (date-string nil u)))
+    ;; date+time-string is date-string with time
+    (is (equal "15 Jan 2000 12:04:05" (date-string t u)))))
 
 (test date-string-months
   ;; MONTHS used to be undefined
-  (is (search "Jan" (date+time-string (encode-universal-time 0 0 12 15 1 2000)))))
+  (is (search "Jan" (date-string t (encode-universal-time 0 0 12 15 1 2000)))))
 
 (test slurp-file-multibyte
   ;; file-length counts bytes: a UTF-8 file gave one NUL (SBCL) or space (ECL)

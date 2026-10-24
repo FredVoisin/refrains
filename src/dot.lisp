@@ -52,14 +52,12 @@
 
 (defun 2dot (graph min dis shape1 shape2 out legend &key (name "span-graph") (overlap t) (invert nil))
   ;; invert: white on black instead of black on white (light blue for the edges of length 0)
-  (let ((date (date))
-        (fg (if invert "white" "black"))
+  (let ((fg (if invert "white" "black"))
         (fg0 (if invert "lightskyblue" "blue"))
         (nid (remove-if #'(lambda (x) (zerop (third x))) graph))
         (ide (remove-if-not #'(lambda (x) (zerop (third x))) graph)))
     (format out "graph ~A {~&" (dot-id (make-name-from-path name)))
-    (format out "/* generated with refrains:graph>dot ~S ~D ~:R at ~Sh~S */~&"
-            (first date) (nth (1- (cadr date)) *months*) (third date) (fourth date) (fifth date))
+    (format out "/* generated with refrains:graph>dot, ~A */~&" (date-string t))
     ;; overlap t (default): nodes may overlap; nil: neato moves them apart (overlap=false),
     ;; a string: the value of the Graphviz overlap attribute ("scale", "prism"...)
     (unless (eq overlap t)
@@ -255,7 +253,8 @@ the leaves on the left, one by line, each fusion at the abscissa of its distance
                              row (dot-id label) (- x0 6 (* 3.3 (length label))) y)
                      (list (point x0 y) y)))))
       (format out "graph ~A {~&" (dot-id (make-name-from-path name)))
-      (format out "/* generated with refrains:dendrogram>dot, to be drawn with neato -n2 */~&")
+      (format out "/* generated with refrains:dendrogram>dot, ~A, to be drawn with neato -n2 */~&"
+              (date-string t))
       (format out " graph [splines=false~:[~;, bgcolor=black~]];~&" invert)
       (format out " node [shape=point, width=0, color=~A, fontcolor=~A, fontname=Courier, fontsize=11];~&" fg fg)
       (format out " edge [color=~A];~&" fg)

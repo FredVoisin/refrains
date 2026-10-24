@@ -51,7 +51,7 @@ et les mots de moins de trois lettres."
 
 (defparameter *vocabularies* (mapcar #'vocabulary *functions*))
 
-;; les mots présents dans plus de 10 des 54 documentations (the, list, with...),
+;; les mots présents dans plus de 10 des 52 documentations (the, list, with...),
 ;; trop courants pour distinguer les fonctions
 (defparameter *common-words*
   (loop for (word count) in (histogram (reduce #'append *vocabularies*) :test #'equal)

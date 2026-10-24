@@ -1796,7 +1796,7 @@ et [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisin
 
 ## Liste des fonctions
 
-La liste des 54 fonctions exportées, avec leurs arguments et leur docstring, est
+La liste des 52 fonctions exportées, avec leurs arguments et leur docstring, est
 dans
 [refrains-fonctions.fr.md](refrains-fonctions.fr.md).
 
