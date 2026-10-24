@@ -83,6 +83,7 @@
                (:file "dot")
                (:file "classification")
                (:file "information")
+               (:file "interpolation")
                (:file "io")
                (:file "help"))
   :perform (test-op (op c)

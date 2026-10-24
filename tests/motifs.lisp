@@ -36,7 +36,10 @@
              (motif-list '(a b c a b c d a b c) nil))))
 
 (test motif-group
-  (is (equal '((1 1) (2 2 2) 3) (motif-group '(1 1 2 2 2 3) #'=))))
+  (is (equal '((1 1) (2 2 2) 3) (motif-group '(1 1 2 2 2 3) #'=)))
+  ;; group of the PWGL box group with intersection of adjacent lists
+  (is (equal '((a b b c) (x) (c y y z))
+             (motif-group '((a b) (b c) (x) (c y) (y z)) (lambda (a b) (intersection a b))))))
 
 (test motif-find-uses-edit-costs
   ;; used to call find-pos with too many arguments

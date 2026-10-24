@@ -165,3 +165,16 @@
     (filt-noise s (lambda (x l) (setf (first l) 0) x))
     (is (equal '(3 1 2) s)))
   (signals error (filt-noise '(1 2) 'reverse)))
+
+(test filt-extrema
+  ;; the window was not centred, and the last values repeated an extremum already passed
+  (is (equal '(5 5 8 8 8 9 9 9 4 4) (filt-extrema '(1 5 2 8 3 3 9 1 0 4) 3)))
+  (is (equal '(1 1 2 2 3 3 1 0 0 0) (filt-extrema '(1 5 2 8 3 3 9 1 0 4) 3 :min)))
+  ;; an even window is enlarged to the next odd size
+  (is (equal (filt-extrema '(1 5 2 8 3) 3) (filt-extrema '(1 5 2 8 3) 2)))
+  ;; opening removes the narrow peaks, closing fills the narrow hollows
+  (is (equal '(0 0 0 0 0 5 5 5 0 0) (filt-extrema '(0 0 9 0 0 5 5 5 0 0) 3 :open)))
+  (is (equal '(5 5 5 5 5 1 1 1 5 5) (filt-extrema '(5 5 0 5 5 1 1 1 5 5) 3 :close)))
+  (is (equal '(1 2 3) (filt-extrema '(1 2 3) 1)))
+  (is (null (filt-extrema '() 3)))
+  (signals error (filt-extrema '(1 2 3) 3 :median)))

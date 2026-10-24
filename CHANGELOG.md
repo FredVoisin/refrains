@@ -8,6 +8,37 @@ refrains continues [fv-morphologie](https://github.com/FredVoisin/fv-morphologie
 refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 (1.4.0 to 0.2.0) are those of fv-morphologie.
 
+## [Unreleased]
+
+### Added
+
+- `filt-extrema (seq window &optional mode)`, the PWGL box: maximum (`:max`,
+  dilation) or minimum (`:min`, erosion) over a window centred on each
+  value, and their compositions `:open` (removes the narrow peaks) and
+  `:close` (fills the narrow hollows). The window was not centred and
+  looked forward, and the end of the sequence repeated a maximum already
+  passed: `(filt-extrema '(1 5 2 8 3 3 9 1 0 4) 3)` gives
+  `(5 5 8 8 8 9 9 9 4 4)`.
+- `morph-lists (seq1 seq2 &key test random)`, the PWGL box (legacy menu
+  1.4, Interpolate): the sequences from `seq1` to `seq2` changing one
+  element at a time along an edit path of minimal cost. The path is now the
+  same at each call (at random with `:random t`), substituting an element
+  by itself is no longer a step (`(morph-lists '(a b c) '(a b c))` gives
+  `((A B C))`, not 4 copies), the elements are compared with `equalp` (not
+  `eql`), and two strings give strings.
+- `graph-hierarc (mat-dist)`, named in the PWGL tutorial but never written:
+  hierarchical classification by single linkage, the list of the fusions
+  `(distance group-a group-b)` given by the minimum spanning tree.
+  Experimental.
+- Documentation: the PWGL box `group` with intersection of adjacent lists
+  is `motif-group` with the test `(lambda (a b) (intersection a b))`.
+
+### Removed
+
+- The internal function `regroup-if-intersection`, used by no function: it
+  compared all the pairs of lists, not only adjacent ones, and did not
+  regroup again after a fusion.
+
 ## [0.0.1] - 2026-10-24
 
 ### Changed

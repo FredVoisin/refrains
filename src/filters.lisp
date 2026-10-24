@@ -204,29 +204,35 @@ from s(0) = x(0) and b(0) = x(1) - x(0)."
                   s s1)
             (push s r))))))
 
-;;filtre extreme (contraire de median)
+;; filtre extreme (contraire de median) : dilatation et erosion
 
-(defun extrema (list w &optional (minmax :max))
-  (let ((r nil)) ; (i  (1+ (floor (/ w 2)))))
-    (loop until (null list)
-       do (let ((window (loop for k from 0 to w
-			   collect (let ((z (nth k list))) (if z z (car r))))))
-            (case minmax
-              (:max (push (car (sort window '>)) r))
-              (:min (push (car (sort window '<)) r))
-              (t (push (car (sort window '>)) r))))
-	 (pop list))
-    (nreverse r)))
+(defun extrema-simple (list w fn)
+  "Sliding maximum (fn #'max) or minimum (fn #'min) over w values centred on each value of list, w odd.
+At the edges, the first and last values are repeated. The result has the same length as list."
+  (let* ((v (coerce list 'vector))
+         (n (length v))
+         (h (floor w 2)))
+    (loop for i below n
+          collect (reduce fn (loop for k from (- i h) to (+ i h)
+                                   collect (aref v (max 0 (min (1- n) k))))))))
 
-(defgeneric extrema-filter (seq window)
-  (:documentation "Extrema filter."))
+(defgeneric extrema-filter (seq window &optional mode)
+  (:documentation "Extrema filter: dilation (:max), erosion (:min), opening (:open) or closing (:close)."))
 
-(defmethod extrema-filter ((seq list) (window integer))
-  (if (<= (length seq) window)
-      seq (values (extrema seq window))))
+(defmethod extrema-filter ((seq list) (window integer) &optional (mode :max))
+  "Over an odd window: an even window is enlarged to the next odd size."
+  (let ((w (if (evenp window) (1+ window) window)))
+    (if (< window 2)
+        (copy-list seq)
+        (case mode
+          (:max (extrema-simple seq w #'max))
+          (:min (extrema-simple seq w #'min))
+          (:open (extrema-simple (extrema-simple seq w #'min) w #'max))
+          (:close (extrema-simple (extrema-simple seq w #'max) w #'min))
+          (t (error "filt-extrema: unknown mode ~S, use :max, :min, :open or :close." mode))))))
 
-(defmethod extrema-filter ((seq list) (window null))
-  (values (extrema seq (max 3 (floor (/ (length seq) 100))))))
+(defmethod extrema-filter ((seq list) (window real) &optional (mode :max))
+  (extrema-filter seq (round window) mode))
 
 (defun nocons= (seq &optional (test #'=))
   "Reechantillonne seq en y interpolant lineairement les valeurs consecutives egales :

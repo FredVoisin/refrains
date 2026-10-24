@@ -176,3 +176,14 @@
   (is (equal '((0 1 4) (1 0 2) (4 2 0)) (refrains:graph>matrix '((0 1 1) (1 2 2) (0 2 4)))))
   (is (equal '((0 1 0) (1 0 2) (0 2 0)) (refrains:graph>matrix '((a b 1) (b c 2)))))
   (is (null (refrains:graph>matrix '()))))
+
+(test graph-hierarc
+  (let ((*standard-output* (make-broadcast-stream))
+        (g '((a b 1) (a c 4) (b c 2) (c d 5) (d e 1) (b e 7))))
+    (is (equal '((1 (a) (b)) (1 (d) (e)) (2 (a b) (c)) (5 (a b c) (d e)))
+               (graph-hierarc g)))
+    ;; a tree gives one fusion for each edge
+    (is (= 3 (length (graph-hierarc *chain*))))
+    ;; nodes compared with equal
+    (is (equal '((1 ("x") ("y"))) (graph-hierarc (list (list (copy-seq "x") (copy-seq "y") 1)))))
+    (is (null (graph-hierarc '())))))

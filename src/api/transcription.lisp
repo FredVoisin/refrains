@@ -82,6 +82,16 @@ the first and last values are repeated at the edges. The result has the same len
 (defmethod filt-median ((seq t) (window number))
   (refrains::median-filter seq window))
 
+(defgeneric filt-extrema (seq window &optional mode)
+  (:documentation "FILT-EXTREMA: maximum (<mode> :max, by default) or minimum (:min) over a window of <window> values
+centred on each value of <seq>, the contrary of the median filter: the peaks (or the hollows) are widened.
+:open (minimum then maximum) removes the peaks narrower than the window, :close (maximum then minimum) fills
+the hollows narrower than the window, keeping the other values in place. An even window is enlarged to the
+next odd size; the first and last values are repeated at the edges. The result has the same length as <seq>."))
+
+(defmethod filt-extrema ((seq t) (window number) &optional (mode :max))
+  (refrains::extrema-filter seq window mode))
+
 (defgeneric filt-lowpass (seq alpha &optional gamma)
   (:documentation "FILT-LOWPASS: exponential smoothing of <seq>: each value moves by the fraction <alpha> (0 to 1) towards
 the input, s(t) = s(t-1) + alpha (x(t) - s(t-1)). With <gamma> (0 to 1), double exponential smoothing (Holt), which also
@@ -94,8 +104,8 @@ follows the trend of <seq>. The result has the same length as <seq>."))
 
 (defgeneric filt-local-rep (seq &optional mode test)
   (:documentation "FILT-LOCAL-REP: removes the consecutive identical elements of <seq> (<mode> nil or :delete), or, for
-numbers, replaces each run of identical values by a ramp towards the next different value (<mode> :linear, or :interp
-as in PWGL), keeping the length of <seq>. <test>: identity of the elements (equalp by default)."))
+numbers, replaces each run of identical values by a ramp towards the next different value (<mode> :linear, or :interp),
+keeping the length of <seq>. <test>: identity of the elements (equalp by default)."))
 
 (defmethod filt-local-rep ((seq t) &optional (mode nil) (test #'equalp))
   (case mode
@@ -125,6 +135,16 @@ For instance (lambda (x l) (declare (ignore x)) (nth (random (length l)) l)) rep
 (defmethod graph-span ((mat-dist list) &optional (verbose nil))
   (minimum-spanning-tree mat-dist verbose))
 
+(defgeneric graph-hierarc (mat-dist)
+  (:documentation "GRAPH-HIERARC: hierarchical classification (single linkage) of the objects of a semi-matrix of
+distances or of a graph <mat-dist>, a list of edges (node-a node-b distance): the list of the successive fusions
+(distance group-a group-b), by increasing distance, where a group is the list of its nodes. The fusions are
+given by the edges of the minimum spanning tree (see graph-span): cutting the hierarchy at some distance
+gives the parts of graph-part."))
+
+(defmethod graph-hierarc ((mat-dist list))
+  (refrains::single-linkage mat-dist))
+
 (defgeneric graph-path (from to graph)
   (:documentation "GRAPH-PATH: returns path(s) from node(s) or leave(s) to one or some other node(s) or leave(s) of a graph; in a graph with cycles, the shortest path by distance."))
 
@@ -144,3 +164,17 @@ Keywords:
 
 (defmethod graph>dot  ((graph t) (out t) &key (dis 1) (scale t) (shape "ellipse") (legend t))
   (refrains::graph2dot graph dis scale shape out legend))
+
+(defgeneric morph-lists (seq1 seq2 &key test random)
+  (:documentation "MORPH-LISTS: interpolates the sequence <seq1> to the sequence <seq2> with the minimum of steps,
+changing one element at a time (substitution, deletion or insertion) along an edit path of minimal cost (see
+dist-edit): the list of the sequences from <seq1> to <seq2>, as many steps as their edit distance. <test>:
+identity of the elements (equalp by default). For equal costs, substitution is preferred, then deletion,
+then insertion; with :random t, one of them at random. Two strings give strings."))
+
+(defmethod morph-lists ((seq1 list) (seq2 list) &key (test #'equalp) (random nil))
+  (refrains::s-interpolate seq1 seq2 :test test :random random))
+
+(defmethod morph-lists ((seq1 string) (seq2 string) &key (test #'equalp) (random nil))
+  (mapcar #'(lambda (s) (coerce s 'string))
+          (refrains::s-interpolate seq1 seq2 :test test :random random)))

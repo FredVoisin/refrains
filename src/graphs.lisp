@@ -325,16 +325,6 @@ Vertices are compared with equal (eq failed on strings, which are not eq when eq
         (setf (nth j (nth i m)) d
               (nth i (nth j m)) d)))))
 
-(defun regroup-if-intersection (ldl)
-  (loop for i from 0 to (- (length ldl) 2)
-     do (when (nth i ldl)
-          (loop for j from (1+ i) to (1- (length ldl))
-	     do (when (nth j ldl)
-                  (when (intersection (nth i ldl) (nth j ldl))
-                    (setf (nth i ldl) (append (nth i ldl) (nth j ldl))
-                          (nth j ldl) nil))))))
-  (values (remove nil ldl)))
-
 (defun part-tree-dist (tree)
   "Split a tree into partitions by cutting all its edges of maximum distance (see part-tree-n)."
   (if (null tree)
@@ -383,3 +373,16 @@ Returns the edges of each partition (((node)) for a single node) and the nodes o
                             (list p)))
                     parts)
             parts)))
+
+(defun single-linkage (graph)
+  "Hierarchical classification by single linkage of the nodes of graph, a list of edges (node-a node-b distance),
+for instance a semi-matrix of distances: the fusions (distance group-a group-b) of the groups of nodes, by
+increasing distance, given by the edges of the minimum spanning tree (Kruskal). A group is the list of its nodes."
+  (let ((groups (make-hash-table :test #'equal))
+        (fusions nil))
+    (dolist (e (spanning-tree graph) (nreverse fusions))
+      (let ((ga (gethash (first e) groups (list (first e))))
+            (gb (gethash (second e) groups (list (second e)))))
+        (push (list (third e) ga gb) fusions)
+        (let ((g (append ga gb)))
+          (dolist (x g) (setf (gethash x groups) g)))))))

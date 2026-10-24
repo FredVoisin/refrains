@@ -55,8 +55,9 @@
 (defparameter *refrains-menu*
   '(;; 1. transcription
     transcode num>base num>alpha alpha>num list>sym str->symb filt-noise
-    filt-median filt-mean filt-lowpass filt-local-rep filt-fct
-    graph-span graph-path graph>dot graph>matrix
+    filt-median filt-extrema filt-mean filt-lowpass filt-local-rep filt-fct
+    graph-span graph-hierarc graph-path graph>dot graph>matrix
+    morph-lists
     ;; 2. classification
     exsample separate graph-part
     motif-group concaten

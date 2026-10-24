@@ -21,6 +21,7 @@ Frédéric Voisin, 2026.
   - [1.1 Transcoder](#11-transcoder)
   - [1.2 Filtrer](#12-filtrer)
   - [1.3 Délinéer : graphes](#13-délinéer--graphes)
+  - [1.4 Interpoler](#14-interpoler)
 - [2. Classification](#2-classification)
   - [2.1 Segmenter](#21-segmenter)
   - [2.2 Concaténer](#22-concaténer)
@@ -247,9 +248,11 @@ Common Lisp, non.
 ;;  1.1 TRANSCODER : convertir, encoder, tracer
        transcode, num>base, num>alpha, alpha>num, list>sym, str->symb, filt-noise
 ;;  1.2 FILTRER
-       filt-median, filt-mean, filt-lowpass, filt-local-rep, filt-fct
+       filt-median, filt-extrema, filt-mean, filt-lowpass, filt-local-rep, filt-fct
 ;;  1.3 DÉLINÉER : tracer des graphes
-       graph-span, graph-path, graph>dot
+       graph-span, graph-hierarc, graph-path, graph>dot
+;;  1.4 INTERPOLER
+       morph-lists
 ;;; 2. CLASSIFICATION
 ;;  2.1 SEGMENTER : couper, scinder
        exsample, separate, graph-part
@@ -406,6 +409,32 @@ la même longueur que `seq`.
 (filt-median '(9 0 0 0) 3)                ;=> (9 0 0 0)
 ```
 
+#### `filt-extrema (seq window &optional mode)`
+
+Le contraire du filtre médian : le maximum (`mode` `:max`, par défaut) ou le
+minimum (`:min`) sur `window` valeurs centrées sur chaque valeur. Le maximum
+élargit les pics et rétrécit les creux, le minimum fait l'inverse : ce sont
+la *dilatation* et l'*érosion* de la morphologie mathématique. Leurs
+compositions suppriment les détails plus étroits que la fenêtre en conservant
+en place le reste du profil :
+
+- `:open` (ouverture : minimum puis maximum) supprime les pics étroits ;
+- `:close` (fermeture : maximum puis minimum) comble les creux étroits.
+
+Comme pour `filt-median`, une fenêtre paire est portée à la taille impaire
+suivante, la première et la dernière valeur sont répétées aux bords, et le
+résultat a la même longueur que `seq`.
+
+```lisp
+(filt-extrema '(1 5 2 8 3 3 9 1 0 4) 3)        ;=> (5 5 8 8 8 9 9 9 4 4)
+(filt-extrema '(1 5 2 8 3 3 9 1 0 4) 3 :min)   ;=> (1 1 2 2 3 3 1 0 0 0)
+(filt-extrema '(0 0 9 0 0 5 5 5 0 0) 3 :open)  ;=> (0 0 0 0 0 5 5 5 0 0)
+(filt-extrema '(5 5 0 5 5 1 1 1 5 5) 3 :close) ;=> (5 5 5 5 5 1 1 1 5 5)
+```
+
+(La boîte PWGL utilisait une fenêtre non centrée, tournée vers l'avant, et
+répétait en fin de suite un maximum déjà passé.)
+
 #### `filt-mean (seq wind &optional step)`
 
 Moyenne glissante sur `wind` valeurs (un entier, ou un flottant exprimant une
@@ -551,6 +580,23 @@ Dans le tutoriel PWGL (`1.3.1_graph-span`), des profils mélodiques aléatoires
 sont comparés entre eux par la distance d'édition de leurs signatures, et
 `graph-span` donne l'arbre de leurs ressemblances.
 
+#### `graph-hierarc (mat-dist)`
+
+Classification hiérarchique ascendante, par le lien simple (saut minimal),
+des objets d'une semi-matrice de distances ou des nœuds d'un graphe : la
+liste des fusions successives `(distance groupe-a groupe-b)`, par distance
+croissante, où un groupe est la liste de ses nœuds. Les fusions sont les
+arêtes de l'arbre de recouvrement minimal (`graph-span`) : couper la
+hiérarchie à une distance donne les parties de `graph-part`. Expérimental.
+
+```lisp
+(graph-hierarc '((a b 1) (a c 4) (b c 2) (c d 5) (d e 1) (b e 7)))
+;=> ((1 (A) (B)) (1 (D) (E)) (2 (A B) (C)) (5 (A B C) (D E)))
+```
+
+Le tutoriel PWGL citait `graph-hierarc` à côté de `graph-span`, mais la boîte
+n'avait pas été écrite.
+
 #### `graph-path (from to graph)`
 
 Les nœuds du chemin entre deux nœuds d'un arbre (`nil` s'ils ne sont pas
@@ -619,6 +665,33 @@ sont de longueur 0).
 
 Le fichier dot peut aussi être tracé à la main :
 `neato -Tpng graph.dot -o graph.png`.
+
+### 1.4 Interpoler
+
+#### `morph-lists (seq1 seq2 &key test random)`
+
+Interpole la suite `seq1` vers la suite `seq2` en un minimum d'étapes, en
+changeant un élément à la fois (substitution, suppression ou insertion) le
+long d'un chemin d'édition de coût minimal (voir `dist-edit`). Renvoie la
+liste des suites, de `seq1` à `seq2` : il y a autant d'étapes que la distance
+d'édition entre les deux suites, et chaque suite est formée du début de
+`seq2` suivi de la fin de `seq1`. `test` compare les éléments (`#'equalp` par
+défaut). À coûts égaux, la substitution est préférée, puis la suppression,
+puis l'insertion, et le résultat est toujours le même ; avec `:random t`, le
+chemin est choisi au hasard parmi les chemins de coût minimal. Deux chaînes
+donnent des chaînes.
+
+```lisp
+(morph-lists '(a m p h o r a) '(p o u l e t))
+;=> ((A M P H O R A) (M P H O R A) (P P H O R A) (P O H O R A) (P O U O R A)
+;    (P O U L R A) (P O U L E A) (P O U L E T))
+(morph-lists "chat" "chien")   ;=> ("chat" "chiat" "chiet" "chien")
+(morph-lists '(a b c) '(a b c)) ;=> ((A B C))
+```
+
+(Dans la version PWGL, écrite en 2013 pour Julien Vincenot, le chemin était
+choisi au hasard à coûts égaux, une substitution d'un élément par lui-même
+comptait comme une étape, et les éléments étaient comparés avec `eql`.)
 
 ## 2. Classification
 
@@ -849,6 +922,14 @@ dans une liste.
 ;=> ((1 2) (10 11 12) 30)
 ```
 
+Des listes consécutives qui ont au moins un élément en commun (la boîte PWGL
+`group` avec intersection) :
+
+```lisp
+(motif-group '((a b) (b c) (x) (c y) (y z)) (lambda (a b) (intersection a b)))
+;=> ((A B B C) (X) (C Y Y Z))
+```
+
 Autres tests proposés dans le tutoriel PWGL : l'élément suivant est égal au
 précédent + 1 ; motifs formés des mêmes symboles quel que soit leur ordre ;
 motifs de même premier (ou dernier) élément ; motifs dont le dernier élément
@@ -856,7 +937,8 @@ de l'un est le premier du suivant.
 
 #### `list>sym (list)`
 
-*Boîte PWGL : `group`.* Concatène une liste en un seul symbole, nombre ou
+*Boîte PWGL : `group` (sans intersection ; avec intersection, voir
+`motif-group`).* Concatène une liste en un seul symbole, nombre ou
 chaîne (voir [1.1](#11-transcoder)).
 
 ### 2.3 Différencier
@@ -1652,7 +1734,7 @@ et [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisin
 
 ## Liste des fonctions
 
-La liste des 54 fonctions exportées, avec leurs arguments et leur docstring, est
+La liste des 57 fonctions exportées, avec leurs arguments et leur docstring, est
 dans
 [refrains-fonctions.fr.md](refrains-fonctions.fr.md).
 
@@ -1661,11 +1743,9 @@ dans
 - **Langue** : cette version française est la référence ; la version anglaise
   ([refrains.md](refrains.md)) est à mettre à jour à partir
   d'elle.
-- **Pas encore dans la version Common Lisp** : `filt-extrema`, `morph-lists`
-  (interpolation, ancien menu 1.4), `graph-hierarc` ; et `group` avec
-  intersection de listes adjacentes. Pour `morph-lists`, la fonction interne
-  `s-interpolate` (`src/interpolation.lisp`, non exportée) interpole déjà deux
-  suites de symboles au moyen d'une distance d'édition.
+- **`graph-hierarc`** : première version (lien simple), à revoir (autres
+  liens, forme du dendrogramme).
+- **Renommage** : un renommage cohérent des fonctions est à envisager.
 - **Comportement depuis la version PWGL** : les exemples suivent la version
   1.0.0. Plusieurs résultats diffèrent de l'ancien tutoriel depuis la 0.2.0
   (`read-text`, filtres, `graph-span` par Kruskal, `graph-path` par Dijkstra,
