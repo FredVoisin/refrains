@@ -11,9 +11,9 @@ les dendrogrammes (`graph-dendrogram`), et les dessine (`graph>dot`,
 `dendrogram>dot`). Les images et la méthode sont présentées dans les
 [Arbres des fonctions](../refrains-fonctions.fr.md#arbres-des-fonctions).
 
-Voir aussi l'arbre de recouvrement minimal des verbes qui nomment les opérations d'analyse
-([figure](../pictures/morpho-processes.png)), dont cet exemple applique la
-méthode aux fonctions de refrains, en utilisant ces mêmes fonctions.
+Voir aussi l'arbre de recouvrement minimal des verbes qui nomment les opérations d'analyse,
+dans la [Présentation](../refrains.fr.md#présentation) de la documentation, dont cet exemple
+applique la méthode aux fonctions de refrains, en utilisant ces mêmes fonctions.
 
 ## Le code
 

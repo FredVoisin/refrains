@@ -2,28 +2,24 @@
 
 [Examples](../examples.md) · En français : [Arbres de refrains](../exemples/arbres-des-fonctions.md)
 
-F. Voisin, 2015. See Voisin, Frédéric, "De la brousse dans les
-synthés", in P. Criton & J.-M. Chouvel (eds.), *Gilles Deleuze : la
-pensée-musique*, Paris, CDMC, 2015, pp. 231–240 (HAL
-[hal-01611947](https://hal.science/hal-01611947v1)): the minimum spanning
-tree of the verbs naming the operations of analysis
-([figure](../pictures/morpho-processes.png)), whose method this example
-applies to the functions of refrains.
-
-A complete example in Common Lisp, which uses only functions of refrains:
-[lisp/refrains-trees.lisp](../lisp/refrains-trees.lisp) links the
-functions of refrains by their names (`dist-edit`) and by the vocabulary of
-their documentation (`separate`, `dist-edit`, Jaccard distance), computes
-their minimum spanning trees (`graph-span`) and dendrograms
+Example of Lisp code that makes the minimum spanning trees and dendrograms of the
+functions of refrains: [lisp/refrains-trees.lisp](../lisp/refrains-trees.lisp).
+It links the functions of refrains by their names (`dist-edit`) and by the
+vocabulary of their documentation (`separate`, `dist-edit`, Jaccard distance),
+computes their minimum spanning trees (`graph-span`) and dendrograms
 (`graph-dendrogram`), and draws them (`graph>dot`, `dendrogram>dot`). The
 images and the method are presented in the
 [Function trees](../refrains-functions.md#function-trees).
 
+See also the minimum spanning tree of the verbs naming the operations of analysis,
+in the [Presentation](../refrains.md#presentation) of the documentation, whose method
+this example applies to the functions of refrains, using these same functions.
+
 ## The code
 
-The code, with its comments (in French), is the documentation of this example. It is
-the content of [lisp/refrains-trees.lisp](../lisp/refrains-trees.lisp), which is loaded
-from the directory of the repository and writes its images in `doc/pictures/`:
+The code is the documentation (its comments are in French).
+[lisp/refrains-trees.lisp](../lisp/refrains-trees.lisp) is loaded from the
+directory of the repository and writes its images in `doc/pictures/`:
 
 ```lisp
 (load "doc/lisp/refrains-trees.lisp")

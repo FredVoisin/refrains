@@ -4,7 +4,7 @@ The reference version of this document is in French, see: [exemples.md](exemples
 
 Examples of use of refrains, one per file. The documentation of each function is in [refrains.md](refrains.md), and the list of the functions in [refrains-functions.md](refrains-functions.md).
 
-- [Trees of refrains](examples/function-trees.md) (F. Voisin, 2015): the functions of refrains linked by their names and by the vocabulary of their documentation, as minimum spanning trees and dendrograms (in Common Lisp).
+- [Trees of refrains](examples/function-trees.md): the functions of refrains linked by their names and by the vocabulary of their documentation, as minimum spanning trees and dendrograms (in Common Lisp).
 - [Delineations: rhizomatic representation of a text](examples/delineations.md) (F. Voisin, 2013): the minimum spanning tree of the words of a text, by their edit distance (`graph-span`, `graph>dot`).
 - [Automatic transcription of a sonogram: the black redstart](examples/black-redstart.md) (F. Voisin, 2011): transcribing the song of a bird by classifying the instantaneous spectra of a sonogram read as an image (`class-sym`).
 - [Contrastive analysis: marks and resemblance](examples/contrastive-analysis.md) (F. Voisin, 2010): treating as one motif segments close in edit distance (`mark-list`).
