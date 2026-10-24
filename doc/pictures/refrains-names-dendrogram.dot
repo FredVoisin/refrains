@@ -1,5 +1,5 @@
 graph "refrains-names-dendrogram" {
-/* generated with refrains:dendrogram>dot, 24 Oct 2026 19:56:40, to be drawn with neato -n2 */
+/* generated with refrains:dendrogram>dot, 24 Oct 2026 20:04:50, to be drawn with neato -n2 */
  graph [splines=false, bgcolor=black];
  node [shape=point, width=0, color=white, fontcolor=white, fontname=Courier, fontsize=11];
  edge [color=white];

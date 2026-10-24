@@ -142,14 +142,16 @@ successive fusions (distance group-a group-b), by increasing distance, where a g
 and the dendrogram, where each fusion is (distance tree-a tree-b) and the leaves are the objects.
 :linkage defines the distance of two groups: :single (by default) the smallest distance of their objects,
 given by the minimum spanning tree (see graph-span; a graph not connected gives the list of the dendrograms
-of its parts); :complete the greatest distance; :average (UPGMA) the mean distance. :complete and :average
-need a complete semi-matrix of distances."))
+of its parts); :complete the greatest distance; :average (UPGMA) the mean distance; :ward (Ward's method) the
+fusion that increases the least the inertia within the groups, its distance being the square root of twice
+this increase (the distance itself for two objects). :complete, :average and :ward need a complete semi-matrix
+of distances; :ward supposes euclidean distances."))
 
 (defmethod graph>dendrogram ((mat-dist list) &key (linkage :single))
   (case linkage
     (:single (refrains::single-linkage mat-dist))
-    ((:complete :average) (refrains::agglomerative-clustering mat-dist linkage))
-    (t (error "graph>dendrogram: unknown linkage ~S, use :single, :complete or :average." linkage))))
+    ((:complete :average :ward) (refrains::agglomerative-clustering mat-dist linkage))
+    (t (error "graph>dendrogram: unknown linkage ~S, use :single, :complete, :average or :ward." linkage))))
 
 (defgeneric graph-path (from to graph)
   (:documentation "GRAPH-PATH: returns path(s) from node(s) or leave(s) to one or some other node(s) or leave(s) of a graph; in a graph with cycles, the shortest path by distance."))

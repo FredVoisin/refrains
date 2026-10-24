@@ -550,8 +550,10 @@ closest groups are merged. Returns two values:
   objects; the groups are more compact.
 - `:average`: average linkage (UPGMA), the mean of the distances between
   their objects; often the best compromise to compare motifs.
+- `:ward`: Ward's linkage, the fusion that increases the least the inertia of
+  the groups (see below); the groups are compact and of similar sizes.
 
-`:complete` and `:average` need a complete semi-matrix of distances, such as
+`:complete`, `:average` and `:ward` need a complete semi-matrix of distances, such as
 those returned by the distance functions (see
 [3.2](#32-compare-distances-and-dissimilarities)). For equal distances, the
 first objects (in the order of `graph-nodes`) are merged first. The mean
@@ -571,6 +573,41 @@ Experimental.
 ```
 
 The dendrogram is drawn with `dendrogram>dot`.
+
+**Ward's linkage.** At each step, Ward's linkage (Ward, 1963) merges the two
+groups whose union increases the least the *within-group inertia*, the sum
+of the squares of the distances of the objects to the centre of their group.
+For two groups A and B, of sizes n<sub>A</sub> and n<sub>B</sub> and centres
+a and b, this increase is n<sub>A</sub> n<sub>B</sub> / (n<sub>A</sub> +
+n<sub>B</sub>) × d(a, b)². The height of a fusion is the square root of
+twice this increase: for two objects, it is their distance, and the heights
+stay comparable with the original distances. refrains computes it with Lance
+and Williams' formula (1967), on the squares of the distances, without
+needing the coordinates of the objects.
+
+Agglomerative hierarchical classification by Ward's criterion is at the core
+of the French school of data analysis (*analyse des données*), developed by
+Jean-Paul Benzécri (*L'Analyse des données*, 1973), then by Edwin Diday and
+his colleagues (*Éléments d'analyse de données*, 1982). In refrains, it
+meets `class-num`: Diday's dynamic clouds (moving centres), which `class-num`
+follows, look, for a given number of classes, for the partition of minimal
+within-group inertia. Ward's linkage is its hierarchical version: it builds
+step by step all the partitions, from n classes to one, limiting at each
+fusion the growth of this same inertia. refrains also owed to Diday et al.
+its first computation of the minimum spanning tree (see `graph-span`).
+
+Ward's linkage supposes euclidean distances, between points
+(`dist-euclidean`): the centres of the groups make sense only in a space.
+With edit or Jaccard distances, between motifs or words, it still applies,
+but empirically.
+
+```lisp
+;; five points of the plane, compared by dist-euclidean
+(graph>dendrogram (dist-euclidean '((0 0) (1 0) (0 3) (10 10) (11 10)) nil)
+                  :linkage :ward)
+;=> ((1.0 (0) (1)) (1.0 (3) (4)) (3.5118845 (0 1) (2)) (21.034891 (0 1 2) (3 4)))
+;   (21.034891 (3.5118845 (1.0 0 1) 2) (1.0 3 4))
+```
 
 #### `graph-path (from to graph)`
 
@@ -1674,17 +1711,26 @@ and [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisi
 
 ### Algorithms
 
+- Benzécri, Jean-Paul et al., *L'Analyse des données*, vol. 1: *La
+  Taxinomie*, Paris, Dunod, 1973 (agglomerative hierarchical classification,
+  `graph>dendrogram`).
 - Diday, E. et al., *Éléments d'analyse de données*, Paris, Dunod, 1982
-  (dynamic clouds, `class-num`; earlier spanning tree).
+  (dynamic clouds, `class-num`; Ward's criterion; earlier spanning tree).
 - Fink & Gandhi, "Important extrema in time series", *Conference on Systems,
   Man and Cybernetics*, 2007 (`exsample :major-extrema`).
 - Hetland, "A survey of recent methods for efficient retrieval of similar time
   sequences", in *Data Mining in Time Series Databases*, vol. 57, 2004.
 - Kamada & Kawai, *Information Processing Letters* 31(1), 1989 (neato,
   `graph>dot`).
+- Lance, G. N. & Williams, W. T., "A general theory of classificatory
+  sorting strategies. 1. Hierarchical systems", *The Computer Journal* 9(4),
+  1967, pp. 373–380 (`graph>dendrogram`).
 - Perng, Parker & Leung, "Representing time series by landmarks",
   *Conference on Information and Knowledge Management*, 1999
   (`exsample :landmarks`).
+- Ward, Joe H., "Hierarchical grouping to optimize an objective function",
+  *Journal of the American Statistical Association* 58(301), 1963,
+  pp. 236–244 (`graph>dendrogram :linkage :ward`).
 
 ## List of functions
 
@@ -1700,7 +1746,6 @@ documentation, with their dendrograms, computed with refrains by
 
 - **Language**: the French version ([refrains.fr.md](refrains.fr.md))
   is the reference; this English version is to be updated from it.
-- **`graph>dendrogram`**: Ward's linkage remains to be added if needed.
 - **Behaviour**: several results differ from the versions of fv-morphologie
   before 0.2.0 (`read-text`,
   filters, `graph-span` with Kruskal, `graph-path` with Dijkstra, nodes

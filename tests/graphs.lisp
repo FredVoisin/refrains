@@ -206,3 +206,20 @@
   ;; complete and average need all the distances
   (signals error (graph>dendrogram '((a b 1) (b c 2)) :linkage :complete))
   (is (null (graph>dendrogram '() :linkage :average))))
+
+(test graph>dendrogram-ward
+  ;; points of a line: a=0 b=1 c=3 d=10 e=11, euclidean distances
+  (let* ((points '((a . 0) (b . 1) (c . 3) (d . 10) (e . 11)))
+         (m (loop for (p . others) on points
+                  nconc (loop for q in others
+                              collect (list (car p) (car q) (abs (- (cdr p) (cdr q))))))))
+    (multiple-value-bind (fusions tree) (graph>dendrogram m :linkage :ward)
+      (is (equal '(((a) (b)) ((d) (e)) ((a b) (c)) ((a b c) (d e))) (mapcar #'rest fusions)))
+      ;; two objects: their distance
+      (is (= 1 (first (first fusions))))
+      ;; the height is the square root of twice the increase of inertia:
+      ;; 2 x (n_A n_B / (n_A + n_B)) x (distance of the centres)^2
+      (is (< (abs (- (first (third fusions)) (sqrt (* 2 2/3 (expt (- 3 1/2) 2))))) 1e-5))
+      (is (< (abs (- (first tree) (sqrt (* 2 6/5 (expt (- 21/2 4/3) 2))))) 1e-4))))
+  ;; Ward needs all the distances
+  (signals error (graph>dendrogram '((a b 1) (b c 2)) :linkage :ward)))

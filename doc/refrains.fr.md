@@ -611,8 +611,10 @@ groupes les plus proches sont fusionnés. Renvoie deux valeurs :
   groupes sont plus compacts.
 - `:average` : lien moyen (UPGMA), la moyenne des distances entre leurs
   objets ; c'est souvent le meilleur compromis pour comparer des motifs.
+- `:ward` : lien de Ward, la fusion qui augmente le moins l'inertie des
+  groupes (voir plus bas) ; les groupes sont compacts et de tailles voisines.
 
-`:complete` et `:average` demandent une semi-matrice de distances complète,
+`:complete`, `:average` et `:ward` demandent une semi-matrice de distances complète,
 comme celles que renvoient les fonctions de distance (voir
 [3.2](#32-comparer--distances-et-dissimilarités)). À distances égales, les
 premiers objets (dans l'ordre de `graph-nodes`) sont fusionnés d'abord. Les
@@ -632,6 +634,42 @@ distances sont entières. Expérimental.
 ```
 
 Le dendrogramme se trace avec `dendrogram>dot`.
+
+**Le lien de Ward.** À chaque étape, le lien de Ward (Ward, 1963) fusionne les
+deux groupes dont la réunion augmente le moins l'*inertie intra-classe*, la
+somme des carrés des distances des objets au centre de leur groupe. Pour deux
+groupes A et B, d'effectifs n<sub>A</sub> et n<sub>B</sub> et de centres a et
+b, cette augmentation vaut n<sub>A</sub> n<sub>B</sub> / (n<sub>A</sub> +
+n<sub>B</sub>) × d(a, b)². La hauteur d'une fusion est la racine carrée du
+double de cette augmentation : pour deux objets, c'est leur distance, et les
+hauteurs restent comparables aux distances de départ. refrains la calcule avec
+la formule de Lance et Williams (1967), sur les carrés des distances, sans
+avoir besoin des coordonnées des objets.
+
+La classification ascendante hiérarchique selon le critère de Ward est au
+cœur de l'analyse des données « à la française », développée par Jean-Paul
+Benzécri (*L'Analyse des données*, 1973), puis par Edwin Diday et ses
+collègues (*Éléments d'analyse de données*, 1982). Dans refrains, elle
+rejoint `class-num` : la méthode des nuées dynamiques de Diday (centres
+mobiles), que suit `class-num`, cherche, pour un nombre de classes donné, la
+partition d'inertie intra-classe minimale. Le lien de Ward en est la version
+hiérarchique : il construit pas à pas toutes les partitions, de n classes à
+une seule, en limitant à chaque fusion la croissance de cette même inertie.
+C'est aussi à Diday et al. que refrains devait son premier calcul de l'arbre
+de recouvrement minimal (voir `graph-span`).
+
+Le lien de Ward suppose des distances euclidiennes, entre des points
+(`dist-euclidean`) : les centres des groupes n'ont de sens que dans un
+espace. Avec des distances d'édition ou de Jaccard, entre des motifs ou des
+mots, il s'applique encore, mais à titre empirique.
+
+```lisp
+;; cinq points du plan, comparés par dist-euclidean
+(graph>dendrogram (dist-euclidean '((0 0) (1 0) (0 3) (10 10) (11 10)) nil)
+                  :linkage :ward)
+;=> ((1.0 (0) (1)) (1.0 (3) (4)) (3.5118845 (0 1) (2)) (21.034891 (0 1 2) (3 4)))
+;   (21.034891 (3.5118845 (1.0 0 1) 2) (1.0 3 4))
+```
 
 #### `graph-path (from to graph)`
 
@@ -1782,17 +1820,27 @@ et [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisin
 
 ### Algorithmes
 
+- Benzécri, Jean-Paul et al., *L'Analyse des données*, t. 1 : *La
+  Taxinomie*, Paris, Dunod, 1973 (classification ascendante hiérarchique,
+  `graph>dendrogram`).
 - Diday, E. et al., *Éléments d'analyse de données*, Paris, Dunod, 1982
-  (nuées dynamiques, `class-num` ; ancien arbre de recouvrement).
+  (nuées dynamiques, `class-num` ; critère de Ward ; ancien arbre de
+  recouvrement).
 - Fink & Gandhi, « Important extrema in time series », *Conference on
   Systems, Man and Cybernetics*, 2007 (`exsample :major-extrema`).
 - Hetland, « A survey of recent methods for efficient retrieval of similar
   time sequences », in *Data Mining in Time Series Databases*, vol. 57, 2004.
 - Kamada & Kawai, *Information Processing Letters* 31(1), 1989 (neato,
   `graph>dot`).
+- Lance, G. N. & Williams, W. T., « A general theory of classificatory
+  sorting strategies. 1. Hierarchical systems », *The Computer Journal*
+  9(4), 1967, p. 373–380 (`graph>dendrogram`).
 - Perng, Parker & Leung, « Representing time series by landmarks »,
   *Conference on Information and Knowledge Management*, 1999
   (`exsample :landmarks`).
+- Ward, Joe H., « Hierarchical grouping to optimize an objective
+  function », *Journal of the American Statistical Association* 58(301),
+  1963, p. 236–244 (`graph>dendrogram :linkage :ward`).
 
 ## Liste des fonctions
 
@@ -1810,7 +1858,6 @@ et d'après leur documentation, avec leurs dendrogrammes, calculés avec refrain
 - **Langue** : cette version française est la référence ; la version anglaise
   ([refrains.md](refrains.md)) est à mettre à jour à partir
   d'elle.
-- **`graph>dendrogram`** : le lien de Ward reste à ajouter si besoin.
 - **Comportement** : plusieurs résultats diffèrent des versions de
   fv-morphologie antérieures à la 0.2.0
   (`read-text`, filtres, `graph-span` par Kruskal, `graph-path` par Dijkstra,

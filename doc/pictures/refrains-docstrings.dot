@@ -1,5 +1,5 @@
 graph "refrains-docstrings" {
-/* generated with refrains:graph>dot, 24 Oct 2026 19:56:39 */
+/* generated with refrains:graph>dot, 24 Oct 2026 20:04:50 */
  graph [overlap="false", sep="+4"];
  graph [bgcolor=black];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
@@ -25,15 +25,14 @@ graph "refrains-docstrings" {
  "dist-edit" -- "morph-seq" [w=1, len=0.860000, label="0.86"];
  "dist-multi-edit" -- "dist-structure" [w=1, len=0.860000, label="0.86"];
  "list>sym" -- "str>sym" [w=1, len=0.860000, label="0.86"];
- "dendrogram>dot" -- "graph>dendrogram" [w=1, len=0.870000, label="0.87"];
  "dist-euclidean" -- "dist-multi-edit" [w=1, len=0.870000, label="0.87"];
  "filt-function" -- "filt-median" [w=1, len=0.870000, label="0.87"];
- "graph-span" -- "graph>dendrogram" [w=1, len=0.870000, label="0.87"];
  "alpha>num" -- "filt-repeat" [w=1, len=0.880000, label="0.88"];
  "doc" -- "entropy" [w=1, len=0.880000, label="0.88"];
  "graph-path" -- "list>sym" [w=1, len=0.880000, label="0.88"];
  "read-text" -- "separate" [w=1, len=0.880000, label="0.88"];
  "class-num" -- "class-sym" [w=1, len=0.890000, label="0.89"];
+ "dendrogram>dot" -- "graph>dendrogram" [w=1, len=0.890000, label="0.89"];
  "motif-group" -- "motif-position" [w=1, len=0.890000, label="0.89"];
  "num>alpha" -- "num>base" [w=1, len=0.890000, label="0.89"];
  "transcode" -- "write-list" [w=1, len=0.890000, label="0.89"];
@@ -41,6 +40,7 @@ graph "refrains-docstrings" {
  "exsample" -- "filt-noise" [w=1, len=0.900000, label="0.9"];
  "filt-extrema" -- "filt-repeat" [w=1, len=0.900000, label="0.9"];
  "filt-noise" -- "motif-position" [w=1, len=0.900000, label="0.9"];
+ "graph-span" -- "graph>dendrogram" [w=1, len=0.900000, label="0.9"];
  "dendrogram>dot" -- "dist-cityblock" [w=1, len=0.910000, label="0.91"];
  "entropy" -- "list>sym" [w=1, len=0.910000, label="0.91"];
  "filt-function" -- "filt-noise" [w=1, len=0.910000, label="0.91"];

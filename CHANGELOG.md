@@ -23,6 +23,12 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   dendrogram of `graph>dendrogram`, or a list of them, in dot with the
   position of each point, for `neato -n2`: the leaves on the left, each
   fusion at the abscissa of its distance, and a scale of the distances.
+- `graph>dendrogram` takes `:linkage :ward` (Ward, 1963): the fusion that
+  increases the least the within-group inertia, computed with Lance and
+  Williams' formula; the height of a fusion is the square root of twice
+  this increase (the distance itself for two objects). The documentation
+  explains its links with `class-num` (Diday's dynamic clouds) and the
+  French school of data analysis (Benzécri, Diday), with references.
 - Documentation: two minimum spanning trees of the functions, by their names
   and by the vocabulary of their docstrings, computed with refrains by
   `doc/pictures/refrains-trees.lisp` (which uses `:overlap nil` and

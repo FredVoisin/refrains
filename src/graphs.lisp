@@ -398,7 +398,9 @@ the leaves are the nodes (if graph is not connected, the list of the dendrograms
 (defun agglomerative-clustering (graph linkage)
   "Agglomerative hierarchical classification of the nodes of graph, a complete semi-matrix of distances
 ((node-a node-b distance) ...), by complete linkage (linkage :complete, the distance of two groups is the
-greatest distance of their nodes) or average linkage (:average, UPGMA, the mean distance of their nodes).
+greatest distance of their nodes), average linkage (:average, UPGMA, the mean distance of their nodes) or
+Ward's linkage (:ward, the groups whose fusion increases the least the inertia within the groups: the distance
+of two groups is the square root of twice this increase, the distance itself for two nodes).
 At each step, the two closest groups are merged (the first ones in the order of the nodes for equal distances).
 Returns the same two values as single-linkage: the fusions and the dendrogram."
   (let* ((nodes (all-vertices graph))
@@ -433,7 +435,13 @@ Returns the same two values as single-linkage: the fusions and the dendrogram."
                                  (:complete (max (aref d bi k) (aref d bj k)))
                                  (:average (/ (+ (* (aref sizes bi) (aref d bi k))
                                                  (* (aref sizes bj) (aref d bj k)))
-                                              (+ (aref sizes bi) (aref sizes bj)))))))
+                                              (+ (aref sizes bi) (aref sizes bj))))
+                                 ;; Lance & Williams' formula for Ward, on the squares of the distances
+                                 (:ward (let ((na (aref sizes bi)) (nb (aref sizes bj)) (nk (aref sizes k)))
+                                          (sqrt (max 0 (/ (- (+ (* (+ na nk) (expt (aref d bi k) 2))
+                                                                (* (+ nb nk) (expt (aref d bj k) 2)))
+                                                             (* nk (expt bd 2)))
+                                                          (+ na nb nk)))))))))
                        (setf (aref d bi k) dk (aref d k bi) dk))))
                  (setf (aref groups bi) (append (aref groups bi) (aref groups bj))
                        (aref trees bi) (list bd (aref trees bi) (aref trees bj))
