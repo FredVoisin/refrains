@@ -580,18 +580,47 @@ Dans le tutoriel PWGL (`1.3.1_graph-span`), des profils mélodiques aléatoires
 sont comparés entre eux par la distance d'édition de leurs signatures, et
 `graph-span` donne l'arbre de leurs ressemblances.
 
-#### `graph-hierarc (mat-dist)`
+#### `graph-hierarc (mat-dist &key linkage)`
 
-Classification hiérarchique ascendante, par le lien simple (saut minimal),
-des objets d'une semi-matrice de distances ou des nœuds d'un graphe : la
-liste des fusions successives `(distance groupe-a groupe-b)`, par distance
-croissante, où un groupe est la liste de ses nœuds. Les fusions sont les
-arêtes de l'arbre de recouvrement minimal (`graph-span`) : couper la
-hiérarchie à une distance donne les parties de `graph-part`. Expérimental.
+Dendrogramme de la classification hiérarchique ascendante des objets d'une
+semi-matrice de distances ou des nœuds d'un graphe : à chaque étape, les deux
+groupes les plus proches sont fusionnés. Renvoie deux valeurs :
+
+- la liste des fusions successives `(distance groupe-a groupe-b)`, par
+  distance croissante, où un groupe est la liste de ses nœuds ;
+- le dendrogramme, un arbre imbriqué où chaque fusion est
+  `(distance arbre-a arbre-b)` et dont les feuilles sont les objets.
+
+`:linkage` définit la distance entre deux groupes :
+
+- `:single` (par défaut) : lien simple, la plus petite distance entre leurs
+  objets. Les fusions sont alors les arêtes de l'arbre de recouvrement minimal
+  (`graph-span`), et couper la hiérarchie à une distance donne les parties de
+  `graph-part`. Le lien simple tend à former des groupes allongés, « en
+  chaîne ». Il accepte n'importe quel graphe ; si le graphe n'est pas connexe,
+  le dendrogramme est la liste des dendrogrammes de ses parties.
+- `:complete` : lien complet, la plus grande distance entre leurs objets ; les
+  groupes sont plus compacts.
+- `:average` : lien moyen (UPGMA), la moyenne des distances entre leurs
+  objets ; c'est souvent le meilleur compromis pour comparer des motifs.
+
+`:complete` et `:average` demandent une semi-matrice de distances complète,
+comme celles que renvoient les fonctions de distance (voir
+[3.2](#32-comparer--distances-et-dissimilarités)). À distances égales, les
+premiers objets (dans l'ordre de `graph-nodes`) sont fusionnés d'abord. Les
+distances moyennes de `:average` sont des rationnels exacts quand les
+distances sont entières. Expérimental.
 
 ```lisp
-(graph-hierarc '((a b 1) (a c 4) (b c 2) (c d 5) (d e 1) (b e 7)))
+(defparameter *m* '((a b 1) (a c 4) (a d 6) (a e 8) (b c 2)
+                    (b d 5) (b e 7) (c d 5) (c e 6) (d e 1)))
+(graph-hierarc *m*)
 ;=> ((1 (A) (B)) (1 (D) (E)) (2 (A B) (C)) (5 (A B C) (D E)))
+;   (5 (2 (1 A B) C) (1 D E))
+(nth-value 1 (graph-hierarc *m* :linkage :complete))
+;=> (8 (4 (1 A B) C) (1 D E))
+(nth-value 1 (graph-hierarc *m* :linkage :average))
+;=> (37/6 (3 (1 A B) C) (1 D E))
 ```
 
 Le tutoriel PWGL citait `graph-hierarc` à côté de `graph-span`, mais la boîte
@@ -1743,8 +1772,8 @@ dans
 - **Langue** : cette version française est la référence ; la version anglaise
   ([refrains.md](refrains.md)) est à mettre à jour à partir
   d'elle.
-- **`graph-hierarc`** : première version (lien simple), à revoir (autres
-  liens, forme du dendrogramme).
+- **`graph-hierarc`** : le dendrogramme pourrait être tracé (avec
+  `graph>dot`, ou en texte) ; le lien de Ward reste à ajouter si besoin.
 - **Renommage** : un renommage cohérent des fonctions est à envisager.
 - **Comportement depuis la version PWGL** : les exemples suivent la version
   1.0.0. Plusieurs résultats diffèrent de l'ancien tutoriel depuis la 0.2.0

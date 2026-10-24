@@ -521,18 +521,47 @@ In the PWGL tutorial (`1.3.1_graph-span`), random melodic profiles are
 compared with each other by the edit distance of their signatures, and
 `graph-span` gives the tree of their resemblances.
 
-#### `graph-hierarc (mat-dist)`
+#### `graph-hierarc (mat-dist &key linkage)`
 
-Agglomerative hierarchical classification, by single linkage (nearest
-neighbour), of the objects of a semi-matrix of distances or of the nodes of a
-graph: the list of the successive fusions `(distance group-a group-b)`, by
-increasing distance, where a group is the list of its nodes. The fusions are
-the edges of the minimum spanning tree (`graph-span`): cutting the hierarchy
-at some distance gives the parts of `graph-part`. Experimental.
+Dendrogram of the agglomerative hierarchical classification of the objects of
+a semi-matrix of distances or of the nodes of a graph: at each step, the two
+closest groups are merged. Returns two values:
+
+- the list of the successive fusions `(distance group-a group-b)`, by
+  increasing distance, where a group is the list of its nodes;
+- the dendrogram, a nested tree where each fusion is
+  `(distance tree-a tree-b)` and whose leaves are the objects.
+
+`:linkage` defines the distance between two groups:
+
+- `:single` (by default): single linkage, the smallest distance between
+  their objects. The fusions are then the edges of the minimum spanning tree
+  (`graph-span`), and cutting the hierarchy at some distance gives the parts
+  of `graph-part`. Single linkage tends to make long, "chained" groups. It
+  accepts any graph; if the graph is not connected, the dendrogram is the
+  list of the dendrograms of its parts.
+- `:complete`: complete linkage, the greatest distance between their
+  objects; the groups are more compact.
+- `:average`: average linkage (UPGMA), the mean of the distances between
+  their objects; often the best compromise to compare motifs.
+
+`:complete` and `:average` need a complete semi-matrix of distances, such as
+those returned by the distance functions (see
+[3.2](#32-compare-distances-and-dissimilarities)). For equal distances, the
+first objects (in the order of `graph-nodes`) are merged first. The mean
+distances of `:average` are exact rationals when the distances are integers.
+Experimental.
 
 ```lisp
-(graph-hierarc '((a b 1) (a c 4) (b c 2) (c d 5) (d e 1) (b e 7)))
+(defparameter *m* '((a b 1) (a c 4) (a d 6) (a e 8) (b c 2)
+                    (b d 5) (b e 7) (c d 5) (c e 6) (d e 1)))
+(graph-hierarc *m*)
 ;=> ((1 (A) (B)) (1 (D) (E)) (2 (A B) (C)) (5 (A B C) (D E)))
+;   (5 (2 (1 A B) C) (1 D E))
+(nth-value 1 (graph-hierarc *m* :linkage :complete))
+;=> (8 (4 (1 A B) C) (1 D E))
+(nth-value 1 (graph-hierarc *m* :linkage :average))
+;=> (37/6 (3 (1 A B) C) (1 D E))
 ```
 
 The PWGL tutorial listed `graph-hierarc` next to `graph-span`, but the box
@@ -1634,8 +1663,8 @@ in [refrains-functions.md](refrains-functions.md).
 
 - **Language**: the French version ([refrains.fr.md](refrains.fr.md))
   is the reference; this English version is to be updated from it.
-- **`graph-hierarc`**: first version (single linkage), to be revised (other
-  linkages, form of the dendrogram).
+- **`graph-hierarc`**: the dendrogram could be drawn (with `graph>dot`, or
+  as text); Ward's linkage remains to be added if needed.
 - **Renaming**: a consistent renaming of the functions is to be considered.
 - **Behaviour since the PWGL version**: the examples follow version 1.0.0.
   Several results differ from the legacy tutorial since 0.2.0 (`read-text`,

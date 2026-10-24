@@ -177,13 +177,32 @@
   (is (equal '((0 1 0) (1 0 2) (0 2 0)) (refrains:graph>matrix '((a b 1) (b c 2)))))
   (is (null (refrains:graph>matrix '()))))
 
+(defparameter *semi-matrix*
+  '((a b 1) (a c 4) (a d 6) (a e 8) (b c 2) (b d 5) (b e 7) (c d 5) (c e 6) (d e 1)))
+
 (test graph-hierarc
   (let ((*standard-output* (make-broadcast-stream))
         (g '((a b 1) (a c 4) (b c 2) (c d 5) (d e 1) (b e 7))))
-    (is (equal '((1 (a) (b)) (1 (d) (e)) (2 (a b) (c)) (5 (a b c) (d e)))
-               (graph-hierarc g)))
+    (multiple-value-bind (fusions tree) (graph-hierarc g)
+      (is (equal '((1 (a) (b)) (1 (d) (e)) (2 (a b) (c)) (5 (a b c) (d e))) fusions))
+      (is (equal '(5 (2 (1 a b) c) (1 d e)) tree)))
     ;; a tree gives one fusion for each edge
     (is (= 3 (length (graph-hierarc *chain*))))
     ;; nodes compared with equal
     (is (equal '((1 ("x") ("y"))) (graph-hierarc (list (list (copy-seq "x") (copy-seq "y") 1)))))
-    (is (null (graph-hierarc '())))))
+    ;; a graph not connected: the list of the dendrograms of its parts
+    (is (equal '((1 a b) (2 c d)) (nth-value 1 (graph-hierarc '((a b 1) (c d 2))))))
+    (is (null (graph-hierarc '())))
+    (signals error (graph-hierarc g :linkage :ward))))
+
+(test graph-hierarc-linkage
+  (is (equal '(5 (2 (1 a b) c) (1 d e)) (nth-value 1 (graph-hierarc *semi-matrix*))))
+  (multiple-value-bind (fusions tree) (graph-hierarc *semi-matrix* :linkage :complete)
+    (is (equal '((1 (a) (b)) (1 (d) (e)) (4 (a b) (c)) (8 (a b c) (d e))) fusions))
+    (is (equal '(8 (4 (1 a b) c) (1 d e)) tree)))
+  ;; mean of the 6 distances between (a b c) and (d e)
+  (is (equal '(37/6 (3 (1 a b) c) (1 d e))
+             (nth-value 1 (graph-hierarc *semi-matrix* :linkage :average))))
+  ;; complete and average need all the distances
+  (signals error (graph-hierarc '((a b 1) (b c 2)) :linkage :complete))
+  (is (null (graph-hierarc '() :linkage :average))))

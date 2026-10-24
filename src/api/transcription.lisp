@@ -135,15 +135,21 @@ For instance (lambda (x l) (declare (ignore x)) (nth (random (length l)) l)) rep
 (defmethod graph-span ((mat-dist list) &optional (verbose nil))
   (minimum-spanning-tree mat-dist verbose))
 
-(defgeneric graph-hierarc (mat-dist)
-  (:documentation "GRAPH-HIERARC: hierarchical classification (single linkage) of the objects of a semi-matrix of
-distances or of a graph <mat-dist>, a list of edges (node-a node-b distance): the list of the successive fusions
-(distance group-a group-b), by increasing distance, where a group is the list of its nodes. The fusions are
-given by the edges of the minimum spanning tree (see graph-span): cutting the hierarchy at some distance
-gives the parts of graph-part."))
+(defgeneric graph-hierarc (mat-dist &key linkage)
+  (:documentation "GRAPH-HIERARC: dendrogram of the hierarchical classification of the objects of a semi-matrix of
+distances or of a graph <mat-dist>, a list of edges (node-a node-b distance). Returns two values: the list of the
+successive fusions (distance group-a group-b), by increasing distance, where a group is the list of its nodes;
+and the dendrogram, where each fusion is (distance tree-a tree-b) and the leaves are the objects.
+:linkage defines the distance of two groups: :single (by default) the smallest distance of their objects,
+given by the minimum spanning tree (see graph-span; a graph not connected gives the list of the dendrograms
+of its parts); :complete the greatest distance; :average (UPGMA) the mean distance. :complete and :average
+need a complete semi-matrix of distances."))
 
-(defmethod graph-hierarc ((mat-dist list))
-  (refrains::single-linkage mat-dist))
+(defmethod graph-hierarc ((mat-dist list) &key (linkage :single))
+  (case linkage
+    (:single (refrains::single-linkage mat-dist))
+    ((:complete :average) (refrains::agglomerative-clustering mat-dist linkage))
+    (t (error "graph-hierarc: unknown linkage ~S, use :single, :complete or :average." linkage))))
 
 (defgeneric graph-path (from to graph)
   (:documentation "GRAPH-PATH: returns path(s) from node(s) or leave(s) to one or some other node(s) or leave(s) of a graph; in a graph with cycles, the shortest path by distance."))

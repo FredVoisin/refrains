@@ -26,10 +26,13 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   by itself is no longer a step (`(morph-lists '(a b c) '(a b c))` gives
   `((A B C))`, not 4 copies), the elements are compared with `equalp` (not
   `eql`), and two strings give strings.
-- `graph-hierarc (mat-dist)`, named in the PWGL tutorial but never written:
-  hierarchical classification by single linkage, the list of the fusions
-  `(distance group-a group-b)` given by the minimum spanning tree.
-  Experimental.
+- `graph-hierarc (mat-dist &key linkage)`, named in the PWGL tutorial but
+  never written: the dendrogram of the agglomerative hierarchical
+  classification of a semi-matrix of distances. Returns the list of the
+  fusions `(distance group-a group-b)` and the dendrogram as a nested tree
+  `(distance tree-a tree-b)`. `:linkage` is `:single` (by default, from the
+  minimum spanning tree, for any graph), `:complete` or `:average` (UPGMA;
+  both need a complete semi-matrix). Experimental.
 - Documentation: the PWGL box `group` with intersection of adjacent lists
   is `motif-group` with the test `(lambda (a b) (intersection a b))`.
 

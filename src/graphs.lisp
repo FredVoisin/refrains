@@ -376,13 +376,67 @@ Returns the edges of each partition (((node)) for a single node) and the nodes o
 
 (defun single-linkage (graph)
   "Hierarchical classification by single linkage of the nodes of graph, a list of edges (node-a node-b distance),
-for instance a semi-matrix of distances: the fusions (distance group-a group-b) of the groups of nodes, by
-increasing distance, given by the edges of the minimum spanning tree (Kruskal). A group is the list of its nodes."
-  (let ((groups (make-hash-table :test #'equal))
+for instance a semi-matrix of distances, given by the edges of its minimum spanning tree (Kruskal).
+Returns two values: the fusions (distance group-a group-b) of the groups of nodes, by increasing distance,
+a group being the list of its nodes; and the dendrogram, where each fusion is (distance tree-a tree-b) and
+the leaves are the nodes (if graph is not connected, the list of the dendrograms of its connected parts)."
+  (let ((clusters (make-hash-table :test #'equal)) ; node -> (group . tree)
         (fusions nil))
-    (dolist (e (spanning-tree graph) (nreverse fusions))
-      (let ((ga (gethash (first e) groups (list (first e))))
-            (gb (gethash (second e) groups (list (second e)))))
-        (push (list (third e) ga gb) fusions)
-        (let ((g (append ga gb)))
-          (dolist (x g) (setf (gethash x groups) g)))))))
+    (dolist (e (spanning-tree graph))
+      (let ((ca (gethash (first e) clusters (cons (list (first e)) (first e))))
+            (cb (gethash (second e) clusters (cons (list (second e)) (second e)))))
+        (push (list (third e) (car ca) (car cb)) fusions)
+        (let ((c (cons (append (car ca) (car cb)) (list (third e) (cdr ca) (cdr cb)))))
+          (dolist (x (car c)) (setf (gethash x clusters) c)))))
+    (let ((roots (remove-duplicates
+                  (loop for x in (all-vertices graph)
+                        collect (gethash x clusters (cons (list x) x)))
+                  :test #'eq :from-end t)))
+      (values (nreverse fusions)
+              (if (cdr roots) (mapcar #'cdr roots) (cdr (car roots)))))))
+
+(defun agglomerative-clustering (graph linkage)
+  "Agglomerative hierarchical classification of the nodes of graph, a complete semi-matrix of distances
+((node-a node-b distance) ...), by complete linkage (linkage :complete, the distance of two groups is the
+greatest distance of their nodes) or average linkage (:average, UPGMA, the mean distance of their nodes).
+At each step, the two closest groups are merged (the first ones in the order of the nodes for equal distances).
+Returns the same two values as single-linkage: the fusions and the dendrogram."
+  (let* ((nodes (all-vertices graph))
+         (n (length nodes))
+         (d (make-array (list n n) :initial-element nil))
+         (index (make-hash-table :test #'equal)))
+    (loop for x in nodes for i from 0 do (setf (gethash x index) i))
+    (dolist (e graph)
+      (let ((i (gethash (first e) index)) (j (gethash (second e) index)))
+        (unless (or (= i j) (aref d i j))
+          (setf (aref d i j) (third e) (aref d j i) (third e)))))
+    (dotimes (i n)
+      (loop for j from (1+ i) below n
+            unless (aref d i j)
+              do (error "graph-hierarc: no distance between ~S and ~S: linkage ~S needs a complete semi-matrix of distances."
+                        (nth i nodes) (nth j nodes) linkage)))
+    (let ((groups (coerce (mapcar #'list nodes) 'vector))
+          (trees (coerce nodes 'vector))
+          (sizes (make-array n :initial-element 1))
+          (alive (loop for i below n collect i))
+          (fusions nil))
+      (loop while (cdr alive)
+            do (let (bi bj bd)
+                 (loop for (i . rest) on alive
+                       do (dolist (j rest)
+                            (when (or (null bd) (< (aref d i j) bd))
+                              (setf bi i bj j bd (aref d i j)))))
+                 (push (list bd (aref groups bi) (aref groups bj)) fusions)
+                 (dolist (k alive)
+                   (unless (or (= k bi) (= k bj))
+                     (let ((dk (ecase linkage
+                                 (:complete (max (aref d bi k) (aref d bj k)))
+                                 (:average (/ (+ (* (aref sizes bi) (aref d bi k))
+                                                 (* (aref sizes bj) (aref d bj k)))
+                                              (+ (aref sizes bi) (aref sizes bj)))))))
+                       (setf (aref d bi k) dk (aref d k bi) dk))))
+                 (setf (aref groups bi) (append (aref groups bi) (aref groups bj))
+                       (aref trees bi) (list bd (aref trees bi) (aref trees bj))
+                       (aref sizes bi) (+ (aref sizes bi) (aref sizes bj))
+                       alive (remove bj alive))))
+      (values (nreverse fusions) (when alive (aref trees (car alive)))))))
