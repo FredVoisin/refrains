@@ -3,23 +3,17 @@
 **Outils pour la description et l'étude morphologique de transcriptions musicales.**
 Version Common Lisp.
 
-Frédéric Voisin, 1994–2013 (tutoriel PWGL, version 20131111), version Common
-Lisp 2026.
+Frédéric Voisin, 2026.
 
-> Ce document est la version de référence de la documentation, adaptée à
-> Common Lisp. Tous les exemples ont été exécutés avec SBCL. Les points restant
-> à mettre à jour sont listés à la fin, dans les
-> [Notes pour la mise à jour](#notes-pour-la-mise-à-jour).
-> refrains prolonge [fv-morphologie](https://github.com/FredVoisin/fv-morphologie), sans son héritage PWGL ;
-> il reprend et développe le tutoriel initial de PWGL, conservé dans
-> [`pwgl-legacy/tutorial/`](https://github.com/FredVoisin/fv-morphologie/tree/master/pwgl-legacy/tutorial) dans le dépôt de fv-morphologie.
-> Une version anglaise est disponible : [refrains.md](refrains.md).
+> Ce document est la version de référence de la documentation. Tous les exemples ont été exécutés avec SBCL. Les points restant
+> à mettre à jour sont listés à la fin, dans les [Notes pour la mise à jour](#notes-pour-la-mise-à-jour).
+> refrains est la continuation de [fv-morphologie](https://github.com/FredVoisin/fv-morphologie), sans son héritage PWGL ;
+> In English, see: [refrains.md](refrains.md).
 
 ## Sommaire
 
 - [Présentation](#présentation)
-  - [Historique : l'analyse contrastive et Morphologie](#historique--lanalyse-contrastive-et-morphologie)
-  - [Cadre théorique](#cadre-théorique)
+  - [Historique et cadre théorique](#historique-et-cadre-théorique)
   - [Remerciements](#remerciements)
 - [Installation et chargement](#installation-et-chargement)
 - [Menu](#menu)
@@ -57,14 +51,6 @@ Par exemple, la liste `(60 65 70 72)` peut représenter, selon l'analyse, les
 notes do fa si♭ do (standard MIDI), un accord de quatre notes (arbitrairement
 du grave à l'aigu), une variation d'intensité, etc.
 
-Cette version, commencée en 2007 pour l'enseignement de l'informatique
-musicale (Conservatoire de Montbéliard, 2007–2012), est une réécriture de
-*Morphologie* pour OpenMusic (Ircam), avec un portage dans PWGL (Mikael
-Laurson, Académie Sibelius). Elle reprend le code consacré à l'analyse et à la
-classification de données (cf. Baboni-Schilingi & Voisin, *Librairie
-Morphologie pour OpenMusic*, Ircam Forum, 1997), dans un cadre théorique que
-nous avons tenté d'expliciter, pragmatiquement.
-
 Les opérations d'analyse sont regroupées en trois familles, qui forment la
 structure du menu : **transcription**, **classification**, **évaluation**. Ce
 regroupement résulte lui-même d'une analyse, avec refrains, du champ
@@ -78,86 +64,142 @@ qui les nomment, tracé avec `graph-span` et `graph>dot` (cf. Voisin, « De la
 brousse dans les synthés », in P. Criton & J.-M. Chouvel (éd.), *Gilles
 Deleuze : la pensée-musique*, CDMC, 2015).*
 
-### Historique : l'analyse contrastive et Morphologie
+### Historique et cadre théorique
 
-La partie analytique de refrains repose sur l'**analyse contrastive**,
-une méthode d'analyse musicale conçue et expérimentée de 1992 à 1997 environ
-au département d'ethnomusicologie du LACITO-CNRS, dirigé par Simha Arom. Elle
-a été élaborée sur les chants de trois communautés : les Wayana (avec Hervé
-Rivière), les Bochimans Ju|'hoansi de Namibie (avec Emmanuelle Olivier) et les
-Inuit d'Ammassalik, au Groenland, ces derniers à partir d'enregistrements
-réalisés en 1935 par Paul-Émile Victor et Robert Gessain (analyse : Frédéric Voisin).
+#### Analyse musicale et ethnomusicologie
 
-L'analyse contrastive est une systématisation et une généralisation de
-l'*analyse paradigmatique* de Nicolas Ruwet (Ruwet 1972), dans la lignée de la
-sémiologie musicale de Jean-Jacques Nattiez et de Jean Molino (Nattiez 1987 ;
-Molino 2009). En ne s'appuyant que sur le "niveau neutre", elle se veut agnostique.
-Elle extrait et décrit les structures de suites de symboles arbitraires (d'abord 
-des mélodies) selon un critère unique : la répétition d'un contraste, ou *marque*.
-Chaque symbole d'une séquence ouvre des segments, et les répétitions de ces segments
-donnent une structure (voir [`mark-structure`](#mark-structure-seq-out-key-diss-rem-loc-dup-test)). Des
+La partie analytique de refrains repose, à l'origine, sur une analyse dite « contrastive », une
+méthode d'analyse musicale expérimentée dès 1992 au
+département d'ethnomusicologie du LACITO (Langues et civilisations à tradition
+orale, CNRS), dirigé par Simha Arom. Elle est donc née dans un laboratoire où
+l'ethnomusicologie côtoyait la linguistique des langues de tradition orale, et
+où l'analyse des musiques empruntait volontiers ses procédures à celle des
+langues : recherche des unités pertinentes, commutation, mise au jour d'un
+système sous-jacent aux réalisations. Elle a été expérimentée avec des chants de
+trois communautés : les Wayana (avec Hervé Rivière), les Bochimans Ju|'hoansi
+de Namibie (avec Emmanuelle Olivier) et les Inuit d'Ammassalik, au Groenland,
+ces derniers à partir d'enregistrements réalisés en 1935 par Paul-Émile Victor
+et Robert Gessain (avec Frédéric Voisin).
+
+#### Filiations : linguistique structurale et sémiologie de la musique
+
+L'« analyse contrastive » se voulait être une systématisation et une généralisation de
+l'*analyse paradigmatique* de Nicolas Ruwet (Ruwet 1972), qui transposait à la
+musique les méthodes de la linguistique structurale et faisait de la
+répétition le critère premier de la segmentation. Elle s'inscrit dans la
+lignée de la sémiologie musicale de Jean Molino et de Jean-Jacques Nattiez
+(Nattiez 1987 ; Molino 2009). Dans le cadre de leur tripartition, l'analyse
+porte sur le *niveau neutre*, la trace matérielle, ici la transcription ; elle
+se veut en cela agnostique. Mais ses critères peuvent provenir des niveaux
+*poïétique* (la production) ou *esthésique* (la perception), comme nous
+l'avons expérimenté au sein du groupe de recherche. Les outils s'appliquent
+donc aux expressions telles qu'elles sont transcrites : le choix du niveau
+sémiologique et la pertinence de la transcription, autrement dit de
+l'**encodage**, sont laissés au musicologue ou au compositeur, même si les
+outils permettent de les mettre à l'épreuve.
+
+Elle extrait et décrit les structures de suites de symboles arbitraires
+(d'abord des mélodies) selon un critère unique : la répétition d'un contraste,
+ou *marque*. Le terme rejoint le *trait distinctif* de la phonologie
+structurale, ce qui fait différence. Chaque symbole d'une séquence ouvre des
+segments, et les répétitions de ces segments donnent une structure (voir
+[`mark-structure`](#mark-structure-seq-out-key-diss-rem-loc-dup-test)). Des
 segments qui ne sont pas strictement identiques peuvent être comparés au moyen
-de la distance d'édition.
+de la distance d'édition : la répétition admet alors la différence.
 
-Sa formalisation informatique s'est faite d'abord à la main, puis vers 1994
-dans l'environnement de composition assistée par ordinateur Patchwork (Mikael
+#### Formalisation : de Patchwork à Morphologie (1994–1999)
+
+Sa formalisation informatique s'est faite d'abord à la main, vers 1994
+par Frédéric Voisin dans l'environnement de composition assistée par ordinateur Patchwork (Mikael
 Laurson, Ircam), puis en Lisp. En 1997, à l'Ircam, elle est devenue la partie
-analytique de *Morphologie*, librairie pour OpenMusic écrite avec Jacopo
+analytique de *Morphologie*, librairie pour OpenMusic écrite avec le compositeur Jacopo
 Baboni-Schilingi, où elle s'est alliée à ses procédés génératifs
 (Baboni-Schilingi & Voisin 1997, 1999 ; Voisin 1997). Morphologie a ensuite
 été portée dans PWGL (Académie Sibelius), et son code original est toujours
 maintenu pour OpenMusic 6 et 7
 (<https://github.com/openmusic-project/Morphologie>).
 
-Le principe de contraste a été étendu en ceux de *nouveauté*
-(*New/Old-Analysis*) et d'*énergie* (*Energy-profile*), une énergie qui résulte
-du cumul progressif des contrastes (Paolo Aralla, à partir de l'analyse de
-partitions de Bach, Beethoven et Webern avec Morphologie ; Aralla 2002). Ce
-développement est repris ici dans la fonction
-[`inner-dynamic`](#inner-dynamic-seq-optional-test).
-
-Voir aussi, sur fredvoisin.com :
-[« Présentation de l'analyse "contrastive" »](https://fredvoisin.com/articles/50-presentation-de-l-analyse-contrastive.html),
-[« Présentation de Morphologie »](https://fredvoisin.com/articles/28-presentation-de-morphologie.html),
-[« Autour d'une analyse de chants inuit »](https://fredvoisin.com/articles/20-autour-d-une-analyse-de-chants-inuit.html),
-[« Analyse contrastive en Scheme »](https://fredvoisin.com/articles/47-analyse-contrastive-en-scheme.html),
-[« cntrst-strct »](https://fredvoisin.com/articles/122-cntrst-strct.html),
-[« Analysi morfologica, de Paolo Aralla »](https://fredvoisin.com/articles/264-analysi-morfologica-de-paolo-aralla.html).
-
-### Cadre théorique
-
 Le terme de *morphologie* s'inspire d'abord de l'idée de morphogenèse de René
 Thom (Thom 1977). La morphologie musicale est entendue ici comme *l'étude de
 formes d'expressions musicales transcrites* — écritures ou transcriptions de
-phénomènes sonores, mais aussi gestes musicaux, voire chorégraphiques (cf. [LabanOnLisp](https://github.com/FredVoisin/LabanOnLisp)) — et
-comme une extension de l'analyse paradigmatique (Ruwet 1972 ; Nattiez 1987 ;
-Molino 2009), dont l'un des principaux
-objets est d'expliciter les critères de segmentation et de ressemblance des
-motifs musicaux. Les outils s'appliquent aux expressions telles qu'elles sont
-transcrites : le choix du niveau sémiologique et la pertinence de la
-transcription, autrement dit de l'**encodage**, sont laissés au musicologue ou
-au compositeur, même si les outils permettent de les mettre à l'épreuve.
+phénomènes sonores, mais aussi gestes musicaux, voire chorégraphiques (cf.
+[LabanOnLisp](https://github.com/FredVoisin/LabanOnLisp)) — et comme une
+extension de l'analyse paradigmatique, dont l'un des principaux objets est
+d'expliciter les critères de segmentation et de ressemblance des motifs
+musicaux.
 
-D'autres concepts viennent d'André Leroi-Gourhan (la *chaîne opératoire* du
-façonnage des outils ; Leroi-Gourhan 1964–1965) et de Gilles Deleuze
-(répétition, différenciation, machine, rhizome, signature ; Deleuze 1968 ;
-Deleuze & Guattari 1980). D'autres principes sont empruntés à la morphologie
+Le principe de contraste a été étendu en ceux de *nouveauté*
+(*New/Old-Analysis*) et d'*énergie* (*Energy-profile*), une énergie qui
+résulte du cumul progressif des contrastes (Paolo Aralla, à partir de
+l'analyse de partitions de Bach, Beethoven et Webern avec Morphologie ;
+Aralla 2002). Ce développement est repris ici dans la fonction
+[`inner-dynamic`](#inner-dynamic-seq-optional-test).
+
+#### De fv-morphologie à refrains (2007–2026)
+
+La présente librairie a été commencée en 2007, sous le nom de
+*fv-morphologie*, pour l'enseignement de l'informatique musicale
+(Conservatoire de Montbéliard, 2007–2012), notamment pour en développer les
+principes de manière plus explicite. Réécriture de la partie analytique
+de Morphologie, elle reprend le code consacré à l'analyse et à la
+classification de données. Portée en Common Lisp standard en 2026,
+elle prend le nom de *refrains*.
+
+Aux sources précédentes s'ajoutent alors d'autres concepts, venus d'André
+Leroi-Gourhan (la *chaîne opératoire* du façonnage des outils ;
+Leroi-Gourhan 1964–1965), et des principes empruntés à la morphologie
 mathématique, à l'informatique, à la théorie de l'information et à la théorie
-des graphes, et adaptés à l'analyse musicale. La terminologie évite les termes
+des graphes, adaptés à l'analyse musicale. La terminologie évite les termes
 musicaux fortement connotés et a été choisie pour être équivalente en français
 et en anglais.
 
-Voir [« Considération terminologiques »](https://fredvoisin.com/articles/188-consideration-terminologiques.html),
-[« Schizo-analyse et musicologie »](https://fredvoisin.com/articles/125-schizo-analyse-et-musicologie.html) et
-[« Deux machines à musiquer »](https://fredvoisin.com/articles/178-deux-machines-a-musiquer.html) (colloque
-*Deleuze et la musique*, Saint-Étienne, 2011).
+Ce code met en œuvre les notions de marque, de dissemblance et de structure.
+Leurs critères (ce qui vaut comme identique, ce qui fait contraste, à partir de
+quel seuil ou critère deux segments sont tenus pour les mêmes) ne sont pas figés : ce
+sont des fonctions Lisp, passées en argument, que l'analyste peut (re)définir
+à volonté. Le « point de vue » de l'analyse est ainsi lui-même exprimé en
+Lisp, et peut être mis à l'épreuve.
 
-À propos :
+#### Répétition du non-même : pourquoi « refrains »
 
+Le nom résume ce qui relie ces différentes traditions : une répétition du (non-)même.
+
+- En ethnomusicologie, Simha Arom montre que les polyphonies d'Afrique
+  centrale reposent sur un *modèle* que les musiciens ne jouent jamais tel
+  quel, mais réalisent par des variations périodiques (*ostinato* à
+  variations ; Arom 1985, trad. angl. 1991).
+- Dans les études culturelles, James A. Snead oppose la répétition qui
+  progresse à celle qui revient délibérément au point de départ, qu'il appelle
+  *the cut* (Snead 1981).
+- En philosophie, Gilles Deleuze pense la répétition comme production de
+  différence, et non comme retour du même (Deleuze 1968). Avec Félix Guattari,
+  il en fait un concept musical, la *ritournelle* (Deleuze & Guattari 1980),
+  que la traduction anglaise de Brian Massumi rend par *refrain*
+  (« Of the Refrain », 1987).
+
+Le mot *refrain*, identique en français et en anglais, vient de l'ancien
+français *refraindre*, du latin *refringere*, « briser » : ce qui revient en
+rompant le cours du chant. D'autres concepts deleuziens sont mis en œuvre dans
+la librairie : différenciation, machine, rhizome, signature (Deleuze 1968 ;
+Deleuze & Guattari 1980).
+
+#### Voir aussi
+
+Sur fredvoisin.com :
+
+- [« Présentation de l'analyse "contrastive" »](https://fredvoisin.com/articles/50-presentation-de-l-analyse-contrastive.html)
+- [« Présentation de Morphologie »](https://fredvoisin.com/articles/28-presentation-de-morphologie.html)
+- [« Autour d'une analyse de chants inuit »](https://fredvoisin.com/articles/20-autour-d-une-analyse-de-chants-inuit.html)
+- [« Analyse contrastive en Scheme »](https://fredvoisin.com/articles/47-analyse-contrastive-en-scheme.html)
+- [« cntrst-strct »](https://fredvoisin.com/articles/122-cntrst-strct.html)
+- [« Analysi morfologica, de Paolo Aralla »](https://fredvoisin.com/articles/264-analysi-morfologica-de-paolo-aralla.html)
+- [« Considération terminologiques »](https://fredvoisin.com/articles/188-consideration-terminologiques.html)
+- [« Schizo-analyse et musicologie »](https://fredvoisin.com/articles/125-schizo-analyse-et-musicologie.html)
+- [« Deux machines à musiquer »](https://fredvoisin.com/articles/178-deux-machines-a-musiquer.html) (colloque *Deleuze et la musique*, Saint-Étienne, 2011)
+- [« Dissemblance et espaces compositionnels »](https://fredvoisin.com/articles/185-dissemblance-et-espaces-compositionnels.html) (JIM 2011)
 - Ancienne page de documentation de fv-morphologie (PWGL) : [« fv-morphologie: documentation »](https://fredvoisin.com/articles/114-fv-morphologie-documentation.html)
-- *Dissemblance et espaces compositionnels* (Frédéric Voisin, JIM 2011) :
-  [« Dissemblance et espaces compositionnels »](https://fredvoisin.com/articles/185-dissemblance-et-espaces-compositionnels.html)
-- Code original (~1995) : <https://github.com/openmusic-project/Morphologie>
+
+Code original de Morphologie (~1995) : <https://github.com/openmusic-project/Morphologie>
 
 ### Remerciements
 
@@ -821,7 +863,7 @@ chaîne (voir [1.1](#11-transcoder)).
 
 #### `mark-structure (seq out &key diss rem-loc-dup test)`
 
-Analyse contrastive (voir l'[historique](#historique--lanalyse-contrastive-et-morphologie))
+Analyse contrastive (voir l'[historique](#historique-et-cadre-théorique))
 d'une suite de symboles arbitraires : chaque symbole (marque) ouvre des
 segments, et les répétitions de ces segments donnent une structure. Les
 structures sont triées par longueur. Trois présentations du résultat
@@ -1556,6 +1598,9 @@ et [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisin
 
 - Arom, Simha, *Polyphonies et polyrythmies instrumentales d'Afrique
   centrale*, Paris, Selaf, 1985 (exemple du *Zoboko*).
+- Arom, Simha, *African Polyphony and Polyrhythm: Musical Structure and
+  Methodology*, trad. M. Thom, B. Tuckett et R. Boyd, Cambridge, Cambridge
+  University Press, 1991.
 - Dehoux, V., Fürniss, S., Le Bomin, S., Olivier, E., Rivière, H. et al.
   (éd.), *Ndroje Balendro. Musiques, terrains et disciplines. Textes offerts
   à Simha Arom*, Paris, Peeters-SELAF, 1995.
@@ -1579,8 +1624,13 @@ et [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisin
 
 - Deleuze, Gilles, *Différence et répétition*, Paris, PUF, 1968.
 - Deleuze, Gilles & Guattari, Félix, *Mille plateaux*, Paris, Minuit, 1980.
+- Deleuze, Gilles & Guattari, Félix, *A Thousand Plateaus*, trad. Brian
+  Massumi, Minneapolis, University of Minnesota Press, 1987 (« 1837: Of the
+  Refrain »).
 - Derrida, Jacques, *La différance – de la philosophie*, 1972 ; *L'animal que
   donc je suis*, 2004.
+- Snead, James A., « On Repetition in Black Culture », *Black American
+  Literature Forum* 15(4), 1981, p. 146–154.
 - Leroi-Gourhan, André, *Le geste et la parole*, Paris, Albin Michel, t. 1,
   1964 ; t. 2, 1965.
 - Thom, René, *Stabilité structurelle et morphogénèse : essai d'une théorie
