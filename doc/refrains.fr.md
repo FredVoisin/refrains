@@ -1785,7 +1785,7 @@ dans
 
 Deux arbres de recouvrement minimal relient ces fonctions d'après leurs noms
 et d'après leur documentation, avec leurs dendrogrammes, calculés avec refrains par
-[refrains-trees.lisp](pictures/refrains-trees.lisp) : voir
+[refrains-trees.lisp](lisp/refrains-trees.lisp) : voir
 [Arbres des fonctions](refrains-fonctions.fr.md#arbres-des-fonctions).
 
 ## Notes pour la mise à jour
@@ -1813,6 +1813,6 @@ et d'après leur documentation, avec leurs dendrogrammes, calculés avec refrain
 
 Cette documentation est placée sous licence
 [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE).
-Le code de refrains est placé sous licence GPL-3.0-only ;
-[refrains-trees.lisp](pictures/refrains-trees.lisp), exemple de cette
-documentation, est placé sous licence CC BY 4.0.
+Le code de refrains est placé sous licence GPL-3.0-only ; les fichiers Lisp de
+[doc/lisp/](lisp/README.md), exemples de cette documentation, sont placés sous
+licence CC BY 4.0.

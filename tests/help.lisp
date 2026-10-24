@@ -51,3 +51,12 @@
   (is (every #'(lambda (f) (documentation f 'function)) refrains::*refrains-menu*))
   (let ((*standard-output* (make-broadcast-stream)))
     (is (member 'filt-median (help 'median)))))
+
+(test doc-lisp-license
+  ;; the Lisp files of doc/lisp/, examples of the documentation, are under CC BY 4.0, like the documentation
+  (let ((files (remove "lisp" (uiop:directory-files (asdf:system-relative-pathname :refrains "doc/lisp/"))
+                       :key #'pathname-type :test-not #'equal)))
+    (is (plusp (length files)))
+    (dolist (f files)
+      (is (search "SPDX-License-Identifier: CC-BY-4.0" (uiop:read-file-string f))
+          "~A has no SPDX-License-Identifier: CC-BY-4.0" (file-namestring f)))))

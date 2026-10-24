@@ -31,7 +31,7 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   French school of data analysis (Benzécri, Diday), with references.
 - Documentation: two minimum spanning trees of the functions, by their names
   and by the vocabulary of their docstrings, computed with refrains by
-  `doc/pictures/refrains-trees.lisp` (which uses `:overlap nil` and
+  `doc/lisp/refrains-trees.lisp` (which uses `:overlap nil` and
   `:invert t`), with their dendrograms (`graph-dendrogram` and
   `dendrogram>dot`), and the figure
   of the operations, in white on black; what to do
@@ -40,7 +40,11 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   have one file each, in `doc/exemples/` (reference) and `doc/examples/`,
   listed with a short description in `doc/exemples.md` and
   `doc/examples.md`; the function trees are the first example in Common
-  Lisp. The documentation links from its beginning to the list of the
+  Lisp: its script moves to `doc/lisp/refrains-trees.lisp` (it writes its
+  images in `doc/pictures/`), and its commented code, which is its
+  documentation, is embedded in the page of the example. Every Lisp file of
+  `doc/lisp/` is under CC BY 4.0, like the documentation (`doc/lisp/README.md`),
+  which a test checks (`doc-lisp-license`). The documentation links from its beginning to the list of the
   functions and to the examples.
 
 ### Changed

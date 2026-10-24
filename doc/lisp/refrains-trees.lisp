@@ -4,7 +4,7 @@
 ;;;; des fonctions exportées, d'après leurs noms et d'après le vocabulaire de
 ;;;; leur documentation, et leurs dendrogrammes, calculés avec refrains.
 ;;;;
-;;;; (load "refrains-trees.lisp") écrit, dans le dossier de ce fichier,
+;;;; (load "doc/lisp/refrains-trees.lisp") écrit, dans doc/pictures/,
 ;;;; refrains-names.dot/.png, refrains-docstrings.dot/.png et leurs
 ;;;; dendrogrammes, refrains-names-dendrogram.dot/.png et
 ;;;; refrains-docstrings-dendrogram.dot/.png.
@@ -21,7 +21,10 @@
 (asdf:load-system :refrains)
 (in-package :refrains)
 
-(defparameter *here* (uiop:pathname-directory-pathname *load-truename*))
+;; le dossier des images : doc/pictures/, à côté du dossier de ce fichier (doc/lisp/)
+(defparameter *pictures*
+  (merge-pathnames "pictures/" (uiop:pathname-parent-directory-pathname
+                                (uiop:pathname-directory-pathname *load-truename*))))
 
 (defparameter *functions*
   (sort (loop for f being the external-symbols of :refrains collect f) #'string<))
@@ -114,9 +117,9 @@ les nombres et les symboles d'une lettre (a, b, x...)."
 ;;; nœuds : avec :overlap nil, neato écarte les nœuds qui se chevaucheraient ;
 ;;; :invert t trace en blanc sur noir.
 
-(graph>dot *names-tree* (namestring (merge-pathnames "refrains-names.png" *here*))
+(graph>dot *names-tree* (namestring (merge-pathnames "refrains-names.png" *pictures*))
            :overlap nil :invert t)
-(graph>dot *docstrings-tree* (namestring (merge-pathnames "refrains-docstrings.png" *here*))
+(graph>dot *docstrings-tree* (namestring (merge-pathnames "refrains-docstrings.png" *pictures*))
            :overlap nil :invert t)
 
 ;;; 4. Les dendrogrammes de chaque arbre : graph-dendrogram (lien simple) range les
@@ -124,8 +127,8 @@ les nombres et les symboles d'une lettre (a, b, x...)."
 ;;; gauche et chaque fusion à l'abscisse de sa distance, et appelle neato -n2.
 
 (dendrogram>dot (nth-value 1 (graph-dendrogram *names-tree*))
-                (namestring (merge-pathnames "refrains-names-dendrogram.png" *here*))
+                (namestring (merge-pathnames "refrains-names-dendrogram.png" *pictures*))
                 :invert t)
 (dendrogram>dot (nth-value 1 (graph-dendrogram *docstrings-tree*))
-                (namestring (merge-pathnames "refrains-docstrings-dendrogram.png" *here*))
+                (namestring (merge-pathnames "refrains-docstrings-dendrogram.png" *pictures*))
                 :invert t)

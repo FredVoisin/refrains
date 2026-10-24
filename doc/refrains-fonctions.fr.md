@@ -93,8 +93,8 @@ neato. Plus une arête est courte, plus les deux fonctions sont proches. Le
 dendrogramme de chaque arbre (`graph-dendrogram`, lien simple) range ses
 fusions par distance croissante : les feuilles sont à gauche, et chaque fusion
 est placée à l'abscisse de sa distance (`dendrogram>dot`). Le fichier
-[refrains-trees.lisp](pictures/refrains-trees.lisp) recalcule les arbres et
-redessine les images : `(load "refrains-trees.lisp")`.
+[refrains-trees.lisp](lisp/refrains-trees.lisp) recalcule les arbres et
+redessine les images : `(load "doc/lisp/refrains-trees.lisp")`.
 
 **Par les noms** : distance d'édition normalisée entre les noms, lettre à
 lettre (`dist-edit` avec `:norm t`). Les familles de noms (`filt-`, `graph-`,

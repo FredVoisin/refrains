@@ -123,9 +123,9 @@ refrains is derived from [fv-morphologie](https://github.com/FredVoisin/fv-morph
 [Morphologie](https://github.com/openmusic-project/Morphologie), released
 under GPL-3.0.
 
-- **Code** (`.lisp` and `.asd` files): GNU General Public License,
-  version 3 only (GPL-3.0-only), see [LICENSE](LICENSE).
+- **Code** (`.lisp` and `.asd` files, except in `doc/`): GNU General Public
+  License, version 3 only (GPL-3.0-only), see [LICENSE](LICENSE).
 - **Documentation** (`doc/`): Creative Commons Attribution 4.0 International
-  (CC BY 4.0), see [doc/LICENSE](doc/LICENSE). This includes
-  `doc/pictures/refrains-trees.lisp`, the example that draws the function
-  trees of the documentation.
+  (CC BY 4.0), see [doc/LICENSE](doc/LICENSE). This includes every Lisp
+  file of `doc/lisp/`, the examples of the documentation (such as
+  `refrains-trees.lisp`, which draws the function trees).

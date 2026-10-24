@@ -1676,7 +1676,7 @@ in [refrains-functions.md](refrains-functions.md).
 
 Two minimum spanning trees link these functions by their names and by their
 documentation, with their dendrograms, computed with refrains by
-[refrains-trees.lisp](pictures/refrains-trees.lisp): see
+[refrains-trees.lisp](lisp/refrains-trees.lisp): see
 [Function trees](refrains-functions.md#function-trees).
 
 ## Notes for the update
@@ -1703,6 +1703,6 @@ documentation, with their dendrograms, computed with refrains by
 
 This documentation is licensed under the
 [Creative Commons Attribution 4.0 International License (CC BY 4.0)](LICENSE).
-The refrains code is licensed under GPL-3.0-only;
-[refrains-trees.lisp](pictures/refrains-trees.lisp), an example of this
-documentation, is licensed under CC BY 4.0.
+The refrains code is licensed under GPL-3.0-only; the Lisp files of
+[doc/lisp/](lisp/README.md), examples of this documentation, are licensed
+under CC BY 4.0.

@@ -100,8 +100,8 @@ shorter an edge, the closer the two functions. The dendrogram of each tree
 (`graph-dendrogram`, single linkage) orders its fusions by increasing
 distance: the leaves are on the left, and each fusion is placed at the
 abscissa of its distance (`dendrogram>dot`). The file
-[refrains-trees.lisp](pictures/refrains-trees.lisp) computes the trees again
-and redraws the images: `(load "refrains-trees.lisp")`.
+[refrains-trees.lisp](lisp/refrains-trees.lisp) computes the trees again
+and redraws the images: `(load "doc/lisp/refrains-trees.lisp")`.
 
 **By their names**: normalized edit distance between the names, letter by
 letter (`dist-edit` with `:norm t`). The families of names (`filt-`,
