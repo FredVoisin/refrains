@@ -225,7 +225,7 @@ A list of nodes gives the list of their degrees, nil the degrees of all the node
   (refrains::all-vertices graph))
 
 (defgeneric graph-leaves (graph)
-  (:documentation "GRAPH-LEAVES: returns all extremities (leaves) of a graph."))
+  (:documentation "GRAPH-LEAVES: returns all extremities (leaves) of a graph, the nodes of degree 1, sorted as by graph-nodes."))
 
 (defmethod graph-leaves ((graph list))
   (refrains::tree-leaves graph))

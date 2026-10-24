@@ -53,7 +53,11 @@
   (is (equal '(1 2.5 10 a "b" c) (graph-nodes '((c 10 1) ("b" 2.5 1) (a 1 2))))))
 
 (test graph-leaves
-  (is (null (set-exclusive-or '(a d) (graph-leaves *chain*)))))
+  (is (equal '(a d) (graph-leaves *chain*)))
+  ;; sorted as by graph-nodes (they were in reverse order of appearance)
+  (is (equal '(a c d) (graph-leaves '((a b 1) (b c 2) (b d 1)))))
+  (is (equal '(1 10 "z") (graph-leaves '((10 2 1) (2 b 1) (b "z" 1) (b 1 1)))))
+  (is (null (graph-leaves '()))))
 
 (test graph-span-max-distance-edges
   ;; used to loop forever when the tree needed an edge of maximum length,

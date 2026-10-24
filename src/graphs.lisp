@@ -279,12 +279,10 @@ In a tree there is only one path; in other graphs, Dijkstra's algorithm gives th
   (nodes tree min-deg))
 
 (defun leaves (tree)
-  (let* ((e  (mapcar #'butlast tree))
-         (v (remove-duplicates (apply #'append e) :test #'equal))
-         (r (list)))
-    (dolist (k v)
-      (push (list k (remove-if-not #'(lambda (x) (member k x :test #'equal)) e)) r))
-    (mapcar #'car (remove-if-not #'(lambda (x) (= (length (cadr x)) 1)) r))))
+  "The leaves of tree (the nodes of degree 1), sorted as by all-vertices (graph-nodes)."
+  (let ((e (mapcar #'butlast tree)))
+    (remove-if-not #'(lambda (k) (= 1 (count-if #'(lambda (x) (member k x :test #'equal)) e)))
+                   (all-vertices tree))))
 
 (defgeneric tree-leaves (tree)
    (:documentation "List of leaves in a tree."))

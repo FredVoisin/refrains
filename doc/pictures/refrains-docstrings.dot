@@ -1,5 +1,5 @@
 graph "refrains-docstrings" {
-/* generated with refrains:graph>dot, 24 Oct 2026 20:20:20 */
+/* generated with refrains:graph>dot, 24 Oct 2026 21:02:37 */
  graph [overlap="false", sep="+4"];
  graph [bgcolor=black];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
@@ -8,7 +8,9 @@ graph "refrains-docstrings" {
  "filt-extrema" -- "filt-median" [w=1, len=0.540000, label="0.54"];
  "dist-cityblock" -- "dist-euclidean" [w=1, len=0.690000, label="0.69"];
  "doc" -- "help" [w=1, len=0.710000, label="0.71"];
+ "graph-leaves" -- "graph-nodes" [w=1, len=0.710000, label="0.71"];
  "class-sym" -- "motif-position" [w=1, len=0.730000, label="0.73"];
+ "graph-degree" -- "graph-leaves" [w=1, len=0.730000, label="0.73"];
  "motif-list" -- "motif-structure" [w=1, len=0.760000, label="0.76"];
  "dendrogram>dot" -- "graph>dot" [w=1, len=0.770000, label="0.77"];
  "histogram" -- "self-info" [w=1, len=0.780000, label="0.78"];
@@ -18,6 +20,7 @@ graph "refrains-docstrings" {
  "dist-edit" -- "motif-position" [w=1, len=0.830000, label="0.83"];
  "dist-graph" -- "graph-path" [w=1, len=0.830000, label="0.83"];
  "filt-mean" -- "str>sym" [w=1, len=0.830000, label="0.83"];
+ "graph-leaves" -- "graph-path" [w=1, len=0.830000, label="0.83"];
  "graph-path" -- "list>sym" [w=1, len=0.830000, label="0.83"];
  "num>alpha" -- "str>sym" [w=1, len=0.830000, label="0.83"];
  "num>base" -- "str>sym" [w=1, len=0.830000, label="0.83"];
@@ -36,13 +39,10 @@ graph "refrains-docstrings" {
  "dist-multi-edit" -- "dist-structure" [w=1, len=0.890000, label="0.89"];
  "doc" -- "mark-list" [w=1, len=0.890000, label="0.89"];
  "exsample" -- "filt-noise" [w=1, len=0.890000, label="0.89"];
- "graph-leaves" -- "graph-path" [w=1, len=0.890000, label="0.89"];
  "transcode" -- "write-list" [w=1, len=0.890000, label="0.89"];
  "class-sym" -- "filt-noise" [w=1, len=0.900000, label="0.9"];
  "filt-function" -- "filt-noise" [w=1, len=0.900000, label="0.9"];
  "filt-noise" -- "read-text" [w=1, len=0.900000, label="0.9"];
- "graph-degree" -- "graph-nodes" [w=1, len=0.900000, label="0.9"];
- "graph-nodes" -- "graph-path" [w=1, len=0.900000, label="0.9"];
  "alpha>num" -- "filt-repeat" [w=1, len=0.910000, label="0.91"];
  "class-sym" -- "histogram" [w=1, len=0.910000, label="0.91"];
  "dendrogram>dot" -- "exsample" [w=1, len=0.910000, label="0.91"];

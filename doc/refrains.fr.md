@@ -1263,11 +1263,12 @@ quelques secondes pour 120 éléments.
 #### `graph-nodes (graph)`, `graph-leaves (graph)`
 
 Tous les nœuds d'un graphe (chacun une fois, comparés avec `equal` ; triés :
-les nombres d'abord, puis par nom), et ses extrémités (feuilles).
+les nombres d'abord, puis par nom), et ses extrémités (feuilles, les nœuds de
+degré 1), triées de la même façon.
 
 ```lisp
 (graph-nodes '((a b 1) (b c 2) (b d 1)))    ;=> (A B C D)
-(graph-leaves '((a b 1) (b c 2) (b d 1)))   ;=> (D C A)
+(graph-leaves '((a b 1) (b c 2) (b d 1)))   ;=> (A C D)
 ```
 
 ### 3.2 Comparer : distances et dissimilarités

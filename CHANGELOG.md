@@ -45,6 +45,8 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   function tables.
 - `filt-noise` is in the section 1.2 (filter), with the other `filt-`
   functions, instead of 1.1 (transcode), where the PWGL box `randomize` was.
+- `graph-leaves` returns the leaves sorted as by `graph-nodes` (numbers
+  first, then by name): `(A C D)` instead of `(D C A)`.
 - `date-string` and `date+time-string` are merged into
   `date-string (&optional time u)`: the date of the universal time `u` (now
   by default), such as `"22 Oct 2026"`, or with `time` true the date and

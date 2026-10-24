@@ -1180,11 +1180,12 @@ the tolerance), which takes longer: a few seconds for 120 elements.
 #### `graph-nodes (graph)`, `graph-leaves (graph)`
 
 All the nodes of a graph (each once, compared with `equal`; sorted: numbers
-first, then by name), and its extremities (leaves).
+first, then by name), and its extremities (leaves, the nodes of degree 1),
+sorted the same way.
 
 ```lisp
 (graph-nodes '((a b 1) (b c 2) (b d 1)))    ;=> (A B C D)
-(graph-leaves '((a b 1) (b c 2) (b d 1)))   ;=> (D C A)
+(graph-leaves '((a b 1) (b c 2) (b d 1)))   ;=> (A C D)
 ```
 
 ### 3.2 Compare: distances and dissimilarities
