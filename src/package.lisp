@@ -44,8 +44,8 @@
   (:export
    ;; 1. transcription
    #:transcode #:num>base #:num>alpha #:alpha>num #:list>sym #:str>sym
-   #:filt-noise #:filt-median #:filt-extrema #:filt-mean #:filt-lowpass
-   #:filt-repeat #:filt-function
+   #:filt-median #:filt-extrema #:filt-mean #:filt-lowpass
+   #:filt-repeat #:filt-noise #:filt-function
    #:graph-span #:graph>dendrogram #:graph-path #:graph>matrix
    #:morph-seq
    ;; 2. classification

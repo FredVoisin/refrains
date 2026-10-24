@@ -43,6 +43,8 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   (reading and writing files), since they write files, and `graph>matrix`
   in the section 1.3 (delineate), in `help`, in the documentation and in the
   function tables.
+- `filt-noise` is in the section 1.2 (filter), with the other `filt-`
+  functions, instead of 1.1 (transcode), where the PWGL box `randomize` was.
 - `date-string` and `date+time-string` are merged into
   `date-string (&optional time u)`: the date of the universal time `u` (now
   by default), such as `"22 Oct 2026"`, or with `time` true the date and

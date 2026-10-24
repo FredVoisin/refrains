@@ -204,9 +204,10 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
 ```
 ;;; 1. TRANSCRIPTION
 ;;  1.1 TRANSCODE : convert, encode, trace
-       transcode, num>base, num>alpha, alpha>num, list>sym, str>sym, filt-noise
+       transcode, num>base, num>alpha, alpha>num, list>sym, str>sym
 ;;  1.2 FILTER
-       filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-function
+       filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-noise,
+       filt-function
 ;;  1.3 DELINEATE : trace graphs
        graph-span, graph>dendrogram, graph-path, graph>matrix
 ;;  1.4 INTERPOLATE
@@ -306,41 +307,6 @@ Reads a string (or a list of strings) as a list (or lists) of symbols.
 ```lisp
 (str>sym "a b c")          ;=> (A B C)
 (str>sym '("a b" "c"))     ;=> ((A B) (C))
-```
-
-#### `filt-noise (seq &optional mode val)`
-
-Jitters a sequence or adds noise to it, according to
-`mode`, with the amount `val` (0.1 by default) relative to the range
-(max − min) of `seq`:
-
-- `:nozero` (default): replaces each zero with a random value in
-  ]0, `val` × range[ (]0, `val`[ if all the values are equal); the other
-  values are kept;
-- `:swap`: swaps `val` × length pairs of elements (an integer `val` is the
-  number of swaps);
-- `:relative`: adds to each value a random amount in
-  [−`val` × range, `val` × range].
-
-`mode` may also be a function of two arguments `(x l)` (`#'name` or a
-`lambda`, not a quoted symbol): each element `x` of `seq` is replaced by its
-result, `l` being the whole `seq` (a copy of it, shared by all the calls:
-the function should not modify it), and `val` is ignored. This
-applies any kind of noise, numerical or not, element by element; declare
-`(declare (ignore x))` or `(declare (ignore l))` for an argument you do not
-use.
-
-A sequence which is not numerical is swapped (`:swap`). Another mode is an
-error; `seq` itself is not modified.
-
-```lisp
-(filt-noise '(0 5 0 10))                  ;=> (0.10159576 5 0.14144969 10)
-(filt-noise '(100 200 0 50) :relative 0.1) ;=> (81.438194 194.18185 -5.740862 65.08263)
-(filt-noise '(60 62 64) (lambda (x l) (declare (ignore l)) (+ x (random 2))))
-;=> (61 62 65)
-;; each element replaced by a random element of the list
-(filt-noise '(a b c d) (lambda (x l) (declare (ignore x)) (nth (random (length l)) l)))
-;=> (C A C D)
 ```
 
 ### 1.2 Filter
@@ -446,6 +412,41 @@ to treat close values as identical.
 (filt-repeat '(0 0 1 2 2 2 3 3 0 0))        ;=> (0 1 2 3 0)
 (filt-repeat '(0 0 1 2 2 2 3 3 0 0) :linear)
 ;=> (0.0 0.5 1 2.0 2.3333333 2.6666667 3.0 1.5 0 0)
+```
+
+#### `filt-noise (seq &optional mode val)`
+
+Jitters a sequence or adds noise to it, according to
+`mode`, with the amount `val` (0.1 by default) relative to the range
+(max − min) of `seq`:
+
+- `:nozero` (default): replaces each zero with a random value in
+  ]0, `val` × range[ (]0, `val`[ if all the values are equal); the other
+  values are kept;
+- `:swap`: swaps `val` × length pairs of elements (an integer `val` is the
+  number of swaps);
+- `:relative`: adds to each value a random amount in
+  [−`val` × range, `val` × range].
+
+`mode` may also be a function of two arguments `(x l)` (`#'name` or a
+`lambda`, not a quoted symbol): each element `x` of `seq` is replaced by its
+result, `l` being the whole `seq` (a copy of it, shared by all the calls:
+the function should not modify it), and `val` is ignored. This
+applies any kind of noise, numerical or not, element by element; declare
+`(declare (ignore x))` or `(declare (ignore l))` for an argument you do not
+use.
+
+A sequence which is not numerical is swapped (`:swap`). Another mode is an
+error; `seq` itself is not modified.
+
+```lisp
+(filt-noise '(0 5 0 10))                  ;=> (0.10159576 5 0.14144969 10)
+(filt-noise '(100 200 0 50) :relative 0.1) ;=> (81.438194 194.18185 -5.740862 65.08263)
+(filt-noise '(60 62 64) (lambda (x l) (declare (ignore l)) (+ x (random 2))))
+;=> (61 62 65)
+;; each element replaced by a random element of the list
+(filt-noise '(a b c d) (lambda (x l) (declare (ignore x)) (nth (random (length l)) l)))
+;=> (C A C D)
 ```
 
 #### `filt-function (seq func window &optional step)`

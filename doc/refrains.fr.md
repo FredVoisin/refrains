@@ -252,9 +252,10 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
 ```
 ;;; 1. TRANSCRIPTION
 ;;  1.1 TRANSCODER : convertir, encoder, tracer
-       transcode, num>base, num>alpha, alpha>num, list>sym, str>sym, filt-noise
+       transcode, num>base, num>alpha, alpha>num, list>sym, str>sym
 ;;  1.2 FILTRER
-       filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-function
+       filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-noise,
+       filt-function
 ;;  1.3 DÉLINÉER : tracer des graphes
        graph-span, graph>dendrogram, graph-path, graph>matrix
 ;;  1.4 INTERPOLER
@@ -358,41 +359,6 @@ symboles.
 ```lisp
 (str>sym "a b c")          ;=> (A B C)
 (str>sym '("a b" "c"))     ;=> ((A B) (C))
-```
-
-#### `filt-noise (seq &optional mode val)`
-
-Bruite une séquence ou en perturbe l'ordre, selon
-`mode`, avec la quantité `val` (0,1 par défaut) rapportée à l'étendue
-(max − min) de `seq` :
-
-- `:nozero` (par défaut) : remplace chaque zéro par une valeur aléatoire dans
-  ]0, `val` × étendue[ (]0, `val`[ si toutes les valeurs sont égales) ; les
-  autres valeurs sont conservées ;
-- `:swap` : permute `val` × longueur paires d'éléments (un `val` entier donne
-  le nombre de permutations) ;
-- `:relative` : ajoute à chaque valeur une quantité aléatoire dans
-  [−`val` × étendue, `val` × étendue].
-
-`mode` peut aussi être une fonction de deux arguments `(x l)` (`#'nom` ou une
-`lambda`, pas un symbole quoté) : chaque élément `x` de `seq` est remplacé par
-son résultat, `l` étant toute la séquence `seq` (une copie, partagée par tous
-les appels : la fonction ne doit pas la modifier), et `val` est ignoré. On
-applique ainsi n'importe quel bruit, numérique ou non, élément par élément ;
-déclarez `(declare (ignore x))` ou `(declare (ignore l))` pour un argument
-inutilisé.
-
-Une séquence non numérique est permutée (`:swap`). Un autre mode est une
-erreur ; `seq` elle-même n'est pas modifiée.
-
-```lisp
-(filt-noise '(0 5 0 10))                  ;=> (0.10159576 5 0.14144969 10)
-(filt-noise '(100 200 0 50) :relative 0.1) ;=> (81.438194 194.18185 -5.740862 65.08263)
-(filt-noise '(60 62 64) (lambda (x l) (declare (ignore l)) (+ x (random 2))))
-;=> (61 62 65)
-;; chaque élément remplacé par un élément aléatoire de la liste
-(filt-noise '(a b c d) (lambda (x l) (declare (ignore x)) (nth (random (length l)) l)))
-;=> (C A C D)
 ```
 
 ### 1.2 Filtrer
@@ -499,6 +465,41 @@ pour traiter des valeurs proches comme identiques.
 (filt-repeat '(0 0 1 2 2 2 3 3 0 0))        ;=> (0 1 2 3 0)
 (filt-repeat '(0 0 1 2 2 2 3 3 0 0) :linear)
 ;=> (0.0 0.5 1 2.0 2.3333333 2.6666667 3.0 1.5 0 0)
+```
+
+#### `filt-noise (seq &optional mode val)`
+
+Bruite une séquence ou en perturbe l'ordre, selon
+`mode`, avec la quantité `val` (0,1 par défaut) rapportée à l'étendue
+(max − min) de `seq` :
+
+- `:nozero` (par défaut) : remplace chaque zéro par une valeur aléatoire dans
+  ]0, `val` × étendue[ (]0, `val`[ si toutes les valeurs sont égales) ; les
+  autres valeurs sont conservées ;
+- `:swap` : permute `val` × longueur paires d'éléments (un `val` entier donne
+  le nombre de permutations) ;
+- `:relative` : ajoute à chaque valeur une quantité aléatoire dans
+  [−`val` × étendue, `val` × étendue].
+
+`mode` peut aussi être une fonction de deux arguments `(x l)` (`#'nom` ou une
+`lambda`, pas un symbole quoté) : chaque élément `x` de `seq` est remplacé par
+son résultat, `l` étant toute la séquence `seq` (une copie, partagée par tous
+les appels : la fonction ne doit pas la modifier), et `val` est ignoré. On
+applique ainsi n'importe quel bruit, numérique ou non, élément par élément ;
+déclarez `(declare (ignore x))` ou `(declare (ignore l))` pour un argument
+inutilisé.
+
+Une séquence non numérique est permutée (`:swap`). Un autre mode est une
+erreur ; `seq` elle-même n'est pas modifiée.
+
+```lisp
+(filt-noise '(0 5 0 10))                  ;=> (0.10159576 5 0.14144969 10)
+(filt-noise '(100 200 0 50) :relative 0.1) ;=> (81.438194 194.18185 -5.740862 65.08263)
+(filt-noise '(60 62 64) (lambda (x l) (declare (ignore l)) (+ x (random 2))))
+;=> (61 62 65)
+;; chaque élément remplacé par un élément aléatoire de la liste
+(filt-noise '(a b c d) (lambda (x l) (declare (ignore x)) (nth (random (length l)) l)))
+;=> (C A C D)
 ```
 
 #### `filt-function (seq func window &optional step)`
