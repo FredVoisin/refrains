@@ -206,7 +206,8 @@ del messaggio, attivita' mnemonico-percettiva e risposta psichica', Prisma 01, E
   (refrains::mark-dynamic seq test))
 
 (defgeneric graph-length (graph)
-  (:documentation "GRAPH-LENGTH: returns the (minimum) length of a graph (the graph must have no cycles, i.e. to a tree."))
+  (:documentation "GRAPH-LENGTH: the total length of a graph, the sum of the lengths of its edges; for a minimum spanning tree
+(see graph-span), a measure of the diversity of the objects."))
 
 (defmethod graph-length ((graph list))
   (refrains::tree-minlen graph))

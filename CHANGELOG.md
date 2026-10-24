@@ -47,6 +47,11 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   functions, instead of 1.1 (transcode), where the PWGL box `randomize` was.
 - `graph-leaves` returns the leaves sorted as by `graph-nodes` (numbers
   first, then by name): `(A C D)` instead of `(D C A)`.
+- `graph-degree` is in the section 3.1 (enumerate), with `graph-nodes` and
+  `graph-leaves`; `graph-length` stays in 3.3, renamed "quantify:
+  information, diversity": for a minimum spanning tree, it measures the
+  diversity of the objects. Its docstring is rewritten (it said the graph
+  must have no cycles, but it sums all the edges).
 - `date-string` and `date+time-string` are merged into
   `date-string (&optional time u)`: the date of the universal time `u` (now
   by default), such as `"22 Oct 2026"`, or with `time` true the date and

@@ -32,7 +32,7 @@ Frédéric Voisin, 2026.
 - [3. Evaluation](#3-evaluation)
   - [3.1 Enumerate](#31-enumerate)
   - [3.2 Compare: distances and dissimilarities](#32-compare-distances-and-dissimilarities)
-  - [3.3 Quantify: information](#33-quantify-information)
+  - [3.3 Quantify: information, diversity](#33-quantify-information-diversity)
 - [4. Reading and writing files](#4-reading-and-writing-files)
 - [5. FV-examples](#5-fv-examples)
 - [References](#references)
@@ -221,12 +221,13 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
        mark-structure, motif-structure, class-num, class-sym
 ;;; 3. EVALUATION
 ;;  3.1 ENUMERATE : sample, find, count
-       mark-position, mark-list, motif-position, motif-list, graph-nodes, graph-leaves
+       mark-position, mark-list, motif-position, motif-list, graph-nodes, graph-leaves,
+       graph-degree
 ;;  3.2 COMPARE : distances and dissimilarities
        dist-euclidean, dist-cityblock, dist-hamming, dist-edit,
        dist-multi-edit, dist-structure, dist-graph
-;;  3.3 QUANTIFY : self information
-       histogram, entropy, self-info, inner-dynamic, graph-length, graph-degree
+;;  3.3 QUANTIFY : self information, diversity
+       histogram, entropy, self-info, inner-dynamic, graph-length
 ;;; 4. READ/WRITE files
        read-text, write-list, display-list, graph>dot, dendrogram>dot
 ```
@@ -1188,6 +1189,20 @@ sorted the same way.
 (graph-leaves '((a b 1) (b c 2) (b d 1)))   ;=> (A C D)
 ```
 
+#### `graph-degree (node graph)`
+
+The degree of a node: the number of edges at that node (0 if it is not in
+the graph; an edge from a node to itself counts once). A list of nodes gives
+the list of their degrees, and `nil` the degrees of all the nodes, in the
+order of `graph-nodes`. The leaves (`graph-leaves`) are the nodes of degree
+1.
+
+```lisp
+(graph-degree 'b '((a b 1) (b c 2) (b d 1)))    ;=> 3
+(graph-degree '(b d) '((a b 1) (b c 2) (b d 1))) ;=> (3 1)
+(graph-degree nil '((a b 1) (b c 2) (b d 1)))   ;=> (1 3 1 1), for (A B C D)
+```
+
 ### 3.2 Compare: distances and dissimilarities
 
 For all the distance functions, when the first argument is a list of items
@@ -1314,7 +1329,7 @@ itself, `nil` if there is no path.
 (dist-graph 'a 'c '((a b 1) (b c 2) (b d 1)))   ;=> 3
 ```
 
-### 3.3 Quantify: information
+### 3.3 Quantify: information, diversity
 
 #### `histogram (data &key test thes)`
 
@@ -1409,18 +1424,15 @@ returned.
 (inner-dynamic '(a b a c a d a e))   ;=> (34 24 25 125 17 145 10 154)
 ```
 
-#### `graph-length (graph)`, `graph-degree (node graph)`
+#### `graph-length (graph)`
 
-The total length of a tree, and the degree of a node: the number of edges at
-that node (0 if it is not in the graph; an edge from a node to itself counts
-once). A list of nodes gives the list of their degrees, and `nil` the
-degrees of all the nodes, in the order of `graph-nodes`.
+The total length of a graph: the sum of the lengths of its edges. For the
+minimum spanning tree of a set of objects (`graph-span`), it is a measure of
+their diversity: the more the objects differ, the longer the tree. It thus
+completes the measures of information of this section.
 
 ```lisp
 (graph-length '((a b 1) (b c 2) (b d 1)))       ;=> 4
-(graph-degree 'b '((a b 1) (b c 2) (b d 1)))    ;=> 3
-(graph-degree '(b d) '((a b 1) (b c 2) (b d 1))) ;=> (3 1)
-(graph-degree nil '((a b 1) (b c 2) (b d 1)))   ;=> (1 3 1 1), for (A B C D)
 ```
 
 ## 4. Reading and writing files

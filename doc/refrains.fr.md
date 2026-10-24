@@ -29,7 +29,7 @@ Frédéric Voisin, 2026.
 - [3. Évaluation](#3-évaluation)
   - [3.1 Énumérer](#31-énumérer)
   - [3.2 Comparer : distances et dissimilarités](#32-comparer--distances-et-dissimilarités)
-  - [3.3 Quantifier : information](#33-quantifier--information)
+  - [3.3 Quantifier : information, diversité](#33-quantifier--information-diversité)
 - [4. Lecture et écriture de fichiers](#4-lecture-et-écriture-de-fichiers)
 - [5. FV-exemples](#5-fv-exemples)
 - [Références](#références)
@@ -269,12 +269,13 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
        mark-structure, motif-structure, class-num, class-sym
 ;;; 3. ÉVALUATION
 ;;  3.1 ÉNUMÉRER : échantillonner, trouver, compter
-       mark-position, mark-list, motif-position, motif-list, graph-nodes, graph-leaves
+       mark-position, mark-list, motif-position, motif-list, graph-nodes, graph-leaves,
+       graph-degree
 ;;  3.2 COMPARER : distances et dissimilarités
        dist-euclidean, dist-cityblock, dist-hamming, dist-edit,
        dist-multi-edit, dist-structure, dist-graph
-;;  3.3 QUANTIFIER : information propre
-       histogram, entropy, self-info, inner-dynamic, graph-length, graph-degree
+;;  3.3 QUANTIFIER : information propre, diversité
+       histogram, entropy, self-info, inner-dynamic, graph-length
 ;;; 4. LIRE/ÉCRIRE des fichiers
        read-text, write-list, display-list, graph>dot, dendrogram>dot
 ```
@@ -1271,6 +1272,20 @@ degré 1), triées de la même façon.
 (graph-leaves '((a b 1) (b c 2) (b d 1)))   ;=> (A C D)
 ```
 
+#### `graph-degree (node graph)`
+
+Le degré d'un nœud : le nombre d'arêtes en ce nœud (0 s'il n'est pas dans le
+graphe ; une arête d'un nœud vers lui-même compte une fois). Une liste de
+nœuds donne la liste de leurs degrés, et `nil` les degrés de tous les nœuds,
+dans l'ordre de `graph-nodes`. Les feuilles (`graph-leaves`) sont les nœuds de
+degré 1.
+
+```lisp
+(graph-degree 'b '((a b 1) (b c 2) (b d 1)))    ;=> 3
+(graph-degree '(b d) '((a b 1) (b c 2) (b d 1))) ;=> (3 1)
+(graph-degree nil '((a b 1) (b c 2) (b d 1)))   ;=> (1 3 1 1), pour (A B C D)
+```
+
 ### 3.2 Comparer : distances et dissimilarités
 
 Pour toutes les fonctions de distance, quand le premier argument est une
@@ -1401,7 +1416,7 @@ lui-même, `nil` s'il n'y a pas de chemin.
 (dist-graph 'a 'c '((a b 1) (b c 2) (b d 1)))   ;=> 3
 ```
 
-### 3.3 Quantifier : information
+### 3.3 Quantifier : information, diversité
 
 #### `histogram (data &key test thes)`
 
@@ -1499,18 +1514,16 @@ la séquence ne sont pas renvoyées.
 (inner-dynamic '(a b a c a d a e))   ;=> (34 24 25 125 17 145 10 154)
 ```
 
-#### `graph-length (graph)`, `graph-degree (node graph)`
+#### `graph-length (graph)`
 
-La longueur totale d'un arbre, et le degré d'un nœud : le nombre d'arêtes en
-ce nœud (0 s'il n'est pas dans le graphe ; une arête d'un nœud vers lui-même
-compte une fois). Une liste de nœuds donne la liste de leurs degrés, et `nil`
-les degrés de tous les nœuds, dans l'ordre de `graph-nodes`.
+La longueur totale d'un graphe : la somme des longueurs de ses arêtes. Pour
+l'arbre de recouvrement minimal d'un ensemble d'objets (`graph-span`), c'est
+une mesure de leur diversité : plus les objets diffèrent entre eux, plus
+l'arbre est long. Elle complète ainsi les mesures d'information de cette
+section.
 
 ```lisp
 (graph-length '((a b 1) (b c 2) (b d 1)))       ;=> 4
-(graph-degree 'b '((a b 1) (b c 2) (b d 1)))    ;=> 3
-(graph-degree '(b d) '((a b 1) (b c 2) (b d 1))) ;=> (3 1)
-(graph-degree nil '((a b 1) (b c 2) (b d 1)))   ;=> (1 3 1 1), pour (A B C D)
 ```
 
 ## 4. Lecture et écriture de fichiers

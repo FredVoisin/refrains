@@ -54,11 +54,11 @@
    #:mark-structure #:motif-structure #:class-num #:class-sym
    ;; 3. evaluation
    #:mark-position #:mark-list #:motif-position #:motif-list
-   #:graph-nodes #:graph-leaves
+   #:graph-nodes #:graph-leaves #:graph-degree
    #:dist-euclidean #:dist-cityblock #:dist-hamming #:dist-edit
    #:dist-multi-edit #:dist-structure #:dist-graph
    #:histogram #:entropy #:self-info #:inner-dynamic
-   #:graph-length #:graph-degree
+   #:graph-length
    ;; 4. read/write
    #:read-text #:write-list #:display-list #:graph>dot #:dendrogram>dot
    ;; documentation
