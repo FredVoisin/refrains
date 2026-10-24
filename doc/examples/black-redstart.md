@@ -11,7 +11,10 @@ Saint-Étienne, 2011, pp. 191–197 (HAL
 *An analysis kept with its data in the [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) repository; its principle is summarized here, to be rewritten as a Common Lisp example.*
 
 An original method by Frédéric Voisin: a sonogram is considered only as an
-image ([data/rougequeue_noir.jpg](../data/rougequeue_noir.jpg)), in which motifs are looked for. A
+image ([data/rougequeue_noir.jpg](../data/rougequeue_noir.jpg); a sonogram made by
+Frédéric Voisin from a recording of André Bossus,
+[*Les chants d'oiseaux d'Europe occidentale*](https://www.delachauxetniestle.com/livre/les-chants-doiseaux-deurope-occidentale-3/9782603020036), Delachaux et Niestlé
+(book with CDs)), in which motifs are looked for. A
 sonogram represents the evolution of sound in time: a succession of instants
 described by their spectrum, each region darkened according to its
 intensity.

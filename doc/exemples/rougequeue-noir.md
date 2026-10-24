@@ -11,7 +11,9 @@ Saint-Étienne, 2011, p. 191–197 (HAL
 *Analyse conservée avec ses données dans le dépôt [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) ; son principe est résumé ici, en attendant d'être réécrit sous forme d'exemple Common Lisp.*
 
 Méthode originale de Frédéric Voisin : un sonagramme est considéré uniquement
-comme une image ([data/rougequeue_noir.jpg](../data/rougequeue_noir.jpg)), dans laquelle on cherche des
+comme une image ([data/rougequeue_noir.jpg](../data/rougequeue_noir.jpg) ; sonagramme
+réalisé par Frédéric Voisin à partir d'un enregistrement de
+André Bossus, [*Les chants d'oiseaux d'Europe occidentale*](https://www.delachauxetniestle.com/livre/les-chants-doiseaux-deurope-occidentale-3/9782603020036), Delachaux et Niestlé (livre avec CD)), dans laquelle on cherche des
 motifs. Un sonagramme représente l'évolution du son dans le temps : une
 succession d'instants décrits par leur spectre, chaque région étant plus ou
 moins sombre selon son intensité.
