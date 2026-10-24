@@ -2,15 +2,9 @@
 
 In English, see: [refrains-functions.md](refrains-functions.md)
 
-Les 54 fonctions exportées du paquet `:refrains` (version 1.0.0), regroupées selon les sections du menu, avec leurs arguments et leur docstring, traduite en français (dans le code, les docstrings, affichées par `doc` et `help`, sont en anglais). Le nom de chaque fonction renvoie à sa description dans la [documentation](refrains.fr.md) quand elle y figure. Cette liste est la version de référence.
+Les 54 fonctions exportées du paquet `:refrains` (version 1.0.0), regroupées selon les sections du menu, avec leurs arguments et leur docstring en français (dans le code, les docstrings, affichées par `doc` et `help`, sont en anglais). Le nom de chaque fonction renvoie à sa description dans la [documentation](refrains.fr.md) quand elle y figure. Cette liste est la version de référence.
 
-
-![Arbre de recouvrement minimal des verbes qui nomment les opérations d'analyse](pictures/morpho-processes.png)
-
-*Les opérations de refrains : arbre de recouvrement minimal des verbes
-qui les nomment, tracé avec `graph-span` et `graph>dot` (cf. Voisin, « De la
-brousse dans les synthés », in P. Criton & J.-M. Chouvel (éd.), *Gilles
-Deleuze : la pensée-musique*, CDMC, 2015).*
+A propos de terminologie : dans un soucis de simplification et de cohérence, le nom des fonctions peut évoluer avec les versions et, autant que possible, se référer à une étymologie commmune au français et à l'anglais, voire à l'indo-européen.
 
 ## 1. Transcription
 
