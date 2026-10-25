@@ -1,5 +1,5 @@
 graph "refrains-docstrings" {
-/* generated with refrains:graph>dot, 25 Oct 2026 14:36:47 */
+/* generated with refrains:graph>dot, 25 Oct 2026 15:57:05 */
  graph [overlap="false", sep="+4"];
  graph [bgcolor=black];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
@@ -35,6 +35,7 @@ graph "refrains-docstrings" {
  "filt-repeat" -- "histogram" [w=1, len=0.820000, label="0.82"];
  "graph-length" -- "graph-span" [w=1, len=0.820000, label="0.82"];
  "read-text" -- "separate" [w=1, len=0.820000, label="0.82"];
+ "dendrogram>dot" -- "seq>plot" [w=1, len=0.830000, label="0.83"];
  "dist-cityblock" -- "dist-hamming" [w=1, len=0.830000, label="0.83"];
  "filt-repeat" -- "motif-group" [w=1, len=0.830000, label="0.83"];
  "histogram" -- "list>sym" [w=1, len=0.830000, label="0.83"];
@@ -42,7 +43,6 @@ graph "refrains-docstrings" {
  "filt-lowpass" -- "filt-median" [w=1, len=0.840000, label="0.84"];
  "mark-list" -- "separate" [w=1, len=0.840000, label="0.84"];
  "alpha>num" -- "graph-degree" [w=1, len=0.850000, label="0.85"];
- "dendrogram>dot" -- "seq>plot" [w=1, len=0.850000, label="0.85"];
  "graph-dendrogram" -- "graph-length" [w=1, len=0.850000, label="0.85"];
  "graph-length" -- "graph-part" [w=1, len=0.850000, label="0.85"];
  "dist-euclidean" -- "dist-multi-edit" [w=1, len=0.860000, label="0.86"];

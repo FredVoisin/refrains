@@ -222,11 +222,21 @@ from index 0; an element which is a list is flattened."
       (let ((s (string-right-trim "0" (format nil "~,3F" x))))
         (string-right-trim "." s))))
 
+(defun plot-sequence (seq)
+  "SEQ as a list of events (time value0 value1 ...): a list of events as it is, or a list of numbers, a flow
+of one value, as events (rank number), a NIL being a missing value, kept as NIL to break the line in SVG."
+  (if (and seq (every (lambda (x) (or (null x) (realp x))) seq))
+      (loop for y in seq for i from 0 collect (when y (list i y)))
+      seq))
+
 (defun plot-window (events dimension start duration low high)
   "The events of EVENTS between the time START (the first event by default) and START + DURATION (the
 last event by default). Returns the events, their values (nth DIMENSION (cdr event)), the bottom and
 the top of the plot (LOW and HIGH, by default the minimum and the maximum of the values), and the times
-of the beginning and of the end of the window."
+of the beginning and of the end of the window. The NILs of EVENTS, missing values, are left out."
+  (setf events (remove nil events))
+  (when (null events)
+    (error "seq>plot: there is no event to draw."))
   (dolist (e events)
     (unless (and (consp e) (realp (car e)) (realp (nth dimension (cdr e))))
       (error "seq>plot: ~S is not an event (time value ...) with a number as value ~D." e dimension)))
@@ -282,6 +292,7 @@ LABELS, the bottom, the top and the times of the window are written. Returns the
   (unless (member mode '(:line :points))
     (error "seq>plot: the mode ~S is neither :line nor :points." mode))
   (multiple-value-bind (window ys lo hi start end) (plot-window events dimension start duration low high)
+    (declare (ignore ys))
     (let* ((file (if (pathname-type file) (pathname file) (make-pathname :type "svg" :defaults file)))
            (font 12)
            (left (if labels (+ 8 (* 0.6 font (max (length (plot-number hi)) (length (plot-number lo))))) 4))
@@ -290,9 +301,15 @@ LABELS, the bottom, the top and the times of the window are written. Returns the
            (bottom (- height (if labels (+ font 8) 4)))
            (span (if (= hi lo) 1 (- hi lo)))
            (time-span (if (= end start) 1 (- end start)))
-           (points (loop for e in window for y in ys
-                         collect (list (+ left (* (- right left) (/ (- (car e) start) time-span)))
-                                       (- bottom (* (- bottom top) (/ (- y lo) span)))))))
+           (point (lambda (e)
+                    (list (+ left (* (- right left) (/ (- (car e) start) time-span)))
+                          (- bottom (* (- bottom top) (/ (- (nth dimension (cdr e)) lo) span))))))
+           (points (mapcar point window))
+           ;; the line is broken at the missing values (NIL) of EVENTS
+           (lines (let ((lines nil) (line nil))
+                    (dolist (e (append events (list nil)) (nreverse lines))
+                      (cond ((null e) (when line (push (nreverse line) lines)) (setf line nil))
+                            ((<= start (car e) end) (push (funcall point e) line)))))))
       (with-open-file (svg file :direction :output :if-exists :supersede :if-does-not-exist :create)
         (format svg "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"~D\" height=\"~D\" viewBox=\"0 0 ~D ~D\">~%"
                 width height width height)
@@ -304,8 +321,9 @@ LABELS, the bottom, the top and the times of the window are written. Returns the
         (format svg "<clipPath id=\"plot\"><rect x=\"~,1F\" y=\"~,1F\" width=\"~,1F\" height=\"~,1F\"/></clipPath>~%"
                 left top (- right left) (- bottom top))
         (ecase mode
-          (:line (format svg "<polyline clip-path=\"url(#plot)\" fill=\"none\" stroke=\"black\" stroke-width=\"1\" points=\"~{~{~,1F,~,1F~}~^ ~}\"/>~%"
-                         points))
+          (:line (dolist (line lines)
+                   (format svg "<polyline clip-path=\"url(#plot)\" fill=\"none\" stroke=\"black\" stroke-width=\"1\" points=\"~{~{~,1F,~,1F~}~^ ~}\"/>~%"
+                           line)))
           (:points (format svg "<g fill=\"black\" clip-path=\"url(#plot)\">~%~{~{<circle cx=\"~,1F\" cy=\"~,1F\" r=\"1.5\"/>~}~%~}</g>~%"
                            points)))
         (when labels

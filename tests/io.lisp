@@ -167,6 +167,13 @@
     (is (string= "10" (first (lines (plot '((0 1) (1 2)) :high 10 :width 4 :height 2)))))
     (signals error (plot '((0 1) (1 2)) :low 5 :high 3))
     (signals error (plot '((0 1) (1 2)) :low 'a))
+    ;; a list of numbers: a flow of one value, each number at its rank; a NIL is a missing value
+    (is (string= (plot '((0 3) (1 1) (2 2)) :width 3 :height 3) (plot '(3 1 2) :width 3 :height 3)))
+    (let ((l (lines (plot '(1 nil nil 2) :width 4 :height 2))))
+      (is (string= "   *" (second l)))
+      (is (string= "*   " (third l)))
+      (is (string= "0  3" (car (last l)))))
+    (signals error (plot '(nil nil)))
     ;; more events than columns: each column marks all its events, the extrema are kept
     (is (search "100" (plot (loop for i below 1000 collect (list i (if (= i 501) 100 0)))
                                 :width 10 :height 4)))
@@ -176,7 +183,7 @@
     (let ((l (lines (plot '((0 1.25) (1 2.5)) :width 4 :height 2))))
       (is (equal '("2.5" "1.25") (list (first l) (fourth l)))))
     (signals error (plot '((0 a))))
-    (signals error (plot '(1 2 3)))
+    (signals error (plot '((0 1) 2)))
     (signals error (plot '((0 1) (1 2)) :start 5))
     ;; without labels: the plot alone
     (is (equal '("   *" "*   ") (lines (plot '((0 1) (3 2)) :width 4 :height 2 :labels nil))))))
@@ -205,7 +212,10 @@
         (is (= 5 (count-substring "<circle" svg)))
         (is (search "width=\"300\" height=\"100\"" svg))
         (is (not (search "<text" svg))))
-      (signals error (seq>plot events :out tmp :mode :bars))))
+      (signals error (seq>plot events :out tmp :mode :bars))
+      ;; a list of numbers with a missing value: the line is broken there
+      (seq>plot '(1 2 nil 3 4) :out tmp)
+      (is (= 2 (count-substring "<polyline" (uiop:read-file-string tmp))))))
   ;; without type, the file is of type svg
   (uiop:with-temporary-file (:pathname tmp :keep nil)
     (let ((name (seq>plot '((0 1) (1 2)) :out (make-pathname :type nil :defaults tmp))))

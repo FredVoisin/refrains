@@ -1673,8 +1673,28 @@ un nombre, un bas au-dessus du haut, ou un autre `:mode` sont des erreurs.
 
 ![La suite, en SVG](pictures/seq-plot.svg)
 
-Une suite de nombres devient une suite d'évènements en lui ajoutant leur
-position comme temps : `(loop for y in ys for i from 0 collect (list i y))`.
+`seq` peut aussi être une liste de nombres, un flux décrit par une seule
+valeur (comme pour `class-num :1d-centroids`) : chaque nombre est tracé à son
+rang, pris comme temps, et un `nil` est une valeur absente, laissée vide (la
+ligne du SVG y est coupée).
+
+```lisp
+(seq>plot '(60 62 64 nil nil 67 65 64 60) :width 18 :height 5)
+```
+```
+
+
+
+
+67
+           *      
+             *    
+    *          *  
+  *               
+*                *
+60
+0                8
+```
 
 #### `graph>dot (graph &key out dis scale shape legend overlap invert)`
 

@@ -1580,8 +1580,28 @@ bottom above the top, or another `:mode` are errors.
 
 ![The sequence, in SVG](pictures/seq-plot.svg)
 
-A sequence of numbers becomes a sequence of events by adding their position
-as time: `(loop for y in ys for i from 0 collect (list i y))`.
+`seq` may also be a list of numbers, a flow described by a single value (as
+for `class-num :1d-centroids`): each number is drawn at its rank, taken as
+time, and a `nil` is a missing value, left empty (the SVG line is broken
+there).
+
+```lisp
+(seq>plot '(60 62 64 nil nil 67 65 64 60) :width 18 :height 5)
+```
+```
+
+
+
+
+67
+           *      
+             *    
+    *          *  
+  *               
+*                *
+60
+0                8
+```
 
 #### `graph>dot (graph &key out dis scale shape legend overlap invert)`
 

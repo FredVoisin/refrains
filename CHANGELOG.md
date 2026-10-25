@@ -26,7 +26,8 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `histogram`, topology of the maps, segmentation of the song with
   `dist-hamming`).
 
-- `seq>plot` draws a sequence of events `(time value ...)`, with characters
+- `seq>plot` draws a sequence of events `(time value ...)`, or a list of
+  numbers (each at its rank, a `nil` being a missing value), with characters
   to see its shape in the listener or in a terminal, or in an SVG image,
   without any dependency: the time in x, proportionally, a dimension of the
   events in y, between its minimum and its maximum. `:out` chooses the

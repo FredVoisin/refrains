@@ -1,5 +1,5 @@
 graph "refrains-docstrings-dendrogram" {
-/* generated with refrains:dendrogram>dot, 25 Oct 2026 14:36:48, to be drawn with neato -n2 */
+/* generated with refrains:dendrogram>dot, 25 Oct 2026 15:57:06, to be drawn with neato -n2 */
  graph [splines=false, bgcolor=black];
  node [shape=point, width=0, color=white, fontcolor=white, fontname=Courier, fontsize=11];
  edge [color=white];
@@ -400,9 +400,9 @@ graph "refrains-docstrings-dendrogram" {
  p176 -- p175;
  l48 [shape=plaintext, label="seq>plot", pos="85.2,80.0"];
  p177 [pos="117.6,80.0"];
- p178 [pos="712.6,104.0"];
- p179 [pos="712.6,80.0"];
- p180 [pos="712.6,92.0"];
+ p178 [pos="698.6,104.0"];
+ p179 [pos="698.6,80.0"];
+ p180 [pos="698.6,92.0"];
  p176 -- p178;
  p177 -- p179;
  p178 -- p180;

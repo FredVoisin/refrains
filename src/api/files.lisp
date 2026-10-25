@@ -53,8 +53,9 @@ Additional Keyword :rem-test defines a function to remove choosen words."))
   
 (defgeneric seq>plot (seq &key out dimension start duration low high width height mode labels)
   (:documentation "SEQ>PLOT: draws the sequence <seq>, with characters to see its shape in the listener or a terminal,
-or in an SVG image. <seq> is a list of events sorted by time, each event a list (time value0 value1 ...): the time is
-drawn in x, proportionally (empty columns where there is no event), and the value of the dimension :dimension (0 by
+or in an SVG image. <seq> is a list of events sorted by time, each event a list (time value0 value1 ...), or a list of
+numbers, a flow of one value, each number being drawn at its rank as time (a NIL is a missing value, left empty): the
+time is drawn in x, proportionally (empty columns where there is no event), and the value of the dimension :dimension (0 by
 default, (nth dimension (cdr event)), a number) in y, between its maximum (above) and its minimum (below). Each column
 marks all the events of its time span, so that no extremum is lost.
 :out : NIL (by default) or T, draws with characters in the listener; a stream, draws with characters into it; a string
@@ -70,9 +71,9 @@ NIL draws the plot alone."))
 (defmethod seq>plot ((seq list) &key out (dimension 0) start duration low high width height (mode :line)
                                      (labels t))
   (if (or (stringp out) (pathnamep out))
-      (plot-svg seq out :dimension dimension :start start :duration duration :low low :high high
+      (plot-svg (plot-sequence seq) out :dimension dimension :start start :duration duration :low low :high high
                         :width (or width 720) :height (or height 240) :mode mode :labels labels)
-      (plot-chars seq :dimension dimension :start start :duration duration :low low :high high
+      (plot-chars (plot-sequence seq) :dimension dimension :start start :duration duration :low low :high high
                       :width (or width 72) :height (or height 16) :labels labels
                       :stream (if (streamp out) out *standard-output*))))
 
