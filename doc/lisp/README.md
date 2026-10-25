@@ -12,7 +12,7 @@ de refrains (`doc-lisp-license`) le vérifie.
   [Arbres de refrains](../exemples/arbres-des-fonctions.md).
 - [neuromuse-graphs.lisp](neuromuse-graphs.lisp) : les réseaux de neurones de
   neuromuse étudiés comme graphes, présentés dans l'exemple
-  [Les réseaux de neurones de neuromuse comme graphes](../exemples/neuromuse.md).
+  [Arbres de réseaux de neurones](../exemples/neuromuse.md).
 
 ---
 

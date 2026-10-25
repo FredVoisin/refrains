@@ -1,13 +1,14 @@
-# The neural networks of neuromuse as graphs
+# Trees of neural networks
 
-[Examples](../examples.md) · En français : [Les réseaux de neurones de neuromuse comme graphes](../exemples/neuromuse.md)
+[Examples](../examples.md) · En français : [Arbres de réseaux de neurones](../exemples/neuromuse.md)
 
-[neuromuse](https://github.com/FredVoisin/neuromuse) is a Common Lisp library
-of artificial neural networks for music (multilayer perceptrons,
-self-organizing maps…), developed since 1999. Its networks are graphs: their
-method `edges` gives the arcs `(source target weight)`, almost the form of the
-graphs of refrains `(node-a node-b distance)`. This example studies with
-refrains a multilayer perceptron and a self-organizing map. The code is in
+The idea here is to apply refrains to the study of neural networks as
+formalized in [neuromuse](https://github.com/FredVoisin/neuromuse), a Common
+Lisp library of artificial neural networks for music. Its networks are
+already graphs: their method `edges` gives the arcs `(source target weight)`,
+almost in the form of the graphs of refrains `(node-a node-b distance)`. This
+example explores with refrains a multilayer perceptron and a self-organizing
+map. The code is in
 [lisp/neuromuse-graphs.lisp](../lisp/neuromuse-graphs.lisp); the results below
 are those of SBCL, with the random draws of the script.
 

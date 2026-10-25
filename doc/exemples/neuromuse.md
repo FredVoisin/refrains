@@ -1,11 +1,11 @@
 # Arbres de réseaux de neurones
 
-[Exemples](../exemples.md) · In English: [The neural networks of neuromuse as graphs](../examples/neuromuse.md)
+[Exemples](../exemples.md) · In English: [Trees of neural networks](../examples/neuromuse.md)
 
-L'idée est ici d'appliquer refrains à l'étiude de réseaux de neurones tels
-que fomalisés dans [neuromuse](https://github.com/FredVoisin/neuromuse), bibliothèque Common Lisp 
-de réseaux de neurones artificiels pour la musique. Ses réseaux sont déjà 
-des graphes : leur méthode `edges` donne les arcs `(source cible poids)`, 
+L'idée est ici d'appliquer refrains à l'étude de réseaux de neurones tels
+que formalisés dans [neuromuse](https://github.com/FredVoisin/neuromuse), bibliothèque Common Lisp
+de réseaux de neurones artificiels pour la musique. Ses réseaux sont déjà
+des graphes : leur méthode `edges` donne les arcs `(source cible poids)`,
 presque de la forme des graphes de refrains `(nœud-a nœud-b distance)`.
 Cet exemple explore avec refrains un perceptron multicouche et une carte
 auto-organisatrice. Le code est dans
