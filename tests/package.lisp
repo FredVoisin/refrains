@@ -58,5 +58,10 @@ so that the tests of the random algorithms are reproducible."
   #+ecl (make-random-state seed)
   #-(or sbcl ecl) (make-random-state t))
 
+(defun count-substring (part string)
+  "The number of occurrences of PART in STRING."
+  (loop with start = 0 for i = (search part string :start2 start)
+        while i count t do (setf start (1+ i))))
+
 (defun approx= (a b &optional (epsilon 1e-6))
   (< (abs (- a b)) epsilon))

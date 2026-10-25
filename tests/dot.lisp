@@ -27,14 +27,14 @@
 (in-suite dot)
 
 (test graph>dot-stream
-  (let ((dot (with-output-to-string (s) (graph>dot '((a b 1) (b c 0)) s))))
+  (let ((dot (with-output-to-string (s) (graph>dot '((a b 1) (b c 0)) :out s))))
     (is (search "graph \"span-graph\" {" dot))
     (is (search "\"A\" -- \"B\"" dot))
     (is (search "\"B\" -- \"C\"" dot))))
 
 (test graph>dot-dis-argument
   ;; used to refer to an undefined variable DISTORSION
-  (finishes (with-output-to-string (s) (graph>dot '((a b 1)) s :dis 0.5))))
+  (finishes (with-output-to-string (s) (graph>dot '((a b 1)) :out s :dis 0.5))))
 
 (test graph-name-from-path
   ;; a path without "/" crashed, and blanks cut the name
@@ -47,7 +47,7 @@
 
 (test graph>dot-output
   (flet ((dot (graph &rest keys)
-           (with-output-to-string (s) (apply #'graph>dot graph s keys))))
+           (with-output-to-string (s) (apply #'graph>dot graph :out s keys))))
     ;; len was formatted on 3 characters first: 12.5 gave 13., 0.123456 gave .12
     (let ((d (dot '((a b 12.5) (b c 0.123456) (c d 1/3)))))
       (is (search "len=12.500000" d))
@@ -86,7 +86,7 @@
         (let* ((svg (namestring tmp))
                (dot (namestring (make-pathname :type "dot" :defaults tmp))))
           ;; 1/3 as an unquoted label was a syntax error for Graphviz: no image was made
-          (graph>dot '((a b 1) (a c 2.5) (b d 0) (c e 1/3)) svg :shape "Mrecord")
+          (graph>dot '((a b 1) (a c 2.5) (b d 0) (c e 1/3)) :out svg :shape "Mrecord")
           (is (probe-file svg))
           (is (search "<svg" (uiop:read-file-string svg)))
           (ignore-errors (delete-file dot))))
@@ -94,7 +94,7 @@
 
 (test dendrogram>dot-output
   (flet ((dot (dendrogram &rest keys)
-           (with-output-to-string (s) (apply #'dendrogram>dot dendrogram s keys))))
+           (with-output-to-string (s) (apply #'dendrogram>dot dendrogram :out s keys))))
     (let ((d (dot '(3 (1 x y) (2 (1 a b) c)))))
       (is (search "graph \"dendrogram\" {" d))
       ;; the leaves, in the order of the dendrogram, from the top
@@ -120,7 +120,7 @@
       (uiop:with-temporary-file (:pathname tmp :type "svg" :keep nil)
         (let* ((svg (namestring tmp))
                (dot (namestring (make-pathname :type "dot" :defaults tmp))))
-          (dendrogram>dot '(0.5 (0.25 a b) c) svg)
+          (dendrogram>dot '(0.5 (0.25 a b) c) :out svg)
           (is (search "<svg" (uiop:read-file-string svg)))
           (ignore-errors (delete-file dot))))
       (skip "neato (Graphviz) is not installed")))

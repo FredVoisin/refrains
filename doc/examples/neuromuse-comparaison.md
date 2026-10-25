@@ -187,7 +187,7 @@ ses neurones cachés."
   (nth-value 1 (refrains:graph-dendrogram *distances-etats* :linkage :average)))
 
 (format t "~&dendrogramme des réseaux : ~S~%" *dendrogramme-etats*)
-(refrains:dendrogram>dot *dendrogramme-etats* (picture "neuromuse-comparaison.png") :invert t)
+(refrains:dendrogram>dot *dendrogramme-etats* :out (picture "neuromuse-comparaison.png") :invert t)
 
 ;; le rôle de chaque neurone caché : son profil d'activation sur les quatre entrées,
 ;; 1 s'il est franchement actif (plus de 0,8), 0 s'il est éteint (moins de 0,2), - s'il

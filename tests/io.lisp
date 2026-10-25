@@ -133,7 +133,7 @@
 
 (test seq>plot
   (flet ((plot (seq &rest keys)
-           (with-output-to-string (s) (apply #'seq>plot seq :stream s keys)))
+           (with-output-to-string (s) (apply #'seq>plot seq :out s keys)))
          (lines (string)
            (uiop:split-string (string-right-trim '(#\Newline) string) :separator '(#\Newline))))
     (let* ((events (loop for i below 10 collect (list i i)))   ; (time value), increasing
@@ -166,5 +166,32 @@
       (is (equal '("2.5" "1.25") (list (first l) (fourth l)))))
     (signals error (plot '((0 a))))
     (signals error (plot '(1 2 3)))
-    (signals error (plot '((0 1) (1 2)) :start 5))))
+    (signals error (plot '((0 1) (1 2)) :start 5))
+    ;; without labels: the plot alone
+    (is (equal '("   *" "*   ") (lines (plot '((0 1) (3 2)) :width 4 :height 2 :labels nil))))))
+
+(test seq>plot-svg
+  (uiop:with-temporary-file (:pathname tmp :type "svg" :keep nil)
+    (let ((events '((0 60) (1 62) (2 64) (3 62) (5 67))))
+      ;; a pathname or a string: an SVG file, whose name is returned
+      (is (string= (namestring tmp) (seq>plot events :out tmp)))
+      (let ((svg (uiop:read-file-string tmp)))
+        (is (search "<svg" svg))
+        (is (search "width=\"720\" height=\"240\"" svg))
+        (is (= 1 (count-substring "<polyline" svg)))
+        (is (search ">67</text>" svg))
+        (is (search ">60</text>" svg))
+        (is (search ">5</text>" svg)))
+      ;; points, size, no labels
+      (seq>plot events :out (namestring tmp) :mode :points :width 300 :height 100 :labels nil)
+      (let ((svg (uiop:read-file-string tmp)))
+        (is (= 5 (count-substring "<circle" svg)))
+        (is (search "width=\"300\" height=\"100\"" svg))
+        (is (not (search "<text" svg))))
+      (signals error (seq>plot events :out tmp :mode :bars))))
+  ;; without type, the file is of type svg
+  (uiop:with-temporary-file (:pathname tmp :keep nil)
+    (let ((name (seq>plot '((0 1) (1 2)) :out (make-pathname :type nil :defaults tmp))))
+      (is (equal "svg" (pathname-type name)))
+      (ignore-errors (delete-file name)))))
 

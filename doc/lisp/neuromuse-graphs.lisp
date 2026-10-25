@@ -91,7 +91,7 @@
 
 ;; le dessin du squelette (le graphe complet, avec ses connexions presque nulles et
 ;; donc très longues, serait illisible)
-(refrains:graph>dot (refrains:graph-span *xor-graph*) (picture "neuromuse-xor.png") :invert t)
+(refrains:graph>dot (refrains:graph-span *xor-graph*) :out (picture "neuromuse-xor.png") :invert t)
 
 ;;; 2. Une SOM apprise sur le chant du pinson : 12 x 12 neurones, 18 bandes de fréquence
 
@@ -118,7 +118,7 @@
                                         grid :test #'equal))
                     *prototypes-tree*)))
 
-(refrains:graph>dot *prototypes-tree* (picture "neuromuse-pinson.png")
+(refrains:graph>dot *prototypes-tree* :out (picture "neuromuse-pinson.png")
                     :overlap nil :invert t :legend nil)
 
 ;; les suites de neurones gagnants de chaque chant, sans les répétitions locales :

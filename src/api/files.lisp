@@ -51,21 +51,28 @@ Additional Keyword :rem-test defines a function to remove choosen words."))
   (declare (ignore recursive))
   (list-display list))
   
-(defgeneric seq>plot (seq &key dimension start duration width height stream)
-  (:documentation "SEQ>PLOT: draws the sequence <seq> with characters, to see its shape in the listener or a terminal.
-<seq> is a list of events sorted by time, each event a list (time value0 value1 ...): the time is drawn in x,
-proportionally (empty columns where there is no event), and the value of the dimension :dimension (0 by default,
-(nth dimension (cdr event)), a number) in y, between its maximum (above) and its minimum (below); the times of the
-beginning and of the end of the window are written under the plot. Each column marks all the events of its time
-span, so that no extremum is lost.
+(defgeneric seq>plot (seq &key out dimension start duration width height mode labels)
+  (:documentation "SEQ>PLOT: draws the sequence <seq>, with characters to see its shape in the listener or a terminal,
+or in an SVG image. <seq> is a list of events sorted by time, each event a list (time value0 value1 ...): the time is
+drawn in x, proportionally (empty columns where there is no event), and the value of the dimension :dimension (0 by
+default, (nth dimension (cdr event)), a number) in y, between its maximum (above) and its minimum (below). Each column
+marks all the events of its time span, so that no extremum is lost.
+:out : NIL (by default) or T, draws with characters in the listener; a stream, draws with characters into it; a string
+or a pathname, writes an SVG image in this file (of type svg when it has no type) and returns its name.
 :start and :duration: the window to draw, from the time :start (the first event by default) during :duration
-(until the last event by default); :width and :height: the size of the plot in characters (72 and 16 by default);
-:stream: where to draw (the listener by default)."))
+(until the last event by default); :width and :height: the size of the plot, in characters (72 and 16 by default)
+or in pixels for SVG (720 and 240 by default).
+:mode : for SVG, :line (by default) joins the events, :points draws a point by event.
+:labels : T (by default) writes the maximum, the minimum and the times of the beginning and the end of the window;
+NIL draws the plot alone."))
 
-(defmethod seq>plot ((seq list) &key (dimension 0) start duration (width 72) (height 16)
-                                     (stream *standard-output*))
-  (plot-events seq :dimension dimension :start start :duration duration
-                   :width width :height height :stream stream))
+(defmethod seq>plot ((seq list) &key out (dimension 0) start duration width height (mode :line) (labels t))
+  (if (or (stringp out) (pathnamep out))
+      (plot-svg seq out :dimension dimension :start start :duration duration
+                        :width (or width 720) :height (or height 240) :mode mode :labels labels)
+      (plot-chars seq :dimension dimension :start start :duration duration
+                      :width (or width 72) :height (or height 16) :labels labels
+                      :stream (if (streamp out) out *standard-output*))))
 
 (defgeneric write-list (list file &optional mode)
   (:documentation "WRITE-LIST: write list to a file using following optional argument <mode> format:
@@ -76,12 +83,14 @@ span, so that no extremum is lost.
 (defmethod write-list ((list list) (file t) &optional (mode :supersede))
   (list-write list file mode))
 
-(defgeneric graph>dot (graph out &key dis scale shape legend overlap invert)
+(defgeneric graph>dot (graph &key out dis scale shape legend overlap invert)
   (:documentation   "GRAPH>DOT: converts a graph (list of edges) into an undirected graph into dot langage to be processed using neato program.
 Arguments:
 <graph> : the graph, as a structured list.
-<out> : if NIL or T, print out in listener; if a string, it defines the pathname of the output. Type of file define output.
 Keywords:
+ :out : NIL (by default) or T, prints out in the listener; a stream, writes into it; a string or a pathname, the
+pathname of the output: a dot file, and, unless its type is dot, the image made by neato in the format of its type
+(png without type).
  :dis : amount of distortion allowed for distances fir drawing the graph (from 0.0 for minimum distorsion to 1.0 maximum distorsion)
  :scale : scaling factor for the mininum distance
  :shape : string or list of strings to define node's shape, using 'neato' definitions
@@ -91,22 +100,23 @@ are short compared with the names of the nodes); a string is the value of the Gr
  :invert : t draws white on black instead of black on white (nil by default)
 "))
 
-(defmethod graph>dot  ((graph t) (out t) &key (dis 1) (scale t) (shape "ellipse") (legend t) (overlap t) (invert nil))
+(defmethod graph>dot ((graph t) &key out (dis 1) (scale t) (shape "ellipse") (legend t) (overlap t) (invert nil))
   (refrains::graph2dot graph dis scale shape out legend overlap invert))
 
-(defgeneric dendrogram>dot (dendrogram out &key width step invert)
+(defgeneric dendrogram>dot (dendrogram &key out width step invert)
   (:documentation "DENDROGRAM>DOT: draws a dendrogram, as given by graph-dendrogram (distance tree-a tree-b), or a list of
 dendrograms, in dot langage with the position of each point, to be drawn by neato -n2: the leaves on the left, one by
 line, and each fusion at the abscissa of its distance, with a scale of the distances under the leaves.
 Arguments:
 <dendrogram> : the dendrogram, or a list of dendrograms (the second value of graph-dendrogram for a graph not connected).
-<out> : if NIL or T, print out in listener; a stream, write into it; if a string, it defines the pathname of the output:
-a dot file, and, unless its type is dot, the image made by neato -n2 in the format of its type (png without type).
 Keywords:
+ :out : NIL (by default) or T, prints out in the listener; a stream, writes into it; a string or a pathname, the
+pathname of the output: a dot file, and, unless its type is dot, the image made by neato -n2 in the format of its type
+(png without type).
  :width : the width of the scale, in points (700 by default)
  :step : the space between two leaves, in points (16 by default)
  :invert : t draws white on black instead of black on white (nil by default)
 "))
 
-(defmethod dendrogram>dot ((dendrogram t) (out t) &key (width 700) (step 16) (invert nil))
+(defmethod dendrogram>dot ((dendrogram t) &key out (width 700) (step 16) (invert nil))
   (refrains::dendrogram2dot dendrogram out :width width :step step :invert invert))

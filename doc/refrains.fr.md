@@ -640,9 +640,9 @@ distances sont entières. Expérimental.
 ```
 
 Le dendrogramme se trace avec
-[`dendrogram>dot`](#dendrogramdot-dendrogram-out-key-width-step-invert) (voir
+[`dendrogram>dot`](#dendrogramdot-dendrogram-key-out-width-step-invert) (voir
 [4](#4-lecture-et-écriture-de-fichiers)), et le graphe avec
-[`graph>dot`](#graphdot-graph-out-key-dis-scale-shape-legend-overlap-invert).
+[`graph>dot`](#graphdot-graph-key-out-dis-scale-shape-legend-overlap-invert).
 
 **Le lien de Ward.** À chaque étape, le lien de Ward (Ward, 1963) fusionne les
 deux groupes dont la réunion augmente le moins l'*inertie intra-classe*, la
@@ -1601,29 +1601,37 @@ virgules ou des points-virgules, sont mis entre guillemets).
 Affiche chaque élément d'une liste sur sa propre ligne, indenté selon sa
 profondeur.
 
-#### `seq>plot (seq &key dimension start duration width height stream)`
+#### `seq>plot (seq &key out dimension start duration width height mode labels)`
 
-Dessine une suite avec des caractères, pour en voir l'allure dans le listener
-(Emacs/SLIME) ou dans un terminal, par exemple en ssh, sans autre dépendance.
-C'est un aperçu, non une figure : `seq` est une liste d'évènements classés
+Dessine une suite, avec des caractères pour en voir l'allure dans le listener
+(Emacs/SLIME) ou dans un terminal, par exemple en ssh, ou dans une image SVG,
+sans autre dépendance. `seq` est une liste d'évènements classés
 chronologiquement, chacun une liste `(temps valeur₀ valeur₁ …)`. Le temps est
 tracé en x, proportionnellement (les colonnes restent vides là où il n'y a pas
 d'évènement), et la valeur de la dimension `:dimension` (0 par défaut,
 `(nth dimension (cdr évènement))`, un nombre) en y, entre son maximum (écrit en
 haut) et son minimum (écrit en bas) ; sous le tracé sont écrits le temps du
-début et celui de la fin de la fenêtre. Chaque colonne marque tous les
-évènements de son intervalle de temps : quand il y a plus d'évènements que de
-colonnes, elle en montre toute l'étendue, et aucun extremum ne se perd.
+début et celui de la fin de la fenêtre. Avec des caractères, chaque colonne
+marque tous les évènements de son intervalle de temps : quand il y a plus
+d'évènements que de colonnes, elle en montre toute l'étendue, et aucun
+extremum ne se perd.
 
+- `:out` : `nil` (par défaut) ou `t` dessine avec des caractères dans le
+  listener ; un flux (stream), dans ce flux ; un chemin (chaîne ou pathname)
+  écrit une image SVG dans ce fichier (de type `svg` s'il n'a pas de type) et
+  renvoie son nom ;
 - `:start` et `:duration` : la fenêtre à tracer, à partir du temps `:start`
   (le premier évènement par défaut), pendant `:duration` (jusqu'au dernier
   évènement par défaut) ;
-- `:width` et `:height` : la taille du tracé en caractères (72 et 16 par
-  défaut) ;
-- `:stream` : où dessiner (le listener par défaut).
+- `:width` et `:height` : la taille du tracé, en caractères (72 et 16 par
+  défaut), ou en pixels pour le SVG (720 et 240 par défaut) ;
+- `:mode` : pour le SVG, `:line` (par défaut) relie les évènements, `:points`
+  trace un point par évènement ;
+- `:labels` : `t` (par défaut) écrit le maximum, le minimum, et les temps du
+  début et de la fin de la fenêtre ; `nil` ne laisse que le tracé.
 
 Un évènement qui n'est pas une liste, un temps ou une valeur qui n'est pas un
-nombre, ou une fenêtre sans évènement sont des erreurs.
+nombre, une fenêtre sans évènement, ou un autre `:mode` sont des erreurs.
 
 ```lisp
 (seq>plot '((0 60) (1 62) (2 64) (3 62) (5 67) (6 65) (7 64) (8 60))
@@ -1653,10 +1661,18 @@ nombre, ou une fenêtre sans évènement sont des erreurs.
 0      3
 ```
 
+```lisp
+(seq>plot '((0 60) (1 62) (2 64) (3 62) (5 67) (6 65) (7 64) (8 60))
+          :out "doc/pictures/seq-plot.svg")
+;=> "doc/pictures/seq-plot.svg"
+```
+
+![La suite, en SVG](pictures/seq-plot.svg)
+
 Une suite de nombres devient une suite d'évènements en lui ajoutant leur
 position comme temps : `(loop for y in ys for i from 0 collect (list i y))`.
 
-#### `graph>dot (graph out &key dis scale shape legend overlap invert)`
+#### `graph>dot (graph &key out dis scale shape legend overlap invert)`
 
 Trace un graphe non orienté au format **dot**.
 
@@ -1677,11 +1693,12 @@ préférable pour les grands graphes. neato fait partie de
 
 Arguments :
 
-- `out` : `t` ou `nil` affiche le texte dot dans le listener ; un flux (stream)
-  y écrit ; un chemin écrit un fichier `.dot` et, sauf si son type est `dot`,
-  lance aussi `neato` pour produire l'image au format de son type (`svg`,
-  `pdf`, `png`, `gif`…, `png` sans type). Si `neato` ne peut pas être lancé,
-  le fichier `.dot` est tout de même écrit, et une erreur le signale.
+- `:out` : `nil` (par défaut) ou `t` affiche le texte dot dans le listener ; un
+  flux (stream) y écrit ; un chemin écrit un fichier `.dot` et, sauf si son
+  type est `dot`, lance aussi `neato` pour produire l'image au format de son
+  type (`svg`, `pdf`, `png`, `gif`…, `png` sans type). Si `neato` ne peut pas
+  être lancé, le fichier `.dot` est tout de même écrit, et une erreur le
+  signale.
 - `:dis` : de combien le tracé peut déformer les longueurs (0.0–1.0), transmis
   à `neato` comme attribut `w` des arêtes.
 - `:scale` : échelle de l'arête la plus courte, pour tracer les arêtes de
@@ -1703,14 +1720,14 @@ courte autre arête multipliée par `:scale` (ou `:scale` si toutes les arêtes
 sont de longueur 0).
 
 ```lisp
-(graph>dot '((a b 1) (a c 2) (b d 0)) "/tmp/graph.png")
+(graph>dot '((a b 1) (a c 2) (b d 0)) :out "/tmp/graph.png")
 ;=> "/tmp/graph.png"     ; écrit /tmp/graph.dot et /tmp/graph.png
 ```
 
 Le fichier dot peut aussi être tracé à la main :
 `neato -Tpng graph.dot -o graph.png`.
 
-#### `dendrogram>dot (dendrogram out &key width step invert)`
+#### `dendrogram>dot (dendrogram &key out width step invert)`
 
 Trace un dendrogramme, tel que le renvoie `graph-dendrogram`
 (`(distance arbre-a arbre-b)`), ou une liste de dendrogrammes (pour un graphe
@@ -1720,16 +1737,16 @@ dendrogramme ; chaque fusion est placée à l'abscisse de sa distance, et une
 tracée sous les feuilles. Le fichier dot donne la position de chaque point :
 il se trace avec `neato -n2`.
 
-- `out` : comme pour `graph>dot`, `t` ou `nil` affiche le texte dot, un flux y
-  écrit, et un chemin écrit un fichier `.dot` puis, sauf si son type est
-  `dot`, lance `neato -n2` pour produire l'image au format de son type (`png`
-  sans type).
+- `:out` : comme pour `graph>dot`, `nil` (par défaut) ou `t` affiche le texte
+  dot, un flux y écrit, et un chemin écrit un fichier `.dot` puis, sauf si son
+  type est `dot`, lance `neato -n2` pour produire l'image au format de son type
+  (`png` sans type).
 - `:width` : largeur de l'échelle, en points (700 par défaut).
 - `:step` : espace entre deux feuilles, en points (16 par défaut).
 - `:invert` : `t` trace en blanc sur fond noir (`nil` par défaut).
 
 ```lisp
-(dendrogram>dot (nth-value 1 (graph-dendrogram *m*)) "/tmp/dendrogramme.png")
+(dendrogram>dot (nth-value 1 (graph-dendrogram *m*)) :out "/tmp/dendrogramme.png")
 ;=> "/tmp/dendrogramme.png"   ; écrit /tmp/dendrogramme.dot et .png
 ```
 

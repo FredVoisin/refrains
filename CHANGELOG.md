@@ -26,12 +26,16 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `histogram`, topology of the maps, segmentation of the song with
   `dist-hamming`).
 
-- `seq>plot` draws a sequence of events `(time value ...)` with characters,
-  to see its shape in the listener or in a terminal, without any dependency:
-  the time in x, proportionally, a dimension of the events in y, between its
-  minimum and its maximum; `:start` and `:duration` choose the window,
-  `:width` and `:height` the size of the plot. Each column marks all the
-  events of its time span, so that no extremum is lost.
+- `seq>plot` draws a sequence of events `(time value ...)`, with characters
+  to see its shape in the listener or in a terminal, or in an SVG image,
+  without any dependency: the time in x, proportionally, a dimension of the
+  events in y, between its minimum and its maximum. `:out` chooses the
+  output (`nil`, the listener, by default; a stream; or the path of the SVG
+  file), `:start` and `:duration` the window, `:width` and `:height` the
+  size of the plot, `:mode` (`:line` or `:points`) the drawing in SVG, and
+  `:labels` whether the extrema and the times of the window are written.
+  With characters, each column marks all the events of its time span, so
+  that no extremum is lost.
 - `graph>dot` takes `:overlap`: `t` (by default) lets the nodes overlap, as
   before; `nil` makes neato move them apart (graph attribute
   `overlap=false`), useful when the lengths are short compared with the
@@ -39,7 +43,7 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   of the Graphviz `overlap` attribute (`"scale"`, `"prism"`…).
 - `graph>dot` takes `:invert`: `t` draws white on black instead of black on
   white (`nil` by default).
-- `dendrogram>dot (dendrogram out &key width step invert)`: draws a
+- `dendrogram>dot (dendrogram &key out width step invert)`: draws a
   dendrogram of `graph-dendrogram`, or a list of them, in dot with the
   position of each point, for `neato -n2`: the leaves on the left, each
   fusion at the abscissa of its distance, and a scale of the distances.
@@ -79,6 +83,10 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 
 ### Changed
 
+- `graph>dot` and `dendrogram>dot` take their output as the key `:out`,
+  as `seq>plot`, instead of a required argument: `nil` (by default) or `t`
+  prints in the listener, a stream is written into, a path writes the file.
+  `(graph>dot graph "g.png")` becomes `(graph>dot graph :out "g.png")`.
 - `graph>dendrogram` is renamed `graph-dendrogram`: it computes a
   classification (an analysis), as `graph-span` or `graph-part` do, while
   `>` is kept for the changes of representation without analysis

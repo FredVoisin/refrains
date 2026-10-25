@@ -583,9 +583,9 @@ Experimental.
 ```
 
 The dendrogram is drawn with
-[`dendrogram>dot`](#dendrogramdot-dendrogram-out-key-width-step-invert) (see
+[`dendrogram>dot`](#dendrogramdot-dendrogram-key-out-width-step-invert) (see
 [4](#4-reading-and-writing-files)), and the graph with
-[`graph>dot`](#graphdot-graph-out-key-dis-scale-shape-legend-overlap-invert).
+[`graph>dot`](#graphdot-graph-key-out-dis-scale-shape-legend-overlap-invert).
 
 **Ward's linkage.** At each step, Ward's linkage (Ward, 1963) merges the two
 groups whose union increases the least the *within-group inertia*, the sum
@@ -1510,29 +1510,35 @@ strings, or symbols with spaces, commas or semicolons, are quoted).
 
 Prints each element of a list on its own line, indented by depth.
 
-#### `seq>plot (seq &key dimension start duration width height stream)`
+#### `seq>plot (seq &key out dimension start duration width height mode labels)`
 
-Draws a sequence with characters, to see its shape in the listener
-(Emacs/SLIME) or in a terminal, for example through ssh, without any other
-dependency. It is a preview, not a figure: `seq` is a list of events sorted
-by time, each a list `(time value₀ value₁ …)`. The time is drawn in x,
-proportionally (columns stay empty where there is no event), and the value of
-the dimension `:dimension` (0 by default, `(nth dimension (cdr event))`, a
-number) in y, between its maximum (written above) and its minimum (written
-below); under the plot are written the times of the beginning and of the end
-of the window. Each column marks all the events of its time span: when there
-are more events than columns, it shows their whole range, and no extremum is
-lost.
+Draws a sequence, with characters to see its shape in the listener
+(Emacs/SLIME) or in a terminal, for example through ssh, or in an SVG image,
+without any other dependency. `seq` is a list of events sorted by time, each
+a list `(time value₀ value₁ …)`. The time is drawn in x, proportionally
+(columns stay empty where there is no event), and the value of the dimension
+`:dimension` (0 by default, `(nth dimension (cdr event))`, a number) in y,
+between its maximum (written above) and its minimum (written below); under
+the plot are written the times of the beginning and of the end of the
+window. With characters, each column marks all the events of its time span:
+when there are more events than columns, it shows their whole range, and no
+extremum is lost.
 
+- `:out`: `nil` (by default) or `t` draws with characters in the listener; a
+  stream, into this stream; a path (string or pathname) writes an SVG image
+  in this file (of type `svg` when it has no type) and returns its name;
 - `:start` and `:duration`: the window to draw, from the time `:start` (the
   first event by default), during `:duration` (until the last event by
   default);
-- `:width` and `:height`: the size of the plot in characters (72 and 16 by
-  default);
-- `:stream`: where to draw (the listener by default).
+- `:width` and `:height`: the size of the plot, in characters (72 and 16 by
+  default), or in pixels for SVG (720 and 240 by default);
+- `:mode`: for SVG, `:line` (by default) joins the events, `:points` draws a
+  point by event;
+- `:labels`: `t` (by default) writes the maximum, the minimum, and the times
+  of the beginning and of the end of the window; `nil` leaves the plot alone.
 
-An event that is not a list, a time or a value that is not a number, or a
-window without events are errors.
+An event that is not a list, a time or a value that is not a number, a
+window without events, or another `:mode` are errors.
 
 ```lisp
 (seq>plot '((0 60) (1 62) (2 64) (3 62) (5 67) (6 65) (7 64) (8 60))
@@ -1562,10 +1568,18 @@ window without events are errors.
 0      3
 ```
 
+```lisp
+(seq>plot '((0 60) (1 62) (2 64) (3 62) (5 67) (6 65) (7 64) (8 60))
+          :out "doc/pictures/seq-plot.svg")
+;=> "doc/pictures/seq-plot.svg"
+```
+
+![The sequence, in SVG](pictures/seq-plot.svg)
+
 A sequence of numbers becomes a sequence of events by adding their position
 as time: `(loop for y in ys for i from 0 collect (list i y))`.
 
-#### `graph>dot (graph out &key dis scale shape legend overlap invert)`
+#### `graph>dot (graph &key out dis scale shape legend overlap invert)`
 
 Draws an undirected graph in the **dot** format.
 
@@ -1585,11 +1599,11 @@ neato is part of [Graphviz](https://graphviz.org/)
 
 Arguments:
 
-- `out`: `t` or `nil` prints the dot text to the listener; a stream writes to
-  it; a pathname writes a `.dot` file and, unless its type is `dot`, also
-  runs `neato` to make the image in the format of its type (`svg`, `pdf`,
-  `png`, `gif`..., `png` without type). If `neato` cannot be run, the `.dot`
-  file is still written, and an error says so.
+- `:out`: `nil` (by default) or `t` prints the dot text to the listener; a
+  stream writes to it; a pathname writes a `.dot` file and, unless its type is
+  `dot`, also runs `neato` to make the image in the format of its type (`svg`,
+  `pdf`, `png`, `gif`..., `png` without type). If `neato` cannot be run, the
+  `.dot` file is still written, and an error says so.
 - `:dis`: how much the drawing may distort the lengths (0.0–1.0), passed to
   `neato` as the `w` attribute of the edges.
 - `:scale`: scale of the shortest edge, for drawing the edges of length 0
@@ -1610,13 +1624,13 @@ Edges of length 0 are drawn in blue, with the length of the shortest other
 edge times `:scale` (or `:scale` if all the edges have length 0).
 
 ```lisp
-(graph>dot '((a b 1) (a c 2) (b d 0)) "/tmp/graph.png")
+(graph>dot '((a b 1) (a c 2) (b d 0)) :out "/tmp/graph.png")
 ;=> "/tmp/graph.png"     ; writes /tmp/graph.dot and /tmp/graph.png
 ```
 
 The dot file can also be drawn by hand: `neato -Tpng graph.dot -o graph.png`.
 
-#### `dendrogram>dot (dendrogram out &key width step invert)`
+#### `dendrogram>dot (dendrogram &key out width step invert)`
 
 Draws a dendrogram, as returned by `graph-dendrogram`
 (`(distance tree-a tree-b)`), or a list of dendrograms (for a graph not
@@ -1626,16 +1640,16 @@ scale of the distances, graduated by 1, 2 or 5 times a power of 10, is drawn
 under the leaves. The dot file gives the position of each point: it is drawn
 with `neato -n2`.
 
-- `out`: as for `graph>dot`, `t` or `nil` prints the dot text, a stream is
-  written into, and a path writes a `.dot` file and, unless its type is
-  `dot`, runs `neato -n2` to make the image in the format of its type (`png`
+- `:out`: as for `graph>dot`, `nil` (by default) or `t` prints the dot text, a
+  stream is written into, and a path writes a `.dot` file and, unless its type
+  is `dot`, runs `neato -n2` to make the image in the format of its type (`png`
   without type).
 - `:width`: width of the scale, in points (700 by default).
 - `:step`: space between two leaves, in points (16 by default).
 - `:invert`: `t` draws white on black (`nil` by default).
 
 ```lisp
-(dendrogram>dot (nth-value 1 (graph-dendrogram *m*)) "/tmp/dendrogram.png")
+(dendrogram>dot (nth-value 1 (graph-dendrogram *m*)) :out "/tmp/dendrogram.png")
 ;=> "/tmp/dendrogram.png"   ; writes /tmp/dendrogram.dot and .png
 ```
 

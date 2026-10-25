@@ -138,9 +138,9 @@ les nombres et les symboles d'une lettre (a, b, x...)."
 ;;; nœuds : avec :overlap nil, neato écarte les nœuds qui se chevaucheraient ;
 ;;; :invert t trace en blanc sur noir.
 
-(graph>dot *names-tree* (namestring (merge-pathnames "refrains-names.png" *pictures*))
+(graph>dot *names-tree* :out (namestring (merge-pathnames "refrains-names.png" *pictures*))
            :overlap nil :invert t)
-(graph>dot *docstrings-tree* (namestring (merge-pathnames "refrains-docstrings.png" *pictures*))
+(graph>dot *docstrings-tree* :out (namestring (merge-pathnames "refrains-docstrings.png" *pictures*))
            :overlap nil :invert t)
 
 ;;; 4. Les dendrogrammes de chaque arbre : graph-dendrogram (lien simple) range les
@@ -148,8 +148,8 @@ les nombres et les symboles d'une lettre (a, b, x...)."
 ;;; gauche et chaque fusion à l'abscisse de sa distance, et appelle neato -n2.
 
 (dendrogram>dot (nth-value 1 (graph-dendrogram *names-tree*))
-                (namestring (merge-pathnames "refrains-names-dendrogram.png" *pictures*))
+                :out (namestring (merge-pathnames "refrains-names-dendrogram.png" *pictures*))
                 :invert t)
 (dendrogram>dot (nth-value 1 (graph-dendrogram *docstrings-tree*))
-                (namestring (merge-pathnames "refrains-docstrings-dendrogram.png" *pictures*))
+                :out (namestring (merge-pathnames "refrains-docstrings-dendrogram.png" *pictures*))
                 :invert t)
