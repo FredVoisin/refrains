@@ -26,18 +26,18 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `histogram`, topology of the maps, segmentation of the song with
   `dist-hamming`).
 
-- `graph>dot` takes `:overlap`: `t` (by default) lets the nodes overlap, as
-  before; `nil` makes neato move them apart (graph attribute
-  `overlap=false`), useful when the lengths are short compared with the
-  names of the nodes, such as distances from 0 to 1; a string is the value
-  of the Graphviz `overlap` attribute (`"scale"`, `"prism"`…).
-- `graph>dot` takes `:invert`: `t` draws white on black instead of black on
 - `seq>plot` draws a sequence of events `(time value ...)` with characters,
   to see its shape in the listener or in a terminal, without any dependency:
   the time in x, proportionally, a dimension of the events in y, between its
   minimum and its maximum; `:start` and `:duration` choose the window,
   `:width` and `:height` the size of the plot. Each column marks all the
   events of its time span, so that no extremum is lost.
+- `graph>dot` takes `:overlap`: `t` (by default) lets the nodes overlap, as
+  before; `nil` makes neato move them apart (graph attribute
+  `overlap=false`), useful when the lengths are short compared with the
+  names of the nodes, such as distances from 0 to 1; a string is the value
+  of the Graphviz `overlap` attribute (`"scale"`, `"prism"`…).
+- `graph>dot` takes `:invert`: `t` draws white on black instead of black on
   white (`nil` by default).
 - `dendrogram>dot (dendrogram out &key width step invert)`: draws a
   dendrogram of `graph-dendrogram`, or a list of them, in dot with the
