@@ -210,4 +210,47 @@ from index 0; an element which is a list is flattened."
     (coll-entries liste out-stream))
   (format nil "~&~G" file))
 
+;;; PLOT : a sequence of events drawn with characters, for the listener or a terminal
+
+(defun plot-number (x)
+  "X written without useless decimals: an integer as such, otherwise with at most 3 decimals."
+  (if (integerp x)
+      (format nil "~D" x)
+      (let ((s (string-right-trim "0" (format nil "~,3F" x))))
+        (string-right-trim "." s))))
+
+(defun plot-events (events &key (dimension 0) start duration (width 72) (height 16)
+                                (stream *standard-output*))
+  "Draws EVENTS, a list of events (time value0 value1 ...) sorted by time, with characters on STREAM:
+the time in x, proportionally (empty columns where there is no event), and (nth DIMENSION (cdr event))
+in y, between its maximum (above) and its minimum (below), on WIDTH columns and HEIGHT rows. Each
+column marks all the events of its time span, so that no extremum is lost. The window begins at the
+time START (the first event by default) and lasts DURATION (until the last event by default)."
+  (dolist (e events)
+    (unless (and (consp e) (realp (car e)) (realp (nth dimension (cdr e))))
+      (error "seq>plot: ~S is not an event (time value ...) with a number as value ~D." e dimension)))
+  (let* ((start (or start (car (first events))))
+         (end (if duration (+ start duration) (car (car (last events)))))
+         (window (remove-if-not (lambda (e) (<= start (car e) end)) events)))
+    (when (null window)
+      (error "seq>plot: no event between the times ~S and ~S." start end))
+    (let* ((ys (mapcar (lambda (e) (nth dimension (cdr e))) window))
+           (lo (reduce #'min ys)) (hi (reduce #'max ys))
+           (span (if (= hi lo) 1 (- hi lo)))
+           (time-span (if (= end start) 1 (- end start)))
+           (grid (make-array (list height width) :initial-element #\Space)))
+      (loop for e in window for y in ys
+            do (let ((col (min (1- width) (floor (* width (- (car e) start)) time-span)))
+                     (row (round (* (1- height) (/ (- y lo) span)))))
+                 (setf (aref grid (- height 1 row) col) #\*)))
+      (format stream "~&~A~%" (plot-number hi))
+      (dotimes (r height)
+        (dotimes (c width) (write-char (aref grid r c) stream))
+        (terpri stream))
+      (format stream "~A~%" (plot-number lo))
+      ;; the times of the beginning and of the end of the window, under the plot
+      (let ((left (plot-number start)) (right (plot-number end)))
+        (format stream "~A~V@A~%" left (max (1+ (length right)) (- width (length left))) right))
+      (values))))
+
 ;;; eof

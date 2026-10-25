@@ -60,6 +60,6 @@
    #:histogram #:entropy #:self-info #:inner-dynamic
    #:graph-length
    ;; 4. read/write
-   #:read-text #:write-list #:display-list #:graph>dot #:dendrogram>dot
+   #:read-text #:write-list #:display-list #:seq>plot #:graph>dot #:dendrogram>dot
    ;; documentation
    #:help #:doc))

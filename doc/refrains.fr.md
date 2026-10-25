@@ -281,7 +281,7 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
 ;;  3.3 QUANTIFIER : information propre, diversité
        histogram, entropy, self-info, inner-dynamic, graph-length
 ;;; 4. LIRE/ÉCRIRE des fichiers
-       read-text, write-list, display-list, graph>dot, dendrogram>dot
+       read-text, write-list, display-list, seq>plot, graph>dot, dendrogram>dot
 ```
 
 Dans le REPL, `(doc)` liste les fonctions documentées et `(doc 'dist-edit)`
@@ -1601,6 +1601,61 @@ virgules ou des points-virgules, sont mis entre guillemets).
 Affiche chaque élément d'une liste sur sa propre ligne, indenté selon sa
 profondeur.
 
+#### `seq>plot (seq &key dimension start duration width height stream)`
+
+Dessine une suite avec des caractères, pour en voir l'allure dans le listener
+(Emacs/SLIME) ou dans un terminal, par exemple en ssh, sans autre dépendance.
+C'est un aperçu, non une figure : `seq` est une liste d'évènements classés
+chronologiquement, chacun une liste `(temps valeur₀ valeur₁ …)`. Le temps est
+tracé en x, proportionnellement (les colonnes restent vides là où il n'y a pas
+d'évènement), et la valeur de la dimension `:dimension` (0 par défaut,
+`(nth dimension (cdr évènement))`, un nombre) en y, entre son maximum (écrit en
+haut) et son minimum (écrit en bas) ; sous le tracé sont écrits le temps du
+début et celui de la fin de la fenêtre. Chaque colonne marque tous les
+évènements de son intervalle de temps : quand il y a plus d'évènements que de
+colonnes, elle en montre toute l'étendue, et aucun extremum ne se perd.
+
+- `:start` et `:duration` : la fenêtre à tracer, à partir du temps `:start`
+  (le premier évènement par défaut), pendant `:duration` (jusqu'au dernier
+  évènement par défaut) ;
+- `:width` et `:height` : la taille du tracé en caractères (72 et 16 par
+  défaut) ;
+- `:stream` : où dessiner (le listener par défaut).
+
+Un évènement qui n'est pas une liste, un temps ou une valeur qui n'est pas un
+nombre, ou une fenêtre sans évènement sont des erreurs.
+
+```lisp
+(seq>plot '((0 60) (1 62) (2 64) (3 62) (5 67) (6 65) (7 64) (8 60))
+          :width 18 :height 5)
+```
+```
+67
+           *      
+             *    
+    *          *  
+  *   *           
+*                *
+60
+0                8
+```
+
+```lisp
+(seq>plot '((0 60 0.2) (1 62 0.8) (2 64 0.5) (3 62 0.9))
+          :dimension 1 :width 8 :height 3)
+```
+```
+0.9
+  *    *
+     *  
+*       
+0.2
+0      3
+```
+
+Une suite de nombres devient une suite d'évènements en lui ajoutant leur
+position comme temps : `(loop for y in ys for i from 0 collect (list i y))`.
+
 #### `graph>dot (graph out &key dis scale shape legend overlap invert)`
 
 Trace un graphe non orienté au format **dot**.
@@ -1780,7 +1835,7 @@ rougequeue noir).
 
 ## Liste des fonctions
 
-La liste des 52 fonctions exportées, avec leurs arguments et leur docstring, est
+La liste des 53 fonctions exportées, avec leurs arguments et leur docstring, est
 dans
 [refrains-fonctions.fr.md](refrains-fonctions.fr.md).
 

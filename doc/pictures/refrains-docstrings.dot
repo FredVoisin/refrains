@@ -1,5 +1,5 @@
 graph "refrains-docstrings" {
-/* generated with refrains:graph>dot, 25 Oct 2026 1:57:47 */
+/* generated with refrains:graph>dot, 25 Oct 2026 13:40:23 */
  graph [overlap="false", sep="+4"];
  graph [bgcolor=black];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
@@ -18,8 +18,8 @@ graph "refrains-docstrings" {
  "dist-graph" -- "graph-degree" [w=1, len=0.720000, label="0.72"];
  "dist-graph" -- "graph-path" [w=1, len=0.720000, label="0.72"];
  "motif-list" -- "motif-structure" [w=1, len=0.720000, label="0.72"];
+ "dendrogram>dot" -- "graph>dot" [w=1, len=0.750000, label="0.75"];
  "class-sym" -- "motif-position" [w=1, len=0.760000, label="0.76"];
- "dendrogram>dot" -- "graph>dot" [w=1, len=0.760000, label="0.76"];
  "dist-edit" -- "motif-position" [w=1, len=0.780000, label="0.78"];
  "dist-structure" -- "mark-structure" [w=1, len=0.780000, label="0.78"];
  "mark-structure" -- "motif-list" [w=1, len=0.780000, label="0.78"];
@@ -45,6 +45,7 @@ graph "refrains-docstrings" {
  "graph-dendrogram" -- "graph-length" [w=1, len=0.850000, label="0.85"];
  "graph-length" -- "graph-part" [w=1, len=0.850000, label="0.85"];
  "dist-euclidean" -- "dist-multi-edit" [w=1, len=0.860000, label="0.86"];
+ "filt-extrema" -- "seq>plot" [w=1, len=0.860000, label="0.86"];
  "filt-repeat" -- "transcode" [w=1, len=0.860000, label="0.86"];
  "transcode" -- "write-list" [w=1, len=0.860000, label="0.86"];
  "dendrogram>dot" -- "graph-dendrogram" [w=1, len=0.870000, label="0.87"];

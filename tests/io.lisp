@@ -130,3 +130,41 @@
         (is (equal '(3 4.5 abc) (third r))))))
   (signals reader-error (refrains::safe-read-from-string "#.(+ 1 2)"))
   (is (= 3 (refrains::safe-read-from-string "3"))))
+
+(test seq>plot
+  (flet ((plot (seq &rest keys)
+           (with-output-to-string (s) (apply #'seq>plot seq :stream s keys)))
+         (lines (string)
+           (uiop:split-string (string-right-trim '(#\Newline) string) :separator '(#\Newline))))
+    (let* ((events (loop for i below 10 collect (list i i)))   ; (time value), increasing
+           (l (lines (plot events :width 10 :height 5))))
+      ;; the maximum, 5 rows, the minimum, the times
+      (is (= 8 (length l)))
+      (is (string= "9" (first l)))
+      (is (string= "0" (seventh l)))
+      (is (string= "0        9" (eighth l)))
+      (is (= 10 (count #\* (format nil "~{~A~}" (subseq l 1 6)))))
+      ;; the first event at the bottom left, the last one at the top right
+      (is (char= #\* (char (sixth l) 0)))
+      (is (char= #\* (char (second l) 9))))
+    ;; the time in x, proportionally: an event at time 0 and one at time 9 on 10 columns
+    (let ((l (lines (plot '((0 1) (9 2)) :width 10 :height 2))))
+      (is (string= "         *" (second l)))
+      (is (string= "*         " (third l))))
+    ;; the dimension: (nth dimension (cdr event))
+    (is (search "30" (plot '((0 1 10) (1 2 30)) :dimension 1 :width 4 :height 2)))
+    ;; the window: from the time 5, during 2
+    (is (string= "7" (first (lines (plot (loop for i below 10 collect (list i i))
+                                              :start 5 :duration 2 :width 3 :height 3)))))
+    ;; more events than columns: each column marks all its events, the extrema are kept
+    (is (search "100" (plot (loop for i below 1000 collect (list i (if (= i 501) 100 0)))
+                                :width 10 :height 4)))
+    ;; the times of the window stay apart, even on a narrow plot
+    (is (string= "0.25 3" (car (last (lines (plot '((1/4 1) (3 2)) :width 4 :height 2))))))
+    ;; numbers without useless decimals
+    (let ((l (lines (plot '((0 1.25) (1 2.5)) :width 4 :height 2))))
+      (is (equal '("2.5" "1.25") (list (first l) (fourth l)))))
+    (signals error (plot '((0 a))))
+    (signals error (plot '(1 2 3)))
+    (signals error (plot '((0 1) (1 2)) :start 5))))
+

@@ -237,7 +237,7 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
 ;;  3.3 QUANTIFY : self information, diversity
        histogram, entropy, self-info, inner-dynamic, graph-length
 ;;; 4. READ/WRITE files
-       read-text, write-list, display-list, graph>dot, dendrogram>dot
+       read-text, write-list, display-list, seq>plot, graph>dot, dendrogram>dot
 ```
 
 In the REPL, `(doc)` lists the documented functions and `(doc 'dist-edit)`
@@ -1510,6 +1510,61 @@ strings, or symbols with spaces, commas or semicolons, are quoted).
 
 Prints each element of a list on its own line, indented by depth.
 
+#### `seq>plot (seq &key dimension start duration width height stream)`
+
+Draws a sequence with characters, to see its shape in the listener
+(Emacs/SLIME) or in a terminal, for example through ssh, without any other
+dependency. It is a preview, not a figure: `seq` is a list of events sorted
+by time, each a list `(time value₀ value₁ …)`. The time is drawn in x,
+proportionally (columns stay empty where there is no event), and the value of
+the dimension `:dimension` (0 by default, `(nth dimension (cdr event))`, a
+number) in y, between its maximum (written above) and its minimum (written
+below); under the plot are written the times of the beginning and of the end
+of the window. Each column marks all the events of its time span: when there
+are more events than columns, it shows their whole range, and no extremum is
+lost.
+
+- `:start` and `:duration`: the window to draw, from the time `:start` (the
+  first event by default), during `:duration` (until the last event by
+  default);
+- `:width` and `:height`: the size of the plot in characters (72 and 16 by
+  default);
+- `:stream`: where to draw (the listener by default).
+
+An event that is not a list, a time or a value that is not a number, or a
+window without events are errors.
+
+```lisp
+(seq>plot '((0 60) (1 62) (2 64) (3 62) (5 67) (6 65) (7 64) (8 60))
+          :width 18 :height 5)
+```
+```
+67
+           *      
+             *    
+    *          *  
+  *   *           
+*                *
+60
+0                8
+```
+
+```lisp
+(seq>plot '((0 60 0.2) (1 62 0.8) (2 64 0.5) (3 62 0.9))
+          :dimension 1 :width 8 :height 3)
+```
+```
+0.9
+  *    *
+     *  
+*       
+0.2
+0      3
+```
+
+A sequence of numbers becomes a sequence of events by adding their position
+as time: `(loop for y in ys for i from 0 collect (list i y))`.
+
 #### `graph>dot (graph out &key dis scale shape legend overlap invert)`
 
 Draws an undirected graph in the **dot** format.
@@ -1676,7 +1731,7 @@ fundamental frequency, sonogram of the black redstart).
 
 ## List of functions
 
-The list of the 52 exported functions, with their arguments and docstrings, is
+The list of the 53 exported functions, with their arguments and docstrings, is
 in [refrains-functions.md](refrains-functions.md).
 
 Two minimum spanning trees link these functions by their names and by their

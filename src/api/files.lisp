@@ -51,6 +51,22 @@ Additional Keyword :rem-test defines a function to remove choosen words."))
   (declare (ignore recursive))
   (list-display list))
   
+(defgeneric seq>plot (seq &key dimension start duration width height stream)
+  (:documentation "SEQ>PLOT: draws the sequence <seq> with characters, to see its shape in the listener or a terminal.
+<seq> is a list of events sorted by time, each event a list (time value0 value1 ...): the time is drawn in x,
+proportionally (empty columns where there is no event), and the value of the dimension :dimension (0 by default,
+(nth dimension (cdr event)), a number) in y, between its maximum (above) and its minimum (below); the times of the
+beginning and of the end of the window are written under the plot. Each column marks all the events of its time
+span, so that no extremum is lost.
+:start and :duration: the window to draw, from the time :start (the first event by default) during :duration
+(until the last event by default); :width and :height: the size of the plot in characters (72 and 16 by default);
+:stream: where to draw (the listener by default)."))
+
+(defmethod seq>plot ((seq list) &key (dimension 0) start duration (width 72) (height 16)
+                                     (stream *standard-output*))
+  (plot-events seq :dimension dimension :start start :duration duration
+                   :width width :height height :stream stream))
+
 (defgeneric write-list (list file &optional mode)
   (:documentation "WRITE-LIST: write list to a file using following optional argument <mode> format:
 :flat (by default) : each element of list is written in a new line, sub-lists without parentheses (as read by read-text)

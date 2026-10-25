@@ -1,5 +1,5 @@
 graph "refrains-names" {
-/* generated with refrains:graph>dot, 25 Oct 2026 1:57:46 */
+/* generated with refrains:graph>dot, 25 Oct 2026 13:40:23 */
  graph [overlap="false", sep="+4"];
  graph [bgcolor=black];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
@@ -51,8 +51,9 @@ graph "refrains-names" {
  "filt-function" -- "self-info" [w=1, len=0.690000, label="0.69"];
  "dist-graph" -- "entropy" [w=1, len=0.700000, label="0.7"];
  "dist-multi-edit" -- "exsample" [w=1, len=0.730000, label="0.73"];
+ "display-list" -- "seq>plot" [w=1, len=0.750000, label="0.75"];
+ "help" -- "seq>plot" [w=1, len=0.750000, label="0.75"];
  "num>base" -- "separate" [w=1, len=0.750000, label="0.75"];
  "class-num" -- "inner-dynamic" [w=1, len=0.770000, label="0.77"];
  "doc" -- "graph>dot" [w=1, len=0.780000, label="0.78"];
- "help" -- "num>alpha" [w=1, len=0.780000, label="0.78"];
 }
