@@ -18,6 +18,13 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   resemblance of its hidden neurons (Ward), the topology of a self-organizing
   map trained on the song of a chaffinch, and its sequences of winning
   neurons compared by edit distance, the DTW considered in neuromuse.
+- Example: comparing neural networks (`doc/exemples/neuromuse-comparaison.md`,
+  `doc/lisp/neuromuse-comparaison.lisp`): six MLPs and three self-organizing
+  maps of neuromuse learning the same thing from different draws, compared
+  before and after learning by what does not depend on the numbering of
+  their neurons (geometry of the hidden layer, roles of the neurons with
+  `histogram`, topology of the maps, segmentation of the song with
+  `dist-hamming`).
 
 - `graph>dot` takes `:overlap`: `t` (by default) lets the nodes overlap, as
   before; `nil` makes neato move them apart (graph attribute

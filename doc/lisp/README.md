@@ -13,6 +13,10 @@ de refrains (`doc-lisp-license`) le vérifie.
 - [neuromuse-graphs.lisp](neuromuse-graphs.lisp) : les réseaux de neurones de
   neuromuse étudiés comme graphes, présentés dans l'exemple
   [Arbres de réseaux de neurones](../exemples/neuromuse.md).
+- [neuromuse-comparaison.lisp](neuromuse-comparaison.lisp) : plusieurs réseaux de
+  neurones de neuromuse qui apprennent la même chose, comparés avant et après
+  l'apprentissage, présentés dans l'exemple
+  [Comparer des réseaux de neurones](../exemples/neuromuse-comparaison.md).
 
 ---
 

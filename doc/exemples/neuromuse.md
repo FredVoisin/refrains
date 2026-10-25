@@ -70,6 +70,10 @@ pourrait tenir compte de leur distance sur la grille.
 
 ![Arbre de recouvrement minimal des prototypes de la carte apprise sur le chant du pinson](../pictures/neuromuse-pinson.png)
 
+Voir aussi [Comparer des réseaux de neurones](neuromuse-comparaison.md) :
+plusieurs réseaux qui apprennent la même chose, comparés avant et après
+l'apprentissage.
+
 ## Le code
 
 Le code est la documentation.

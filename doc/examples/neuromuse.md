@@ -69,6 +69,9 @@ their distance on the grid into account.
 
 ![Minimum spanning tree of the prototypes of the map trained on the song of the chaffinch](../pictures/neuromuse-pinson.png)
 
+See also [Comparing neural networks](neuromuse-comparaison.md): several
+networks learning the same thing, compared before and after learning.
+
 ## The code
 
 The code is the documentation (its comments are in French).
