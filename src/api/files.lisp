@@ -51,7 +51,7 @@ Additional Keyword :rem-test defines a function to remove choosen words."))
   (declare (ignore recursive))
   (list-display list))
   
-(defgeneric seq>plot (seq &key out dimension start duration width height mode labels)
+(defgeneric seq>plot (seq &key out dimension start duration low high width height mode labels)
   (:documentation "SEQ>PLOT: draws the sequence <seq>, with characters to see its shape in the listener or a terminal,
 or in an SVG image. <seq> is a list of events sorted by time, each event a list (time value0 value1 ...): the time is
 drawn in x, proportionally (empty columns where there is no event), and the value of the dimension :dimension (0 by
@@ -60,17 +60,19 @@ marks all the events of its time span, so that no extremum is lost.
 :out : NIL (by default) or T, draws with characters in the listener; a stream, draws with characters into it; a string
 or a pathname, writes an SVG image in this file (of type svg when it has no type) and returns its name.
 :start and :duration: the window to draw, from the time :start (the first event by default) during :duration
-(until the last event by default); :width and :height: the size of the plot, in characters (72 and 16 by default)
+(until the last event by default); :low and :high: the bottom and the top of the plot, to zoom in y (the minimum
+and the maximum of the values by default), the values outside them are not drawn; :width and :height: the size of the plot, in characters (72 and 16 by default)
 or in pixels for SVG (720 and 240 by default).
 :mode : for SVG, :line (by default) joins the events, :points draws a point by event.
-:labels : T (by default) writes the maximum, the minimum and the times of the beginning and the end of the window;
+:labels : T (by default) writes the bottom, the top and the times of the beginning and the end of the window;
 NIL draws the plot alone."))
 
-(defmethod seq>plot ((seq list) &key out (dimension 0) start duration width height (mode :line) (labels t))
+(defmethod seq>plot ((seq list) &key out (dimension 0) start duration low high width height (mode :line)
+                                     (labels t))
   (if (or (stringp out) (pathnamep out))
-      (plot-svg seq out :dimension dimension :start start :duration duration
+      (plot-svg seq out :dimension dimension :start start :duration duration :low low :high high
                         :width (or width 720) :height (or height 240) :mode mode :labels labels)
-      (plot-chars seq :dimension dimension :start start :duration duration
+      (plot-chars seq :dimension dimension :start start :duration duration :low low :high high
                       :width (or width 72) :height (or height 16) :labels labels
                       :stream (if (streamp out) out *standard-output*))))
 

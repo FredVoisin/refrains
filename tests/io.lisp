@@ -156,6 +156,17 @@
     ;; the window: from the time 5, during 2
     (is (string= "7" (first (lines (plot (loop for i below 10 collect (list i i))
                                               :start 5 :duration 2 :width 3 :height 3)))))
+    ;; the zoom in y: from 2 to 6, the values outside are not drawn
+    (let ((l (lines (plot (loop for i below 9 collect (list i i)) :low 2 :high 6 :width 9 :height 5))))
+      (is (string= "6" (first l)))
+      (is (string= "2" (seventh l)))
+      (is (string= "      *  " (second l)))
+      (is (string= "  *      " (sixth l)))
+      (is (= 5 (count #\* (format nil "~{~A~}" (subseq l 1 6))))))
+    ;; one bound only, the other one from the values
+    (is (string= "10" (first (lines (plot '((0 1) (1 2)) :high 10 :width 4 :height 2)))))
+    (signals error (plot '((0 1) (1 2)) :low 5 :high 3))
+    (signals error (plot '((0 1) (1 2)) :low 'a))
     ;; more events than columns: each column marks all its events, the extrema are kept
     (is (search "100" (plot (loop for i below 1000 collect (list i (if (= i 501) 100 0)))
                                 :width 10 :height 4)))
@@ -181,7 +192,13 @@
         (is (= 1 (count-substring "<polyline" svg)))
         (is (search ">67</text>" svg))
         (is (search ">60</text>" svg))
-        (is (search ">5</text>" svg)))
+        (is (search ">5</text>" svg))
+        (is (search "clip-path" svg)))
+      ;; zoom in y: the bounds are written
+      (seq>plot events :out tmp :low 50 :high 70)
+      (let ((svg (uiop:read-file-string tmp)))
+        (is (search ">70</text>" svg))
+        (is (search ">50</text>" svg)))
       ;; points, size, no labels
       (seq>plot events :out (namestring tmp) :mode :points :width 300 :height 100 :labels nil)
       (let ((svg (uiop:read-file-string tmp)))

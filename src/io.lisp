@@ -222,10 +222,11 @@ from index 0; an element which is a list is flattened."
       (let ((s (string-right-trim "0" (format nil "~,3F" x))))
         (string-right-trim "." s))))
 
-(defun plot-window (events dimension start duration)
+(defun plot-window (events dimension start duration low high)
   "The events of EVENTS between the time START (the first event by default) and START + DURATION (the
-last event by default). Returns the events, their values (nth DIMENSION (cdr event)), the minimum and
-the maximum of the values, and the times of the beginning and of the end of the window."
+last event by default). Returns the events, their values (nth DIMENSION (cdr event)), the bottom and
+the top of the plot (LOW and HIGH, by default the minimum and the maximum of the values), and the times
+of the beginning and of the end of the window."
   (dolist (e events)
     (unless (and (consp e) (realp (car e)) (realp (nth dimension (cdr e))))
       (error "seq>plot: ~S is not an event (time value ...) with a number as value ~D." e dimension)))
@@ -234,21 +235,30 @@ the maximum of the values, and the times of the beginning and of the end of the 
          (window (remove-if-not (lambda (e) (<= start (car e) end)) events)))
     (when (null window)
       (error "seq>plot: no event between the times ~S and ~S." start end))
-    (let ((ys (mapcar (lambda (e) (nth dimension (cdr e))) window)))
-      (values window ys (reduce #'min ys) (reduce #'max ys) start end))))
+    (dolist (y (list low high))
+      (unless (or (null y) (realp y))
+        (error "seq>plot: the bound ~S is not a number." y)))
+    (let* ((ys (mapcar (lambda (e) (nth dimension (cdr e))) window))
+           (lo (or low (reduce #'min ys)))
+           (hi (or high (reduce #'max ys))))
+      (when (> lo hi)
+        (error "seq>plot: the bottom ~S is above the top ~S." lo hi))
+      (values window ys lo hi start end))))
 
-(defun plot-chars (events &key (dimension 0) start duration (width 72) (height 16) (labels t)
+(defun plot-chars (events &key (dimension 0) start duration low high (width 72) (height 16) (labels t)
                                (stream *standard-output*))
   "Draws EVENTS, a list of events (time value0 value1 ...) sorted by time, with characters on STREAM:
 the time in x, proportionally (empty columns where there is no event), and (nth DIMENSION (cdr event))
 in y, between its maximum (above) and its minimum (below), on WIDTH columns and HEIGHT rows. Each
-column marks all the events of its time span, so that no extremum is lost. With LABELS, the maximum,
-the minimum and the times of the window are written."
-  (multiple-value-bind (window ys lo hi start end) (plot-window events dimension start duration)
+column marks all the events of its time span, so that no extremum is lost. LOW and HIGH zoom in y: the
+values outside them are not drawn. With LABELS, the bottom, the top and the times of the window are
+written."
+  (multiple-value-bind (window ys lo hi start end) (plot-window events dimension start duration low high)
     (let ((span (if (= hi lo) 1 (- hi lo)))
           (time-span (if (= end start) 1 (- end start)))
           (grid (make-array (list height width) :initial-element #\Space)))
       (loop for e in window for y in ys
+            when (<= lo y hi)
             do (let ((col (min (1- width) (floor (* width (- (car e) start)) time-span)))
                      (row (round (* (1- height) (/ (- y lo) span)))))
                  (setf (aref grid (- height 1 row) col) #\*)))
@@ -264,14 +274,14 @@ the minimum and the times of the window are written."
           (format stream "~A~V@A~%" left (max (1+ (length right)) (- width (length left))) right)))
       (values))))
 
-(defun plot-svg (events file &key (dimension 0) start duration (width 720) (height 240) (labels t)
-                                  (mode :line))
+(defun plot-svg (events file &key (dimension 0) start duration low high (width 720) (height 240)
+                                  (labels t) (mode :line))
   "Draws EVENTS as plot-chars, in an SVG image of WIDTH x HEIGHT pixels written to FILE (of type svg
 when it has no type): with MODE :line, a line joining the events, with :points, a point by event. With
-LABELS, the maximum, the minimum and the times of the window are written. Returns the name of the file."
+LABELS, the bottom, the top and the times of the window are written. Returns the name of the file."
   (unless (member mode '(:line :points))
     (error "seq>plot: the mode ~S is neither :line nor :points." mode))
-  (multiple-value-bind (window ys lo hi start end) (plot-window events dimension start duration)
+  (multiple-value-bind (window ys lo hi start end) (plot-window events dimension start duration low high)
     (let* ((file (if (pathname-type file) (pathname file) (make-pathname :type "svg" :defaults file)))
            (font 12)
            (left (if labels (+ 8 (* 0.6 font (max (length (plot-number hi)) (length (plot-number lo))))) 4))
@@ -290,10 +300,13 @@ LABELS, the maximum, the minimum and the times of the window are written. Return
         (format svg "<rect width=\"~D\" height=\"~D\" fill=\"white\"/>~%" width height)
         (format svg "<rect x=\"~,1F\" y=\"~,1F\" width=\"~,1F\" height=\"~,1F\" fill=\"none\" stroke=\"#bbbbbb\"/>~%"
                 left top (- right left) (- bottom top))
+        ;; what is outside the plot (values outside LOW and HIGH) is not drawn
+        (format svg "<clipPath id=\"plot\"><rect x=\"~,1F\" y=\"~,1F\" width=\"~,1F\" height=\"~,1F\"/></clipPath>~%"
+                left top (- right left) (- bottom top))
         (ecase mode
-          (:line (format svg "<polyline fill=\"none\" stroke=\"black\" stroke-width=\"1\" points=\"~{~{~,1F,~,1F~}~^ ~}\"/>~%"
+          (:line (format svg "<polyline clip-path=\"url(#plot)\" fill=\"none\" stroke=\"black\" stroke-width=\"1\" points=\"~{~{~,1F,~,1F~}~^ ~}\"/>~%"
                          points))
-          (:points (format svg "<g fill=\"black\">~%~{~{<circle cx=\"~,1F\" cy=\"~,1F\" r=\"1.5\"/>~}~%~}</g>~%"
+          (:points (format svg "<g fill=\"black\" clip-path=\"url(#plot)\">~%~{~{<circle cx=\"~,1F\" cy=\"~,1F\" r=\"1.5\"/>~}~%~}</g>~%"
                            points)))
         (when labels
           (format svg "<g font-family=\"monospace\" font-size=\"~D\" fill=\"black\">~%" font)

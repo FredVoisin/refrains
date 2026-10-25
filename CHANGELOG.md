@@ -31,8 +31,8 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   without any dependency: the time in x, proportionally, a dimension of the
   events in y, between its minimum and its maximum. `:out` chooses the
   output (`nil`, the listener, by default; a stream; or the path of the SVG
-  file), `:start` and `:duration` the window, `:width` and `:height` the
-  size of the plot, `:mode` (`:line` or `:points`) the drawing in SVG, and
+  file), `:start` and `:duration` the window, `:low` and `:high` the
+  bottom and the top (zoom in y), `:width` and `:height` the size of the plot, `:mode` (`:line` or `:points`) the drawing in SVG, and
   `:labels` whether the extrema and the times of the window are written.
   With characters, each column marks all the events of its time span, so
   that no extremum is lost.

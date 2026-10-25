@@ -1601,7 +1601,7 @@ virgules ou des points-virgules, sont mis entre guillemets).
 Affiche chaque élément d'une liste sur sa propre ligne, indenté selon sa
 profondeur.
 
-#### `seq>plot (seq &key out dimension start duration width height mode labels)`
+#### `seq>plot (seq &key out dimension start duration low high width height mode labels)`
 
 Dessine une suite, avec des caractères pour en voir l'allure dans le listener
 (Emacs/SLIME) ou dans un terminal, par exemple en ssh, ou dans une image SVG,
@@ -1623,15 +1623,19 @@ extremum ne se perd.
 - `:start` et `:duration` : la fenêtre à tracer, à partir du temps `:start`
   (le premier évènement par défaut), pendant `:duration` (jusqu'au dernier
   évènement par défaut) ;
+- `:low` et `:high` : le bas et le haut du tracé, pour zoomer en y (le minimum
+  et le maximum des valeurs par défaut) ; les valeurs en dehors ne sont pas
+  tracées ;
 - `:width` et `:height` : la taille du tracé, en caractères (72 et 16 par
   défaut), ou en pixels pour le SVG (720 et 240 par défaut) ;
 - `:mode` : pour le SVG, `:line` (par défaut) relie les évènements, `:points`
   trace un point par évènement ;
-- `:labels` : `t` (par défaut) écrit le maximum, le minimum, et les temps du
+- `:labels` : `t` (par défaut) écrit le haut, le bas, et les temps du
   début et de la fin de la fenêtre ; `nil` ne laisse que le tracé.
 
 Un évènement qui n'est pas une liste, un temps ou une valeur qui n'est pas un
-nombre, une fenêtre sans évènement, ou un autre `:mode` sont des erreurs.
+nombre, une fenêtre sans évènement, une borne `:low` ou `:high` qui n'est pas
+un nombre, un bas au-dessus du haut, ou un autre `:mode` sont des erreurs.
 
 ```lisp
 (seq>plot '((0 60) (1 62) (2 64) (3 62) (5 67) (6 65) (7 64) (8 60))

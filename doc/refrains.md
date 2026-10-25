@@ -1510,7 +1510,7 @@ strings, or symbols with spaces, commas or semicolons, are quoted).
 
 Prints each element of a list on its own line, indented by depth.
 
-#### `seq>plot (seq &key out dimension start duration width height mode labels)`
+#### `seq>plot (seq &key out dimension start duration low high width height mode labels)`
 
 Draws a sequence, with characters to see its shape in the listener
 (Emacs/SLIME) or in a terminal, for example through ssh, or in an SVG image,
@@ -1530,15 +1530,19 @@ extremum is lost.
 - `:start` and `:duration`: the window to draw, from the time `:start` (the
   first event by default), during `:duration` (until the last event by
   default);
+- `:low` and `:high`: the bottom and the top of the plot, to zoom in y (the
+  minimum and the maximum of the values by default); the values outside them
+  are not drawn;
 - `:width` and `:height`: the size of the plot, in characters (72 and 16 by
   default), or in pixels for SVG (720 and 240 by default);
 - `:mode`: for SVG, `:line` (by default) joins the events, `:points` draws a
   point by event;
-- `:labels`: `t` (by default) writes the maximum, the minimum, and the times
+- `:labels`: `t` (by default) writes the top, the bottom, and the times
   of the beginning and of the end of the window; `nil` leaves the plot alone.
 
 An event that is not a list, a time or a value that is not a number, a
-window without events, or another `:mode` are errors.
+window without events, a bound `:low` or `:high` that is not a number, a
+bottom above the top, or another `:mode` are errors.
 
 ```lisp
 (seq>plot '((0 60) (1 62) (2 64) (3 62) (5 67) (6 65) (7 64) (8 60))
