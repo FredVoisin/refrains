@@ -110,7 +110,10 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   into groups (single linkage), as `class-sym` does for sequences of
   symbols. The docstring of `class-sym` referred to `class-graph`, which
   does not exist: it refers to `graph-part`.
-- The docstring of `class-num` is reworded (it said "into s space").
+- The docstring of `class-num` is reworded (it said "into s space"); it
+  names the algorithm of both modes, Diday's dynamic clouds (*nuées
+  dynamiques*), from random initial centres (`:centroids`) or from initial
+  centres taken between the largest differences (`:1d-centroids`).
 - The docstring of `mark-structure` is reworded (it spoke of an "output
   menu", as in PWGL).
 - `graph-path` is in the section 3.1 (enumerate: find), after

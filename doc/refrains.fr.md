@@ -1036,8 +1036,8 @@ distincts. Les points doivent être tous des nombres, ou tous des listes du
 même nombre de coordonnées (sinon, c'est une erreur). Modes (`:centroids` ou
 `'centroids` ; un autre mode est une erreur) :
 
-- `:centroids` (ou `nil`) : méthode des centres mobiles (*nuées dynamiques*,
-  k-moyennes). Avec `:iter nil` (par défaut), le résultat est une liste
+- `:centroids` (ou `nil`) : méthode des nuées dynamiques de Diday (centres
+  mobiles, k-moyennes), à partir de centres initiaux tirés au hasard. Avec `:iter nil` (par défaut), le résultat est une liste
   formée de : la classe de chaque point de `data`, le centre de gravité de
   chaque classe, et le nombre d'itérations nécessaires à la convergence de
   l'algorithme. Les centres partant au hasard, les résultats peuvent varier :
@@ -1051,8 +1051,9 @@ même nombre de coordonnées (sinon, c'est une erreur). Modes (`:centroids` ou
 - `:1d-centroids` : classification d'une liste de nombres en une dimension
   (par exemple une variation d'intensité). Les données triées sont coupées à
   leurs `classes − 1` plus grandes différences successives (N+1 − N), et la
-  moyenne de chaque segment sert de centre initial à l'algorithme des centres
-  mobiles (méthode originale et empirique, Fred Voisin 2010) ; le résultat ne
+  moyenne de chaque segment sert de centre initial aux nuées dynamiques, le
+  même algorithme que `:centroids` (méthode originale et empirique, Fred
+  Voisin 2010) ; le résultat ne
   dépend pas de départs aléatoires. Il n'y a jamais plus de classes que de
   valeurs distinctes. `:dist` est alors une fonction appliquée aux
   différences successives, qui change la métrique de la différenciation :

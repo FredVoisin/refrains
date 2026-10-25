@@ -1,5 +1,5 @@
 graph "refrains-docstrings" {
-/* generated with refrains:graph>dot, 25 Oct 2026 15:57:05 */
+/* generated with refrains:graph>dot, 25 Oct 2026 15:57:19 */
  graph [overlap="false", sep="+4"];
  graph [bgcolor=black];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
@@ -23,11 +23,11 @@ graph "refrains-docstrings" {
  "dist-edit" -- "motif-position" [w=1, len=0.780000, label="0.78"];
  "dist-structure" -- "mark-structure" [w=1, len=0.780000, label="0.78"];
  "mark-structure" -- "motif-list" [w=1, len=0.780000, label="0.78"];
+ "class-num" -- "dist-euclidean" [w=1, len=0.790000, label="0.79"];
  "doc" -- "str>sym" [w=1, len=0.790000, label="0.79"];
  "entropy" -- "histogram" [w=1, len=0.790000, label="0.79"];
  "filt-function" -- "filt-median" [w=1, len=0.790000, label="0.79"];
  "alpha>num" -- "num>base" [w=1, len=0.800000, label="0.8"];
- "class-num" -- "dist-euclidean" [w=1, len=0.800000, label="0.8"];
  "filt-repeat" -- "mark-structure" [w=1, len=0.800000, label="0.8"];
  "mark-list" -- "mark-position" [w=1, len=0.810000, label="0.81"];
  "mark-list" -- "mark-structure" [w=1, len=0.810000, label="0.81"];

@@ -968,7 +968,8 @@ classes (1 or 0 give 2), and no more classes than distinct points. The points
 must all be numbers, or lists of the same number of coordinates (else it is an
 error). Modes (`:centroids` or `'centroids`; another mode is an error):
 
-- `:centroids` (or `nil`): centroid method (*nuées dynamiques*, k-means).
+- `:centroids` (or `nil`): Diday's dynamic clouds (*nuées dynamiques*;
+  moving centres, k-means), from random initial centres.
   With `:iter nil` (default), the result is a list of: the class of each
   point of `data`, the centre of gravity of each class, and the number of
   iterations needed for the algorithm to converge. As the centroids start at
@@ -983,8 +984,9 @@ error). Modes (`:centroids` or `'centroids`; another mode is an error):
 - `:1d-centroids`: classification of a list of numbers in one dimension
   (e.g. a variation of intensity). The sorted data are cut at their
   `classes − 1` largest successive differences (N+1 − N), and the mean of
-  each segment is an initial centre for the centroid algorithm (an original,
-  empirical method, Fred Voisin 2010); the result does not depend on random
+  each segment is an initial centre for the dynamic clouds, the same
+  algorithm as `:centroids` (an original, empirical method, Fred Voisin
+  2010); the result does not depend on random
   starts. There are never more classes than distinct values. `:dist` is then a
   function applied to the successive differences, which changes the metric of
   the differentiation: for pitches, whose differentiation decreases roughly

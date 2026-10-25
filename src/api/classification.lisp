@@ -113,8 +113,9 @@ Optional argument <key> defines a function to be applyed to each consecutive ele
   (:documentation "CLASS-NUM: classifies the points <data> into <classes> classes, in a space of n dimensions (n integer > 0):
 each point is a number (one dimension) or the list of its coordinates.
 Argument <mode> defines the algorithm used for partitioning the points:
-:centroids for centroids algorithm (in French: nuees dynamiques);
-:1d-centroids, initial centres taken between the largest differences of the sorted data (one dimension, deterministic).
+:centroids, dynamic clouds algorithm (in French: nuees dynamiques, after Diday), from random initial centres;
+:1d-centroids, the same algorithm on numbers (one dimension), from initial centres taken between the largest
+differences of the sorted data (deterministic).
 Keyword argument :iter to set the number of runs of the algorithm (with :centroids);
 :dist to set the distance or metric to be used (by default: euclidean distance)."))
 
