@@ -178,16 +178,6 @@ from index 0; an element which is a list is flattened."
         do (format stream "~D,~{ ~A~};~%" i
                    (mapcar #'coll-atom (if (listp e) (flat e) (list e))))))
 
-(defun coll-write (liste file)
-  "Writes a list to a Max coll file."
-  (with-open-file (out-stream (if file file "coll")
-                              :direction :output
-                              :element-type 'character
-                              :if-exists :supersede
-                              :if-does-not-exist :create)
-    (coll-entries liste out-stream))
-  (format nil "~&~G" file))
-
 ;;; PLOT : a sequence of events drawn with characters, for the listener or a terminal, or in SVG
 
 (defun plot-number (x)
@@ -326,12 +316,27 @@ LABELS, the bottom, the top and the times of the window are written. Returns the
                   (concatenate 'string letter (make-string (- 4 octave) :initial-element #\,)))
               (and sharp :sharp)))))
 
+(defun note-runs (seq rounding caller)
+  "The runs of SEQ (MIDI notes, lists of MIDI notes for chords, NIL a rest) as a list of (note . count):
+the notes rounded by the function ROUNDING, a chord as its rounded notes sorted, once each (a chord of one
+note is that note), consecutive equal notes or chords making one run. Another element is an error of CALLER."
+  (let ((runs nil))
+    (dolist (x seq (nreverse runs))
+      (unless (or (null x) (realp x) (and (consp x) (every #'realp x)))
+        (error "~A: ~S is neither a note (a number), nor a chord (a list of numbers), nor a rest (NIL)." caller x))
+      (let ((n (cond ((realp x) (funcall rounding x))
+                     ((consp x) (let ((c (sort (remove-duplicates (mapcar rounding x)) #'<)))
+                                  (if (rest c) c (first c)))))))
+        (if (and runs (equal n (car (first runs))))
+            (incf (cdr (first runs)))
+            (push (cons n 1) runs))))))
+
 (defun abc-notes (seq &key rhythm (unit 1))
   "The notes of SEQ (MIDI notes, lists of MIDI notes for chords, NIL a rest) in ABC: consecutive equal
 notes or chords (rounded to the semitone) make one, with a length of their number of positions divided
 by UNIT when RHYTHM. The accidentals are written where needed, as they last until the end of the bar
 (here, of the tune)."
-  (let ((runs nil) (sharps (make-hash-table :test #'equal)))
+  (let ((sharps (make-hash-table :test #'equal)))
     (flet ((note (n)
              (multiple-value-bind (name sharp) (abc-pitch n)
                (cond (sharp (setf (gethash name sharps) t)
@@ -339,17 +344,7 @@ by UNIT when RHYTHM. The accidentals are written where needed, as they last unti
                      ((gethash name sharps) (remhash name sharps)
                       (concatenate 'string "=" name))
                      (t name)))))
-      (dolist (x seq)
-        (unless (or (null x) (realp x) (and (consp x) (every #'realp x)))
-          (error "seq>abc: ~S is neither a note (a number), nor a chord (a list of numbers), nor a rest (NIL)." x))
-        ;; a chord: its notes rounded, sorted, once each; a chord of one note is that note
-        (let ((n (cond ((realp x) (round x))
-                       ((consp x) (let ((c (sort (remove-duplicates (mapcar #'round x)) #'<)))
-                                    (if (rest c) c (first c)))))))
-          (if (and runs (equal n (car (first runs))))
-              (incf (cdr (first runs)))
-              (push (cons n 1) runs))))
-      (loop for (n . count) in (nreverse runs)
+      (loop for (n . count) in (note-runs seq #'round "seq>abc")
             collect (let ((length (if rhythm (max 1 (round count unit)) 1)))
                       (concatenate 'string
                                    (cond ((null n) "z")
@@ -391,24 +386,15 @@ c'), a quarter tone higher written ih: 74.5 is dih''."
   "The notes of SEQ (MIDI notes, lists of MIDI notes for chords, NIL a rest) in LilyPond: consecutive equal
 notes or chords (rounded to the quarter tone) make one, of a length of their number of positions divided by
 UNIT, in sixteenths, when RHYTHM (else a quarter, the stems hidden)."
-  (let ((runs nil))
-    (dolist (x seq)
-      (unless (or (null x) (realp x) (and (consp x) (every #'realp x)))
-        (error "seq>ly: ~S is neither a note (a number), nor a chord (a list of numbers), nor a rest (NIL)." x))
-      (let ((n (cond ((realp x) (/ (round (* 2 x)) 2))
-                     ((consp x) (let ((c (sort (remove-duplicates (mapcar (lambda (y) (/ (round (* 2 y)) 2)) x)) #'<)))
-                                  (if (rest c) c (first c)))))))
-        (if (and runs (equal n (car (first runs))))
-            (incf (cdr (first runs)))
-            (push (cons n 1) runs))))
-    (loop for (n . count) in (nreverse runs)
-          collect (let ((name (cond ((null n) "r")
-                                    ((consp n) (format nil "<~{~A~^ ~}>" (mapcar #'ly-pitch n)))
-                                    (t (ly-pitch n))))
-                        (lengths (if rhythm (ly-lengths (max 1 (round count unit))) (list 4))))
-                    ;; a note longer than one value: tied values; a rest: values one after the other
-                    (format nil (if n "~{~A~^~~ ~}" "~{~A~^ ~}")
-                            (mapcar (lambda (l) (format nil "~A~D" name l)) lengths))))))
+  ;; rounded to the quarter tone
+  (loop for (n . count) in (note-runs seq #'(lambda (x) (/ (round (* 2 x)) 2)) "seq>ly")
+        collect (let ((name (cond ((null n) "r")
+                                  ((consp n) (format nil "<~{~A~^ ~}>" (mapcar #'ly-pitch n)))
+                                  (t (ly-pitch n))))
+                      (lengths (if rhythm (ly-lengths (max 1 (round count unit))) (list 4))))
+                  ;; a note longer than one value: tied values; a rest: values one after the other
+                  (format nil (if n "~{~A~^~~ ~}" "~{~A~^ ~}")
+                          (mapcar (lambda (l) (format nil "~A~D" name l)) lengths)))))
 
 (defun ly-text (seq &key title rhythm (unit 1) (per-line 8))
   "SEQ as a LilyPond score, without meter nor bar (cadenza), an accidental on each note, a possible line
