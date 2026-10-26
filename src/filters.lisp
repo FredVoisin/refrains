@@ -94,6 +94,18 @@ nil is an element like any other."
 
 ; fonction generique pour appliquer une fonction arbitraire sur une liste selon une fenetre glissante de taille (plus ou moins) determinee (pouvant varier dynamiquement ?) remplace 
 
+(defun centred-window (v i h edge)
+  "The values of the window of 2h + 1 positions of the vector v centred on the position i.
+At the edges, edge :repeat repeats the first and last values (the window keeps its size),
+:shrink shrinks the window symmetrically (the position i stays in its centre)."
+  (let ((n (length v)))
+    (ecase edge
+      (:repeat (loop for k from (- i h) to (+ i h)
+                     collect (aref v (max 0 (min (1- n) k)))))
+      (:shrink (let ((k (min h i (- n 1 i))))
+                 (loop for p from (- i k) to (+ i k)
+                       collect (aref v p)))))))
+
 (defun window-block (result v start end bstart bend)
   "The values given for the block [bstart, bend) of v by the result of a function applied
 to the window [start, end): an atom (or nil) is repeated for the block; a list replaces
@@ -125,8 +137,9 @@ step values. See window-block for the values given by the result of func."
       (if (= step 1)
           (let ((h (floor (if (evenp wind) (1+ wind) wind) 2)))
             (loop for i below l
-                  append (let ((k (min h i (- l 1 i))))
-                           (apply-to (- i k) (+ i k 1) i (1+ i)))))
+                  append (let* ((w (centred-window v i h :shrink))
+                                (start (- i (floor (length w) 2))))
+                           (window-block (funcall func w) v start (+ start (length w)) i (1+ i)))))
           (loop for n from 0 below l by step
                 append (let* ((start (max 0 (- n (floor (- wind step) 2))))
                               (end (min l (+ start wind))))
@@ -145,21 +158,10 @@ step values. See window-block for the values given by the result of func."
 (defun median-simple (list w)
   "Sliding median over w values centred on each value of list, w odd: the median is always a value of list.
 At the edges, the first and last values are repeated. The result has the same length as list."
-  (let* ((v (coerce list 'vector))
-         (n (length v))
-         (h (floor w 2)))
-    (loop for i below n
-          collect (nth h (sort (loop for k from (- i h) to (+ i h)
-                                     collect (aref v (max 0 (min (1- n) k))))
-                               #'<)))))
-
-(defun median (list w) ;; ???
-  (let ((r nil) ) ; (i  (1+ (floor (/ w 2)))))
-    (loop until (null list)
-       do (let (z (window (loop repeat w collect (if list (pop list) (car r)))))
-            (setf z (sort window '<))
-            (setf r (append r (remove-if #'(lambda (x) (or (= (car z) x) (= (car (last z)) x))) window)))))
-    (reverse r)))
+  (let ((v (coerce list 'vector))
+        (h (floor w 2)))
+    (loop for i below (length v)
+          collect (nth h (sort (centred-window v i h :repeat) #'<)))))
 
 (defgeneric median-filter (seq window)
   (:documentation "Median filter."))
@@ -198,12 +200,10 @@ from s(0) = x(0) and b(0) = x(1) - x(0)."
 (defun extrema-simple (list w fn)
   "Sliding maximum (fn #'max) or minimum (fn #'min) over w values centred on each value of list, w odd.
 At the edges, the first and last values are repeated. The result has the same length as list."
-  (let* ((v (coerce list 'vector))
-         (n (length v))
-         (h (floor w 2)))
-    (loop for i below n
-          collect (reduce fn (loop for k from (- i h) to (+ i h)
-                                   collect (aref v (max 0 (min (1- n) k))))))))
+  (let ((v (coerce list 'vector))
+        (h (floor w 2)))
+    (loop for i below (length v)
+          collect (reduce fn (centred-window v i h :repeat)))))
 
 (defgeneric extrema-filter (seq window &optional mode)
   (:documentation "Extrema filter: dilation (:max), erosion (:min), opening (:open) or closing (:close)."))
