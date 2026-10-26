@@ -322,6 +322,23 @@ Reads a string (or a list of strings) as a list (or lists) of symbols.
 
 ### 1.2 Filter
 
+**The windows.** All the functions that work on windows (`filt-median`,
+`filt-extrema`, `filt-mean`, `filt-function`, `filt-quantize`, and `entropy`
+in 3.3) describe them in the same way:
+
+- `window`: an integer, a number of positions; or a ratio or a float between
+  0 (excluded) and 1, a part of the length of the sequence (`1/4`: a quarter;
+  at least one position);
+- `step`, the step between two windows: an integer, a number of positions;
+  or a ratio or a float between 0 (excluded) and 1, a part of the window
+  (`1/2`: windows overlapping by half; `1.0`: windows end to end).
+
+Any other value is an error: `3.0` is neither an integer nor a part of the
+length. The filters give one value for each element of the sequence, the
+window being centred on each element or on each block of `step` elements;
+`filt-quantize` and `entropy` give one result for each window, the last
+window ending at the last position.
+
 #### `filt-median (seq window)`
 
 Sliding median over `window` values centred on each value: removes the
@@ -330,10 +347,12 @@ The window is odd, so that the median is always the one middle value and
 the result is made of values of `seq` only: an even `window` is enlarged to
 the next odd size (4 gives 5). At the edges, the first and last values are
 repeated (so a peak on the very first or last value is kept). The result has
-the same length as `seq`.
+the same length as `seq`. `window` is a number of positions or a part of the
+length (see the windows, above).
 
 ```lisp
 (filt-median '(1 9 1 1 1 9 1) 3)          ;=> (1 1 1 1 1 1 1)
+(filt-median '(1 9 1 1 1 9 1) 3/7)        ;=> (1 1 1 1 1 1 1)   ; 3/7 of 7: 3
 (filt-median '(0 0 9 9 0 0 0) 3)          ;=> (0 0 9 9 0 0 0)
 (filt-median '(0 0 0 9 9 0 0 0 0) 5)      ;=> (0 0 0 0 0 0 0 0 0)
 (filt-median '(9 0 0 0) 3)                ;=> (9 0 0 0)
@@ -351,9 +370,10 @@ while keeping the rest of the profile in place:
 - `:open` (opening: minimum then maximum) removes the narrow peaks;
 - `:close` (closing: maximum then minimum) fills the narrow hollows.
 
-As with `filt-median`, an even window is enlarged to the next odd size, the
-first and last values are repeated at the edges, and the result has the same
-length as `seq`.
+As with `filt-median`, `window` is a number of positions or a part of the
+length, an even window is enlarged to the next odd size, the first and last
+values are repeated at the edges, and the result has the same length as
+`seq`.
 
 ```lisp
 (filt-extrema '(1 5 2 8 3 3 9 1 0 4) 3)        ;=> (5 5 8 8 8 9 9 9 4 4)
@@ -364,8 +384,8 @@ length as `seq`.
 
 #### `filt-mean (seq window &optional step)`
 
-Sliding mean over `window` values (an integer, or a float as a fraction of the
-length of `seq`).
+Sliding mean over `window` values: a number of positions or a part of the
+length of `seq` (see the windows, at the beginning of the section).
 
 - With `step` 1 (default), the window is centred on each value: an even
   `window` is enlarged to the next odd size, and at the edges the window
@@ -373,8 +393,8 @@ length of `seq`).
   left unchanged.
 - With a larger `step`, the mean of a window of `window` values centred on
   each block of `step` values is repeated for the whole block; with
-  `step` = `window`, each block is replaced by its mean. A float `step` is a
-  fraction of `window`.
+  `step` = `window` (or `1.0`), each block is replaced by its mean. A
+  fractional `step` is a part of `window`.
 
 The result has the same length as `seq`.
 
@@ -463,9 +483,10 @@ error; `seq` itself is not modified.
 #### `filt-function (seq func window &optional step)`
 
 Applies the function `func` to a sliding window of `window` values, by steps of
-`step` (1 by default). `window` is an integer (number of values) or a fraction
-of the length of `seq`; `step` is an integer or a fraction of `window`. The
-windows are placed as for `filt-mean`:
+`step` (1 by default). `window` is a number of positions or a part of the
+length of `seq`, `step` a number of positions or a part of `window` (see the
+windows, at the beginning of the section). The windows are placed as for
+`filt-mean`:
 
 - with `step` 1, the window is centred on each value (an even `window` is
   enlarged to the next odd size) and shrinks symmetrically at the edges;
@@ -529,8 +550,8 @@ a missing value: it stays `nil`.
   list of `(start end centres)` of each window or segment.
 
 Another mode, `:thres` with the dynamic clouds, a value that is neither a
-number nor `nil`, or a window or a step that is not a positive number are
-errors.
+number nor `nil`, or a window or a step that do not follow the description of
+the windows (at the beginning of the section) are errors.
 
 ```lisp
 (filt-quantize '(0 1 2 10 11 12 20 21 22) 3)
@@ -1516,45 +1537,64 @@ in `:thes`).
 (histogram '("The" "cat" "the"))     ;=> (("The" 2) ("cat" 1))
 ```
 
-#### `entropy (data &optional mode samples test)`
+#### `entropy (data &key mode window step test)`
 
 Estimation of the entropy of a set of data or of a sequence.
 
-`mode` (a symbol of any package, a keyword or a string, such as
+`:mode` (a symbol of any package, a keyword or a string, such as
 `'shannon-2`, `:shannon-2` or `"shannon-2"`; another mode is an error):
 
-- `nil` or `'shannon-2` (default): Shannon entropy in base 2;
-- `'shannon-n`: Shannon entropy in base n, for n distinct symbols;
-- `'shannon-e`: natural logarithm;
-- `'cond-sh`: conditional entropy (experimental).
+- `nil` or `shannon-2` (default): Shannon entropy in base 2;
+- `shannon-n`: Shannon entropy in base n, for n distinct symbols;
+- `shannon-e`: natural logarithm;
+- `conditional`: conditional entropy H(xₜ₊₁ | xₜ), in base 2;
+- `cond-sh`: the entropy of the pairs of successive symbols divided by 2, in
+  base n (experimental).
 
 The Shannon entropy of a random sequence of two symbols tends to 1.0. It is 1
 when the symbols are exactly — and globally — equiprobable, and 0 when a
 single symbol is repeated, no information being present. With binary
 encoding, it is expressed in information per bit. With more than two distinct
-symbols, the information can be expressed per bit (`'shannon-2`, maximum
+symbols, the information can be expressed per bit (`shannon-2`, maximum
 log₂ N) or normalized in base N, the number of distinct symbols
-(`'shannon-n`, maximum 1). Any set or sequence of symbols can be measured,
+(`shannon-n`, maximum 1). Any set or sequence of symbols can be measured,
 including lists of symbols.
 
 Shannon entropy is based on the global probability of each symbol and does
-not consider their arrangement. **Conditional entropy** (`'cond-sh`)
-considers the probabilities of the successions of symbols, applying the
-principle of Shannon entropy to them. For short random sequences, it is
-necessarily lower than the global entropy; the gap narrows as the sequences
-grow longer. For sequences made of repetitions, the gap widens.
+not consider their arrangement. The two other modes look at the
+**successions** of symbols:
 
-`samples` follows the evolution of the entropy along the sequence: the
-sequence is cut into `samples` windows, and the entropy of each is returned.
-`test` is the identity of the elements (`#'equalp` by default). The result is
-always a float (or a list of floats).
+- `conditional` is the conditional entropy of information theory: the
+  uncertainty on a symbol when the previous one is known,
+  H(pairs) − H(first elements of the pairs). It is 0 when each symbol
+  determines the next one (a periodic sequence, such as `abab…` or
+  `abcabc…`), and reaches the Shannon entropy when the successions are
+  random.
+- `cond-sh` is the entropy of the pairs of successive symbols, divided by 2
+  (a logarithm in base n² instead of n): an entropy per symbol computed on
+  blocks of two. It sees the order too, but does not go below about 0.5 for
+  a periodic sequence, and its probabilities are divided by the length of the
+  sequence rather than by the number of pairs, which moves it a little away
+  from the entropy of the pairs on short sequences.
+
+`:window` and `:step` follow the evolution of the entropy along the sequence:
+the entropy of each window is returned, in a list. They are described as for
+the filters (see the windows, in 1.2); by default, `:step` is `1.0`, windows
+end to end, and a smaller `:step` gives sliding windows that overlap.
+`:test` is the identity of the elements (`#'equalp` by default). The result
+is always a float (or a list of floats).
 
 ```lisp
-(entropy '(a a a a) 'shannon-2)              ;=> 0.0
-(entropy '(a b a b) 'shannon-2)              ;=> 1.0
-(entropy '(a b c d) 'shannon-2)              ;=> 2.0
-(entropy '(a b a c) 'shannon-n)              ;=> 0.9463947
-(entropy '(a b a b a a a a) 'shannon-2 4)    ;=> (1.0 1.0 0.0 0.0)
+(entropy '(a a a a))                           ;=> 0.0
+(entropy '(a b a b))                           ;=> 1.0
+(entropy '(a b c d))                           ;=> 2.0
+(entropy '(a b a c) :mode :shannon-n)          ;=> 0.9463947
+(entropy '(a b a b a b) :mode :conditional)    ;=> 0.0
+(entropy '(a a b b) :mode :conditional)        ;=> 0.66666675
+(entropy '(a b a b a b) :mode :cond-sh)        ;=> 0.5141604
+(entropy '(a b a b a a a a) :window 1/4)       ;=> (1.0 1.0 0.0 0.0)
+(entropy '(a b a b a a a a) :window 4 :step 1/2)
+;=> (1.0 0.8112781 0.0)   ; abab, abaa, aaaa
 ```
 
 #### `self-info (data elt &optional test)`
@@ -2009,8 +2049,8 @@ documentation, with their dendrograms, computed with refrains by
   compared with `equal`, `class-num`, `class-sym`, `histogram`…): see
   [CHANGELOG.md](../CHANGELOG.md).
 - **Entropy windows**: the legacy doc describes sliding windows with 50 %
-  overlap (size 2L/n); the current code uses `samples` consecutive windows of
-  size L/n without overlap.
+  overlap (size 2L/n), which the code did not offer; `:window` and `:step`
+  now give them, for instance `(entropy d :window 1/4 :step 1/2)`.
 - **The examples** ([examples.md](examples.md)) are still to be converted
   into Common Lisp examples, except the function trees.
 - **Contrastive analysis**: Frédéric Voisin, *L'analyse musicale contrastive*,

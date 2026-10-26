@@ -2210,8 +2210,9 @@ et d'après leur documentation, avec leurs dendrogrammes, calculés avec refrain
   nœuds comparés avec `equal`, `class-num`, `class-sym`, `histogram`…) : voir
   [CHANGELOG.md](../CHANGELOG.md).
 - **Fenêtres d'entropie** : l'ancienne documentation décrit des fenêtres
-  glissantes avec 50 % de recouvrement (taille 2L/n) ; le code actuel utilise
-  `samples` fenêtres consécutives de taille L/n, sans recouvrement.
+  glissantes avec 50 % de recouvrement (taille 2L/n), que le code n'offrait
+  pas ; `:window` et `:step` les donnent maintenant, par exemple
+  `(entropy d :window 1/4 :step 1/2)`.
 - **Les exemples** ([exemples.md](exemples.md)) restent à convertir en
   exemples Common Lisp, sauf les arbres des fonctions.
 - **Analyse contrastive** : l'article de Frédéric Voisin, *L'analyse musicale
