@@ -345,30 +345,22 @@ if b null, as usual in refrains, matrix of Jaccard distances of lists of a."))
 ;(jaccard-dist '(1 0 1 0 0 0 0) '(1 0 0 1 0 1 1))
 
 (defgeneric binary-jaccard-dist (a b &key key test)
-  (:documentation "Jaccard distance for binary ensembles."))
+  (:documentation "Jaccard distance between binary vectors: (b + c) / (a + b + c), a the positions present in both,
+b and c those present in only one; the positions absent from both are not counted. Present: test true,
+by default a value other than nil and 0."))
 
 (defmethod binary-jaccard-dist ((a list) (b list) &key (key #'identity) (test nil))
   (assert (= (length a) (length b)))
-  (if test
-      (let* ((e (mapcar #'(lambda (x y)
-                           (list (funcall test (funcall key x)) (funcall test (funcall key y))))
-                       a b))
-             (tt (length (remove-if-not #'(lambda (x) (equalp x '(t t))) e)))
-             (nn (length (remove-if-not #'(lambda (x) (equalp x '(nil nil))) e)))
-             (tn (length (remove-if-not #'(lambda (x) (equalp x '(t nil))) e)))
-             (nt (length (remove-if-not #'(lambda (x) (equalp x '(nil t))) e))))
-        (declare (ignore nn))
-        ;; no position present in either: identical, 0
-        (if (zerop (+ nt tn tt)) 0.0 (float (/ (+ nt tn) (+ nt tn tt)))))
-    (let* ((o (append a b))
-           (bins (remove-duplicates (mapcar key o)))
-           (b1 (length (remove (car bins) o :key key)))
-           (b2 (length (remove (cadr bins) o :key key)))
-           (min (if (< b2 b1) (car bins) (cadr bins))))
-      (cond ((< (length bins) 2) 0.0)   ; one value everywhere (or nothing): identical
-            ((> (length bins) 2)
-             (error "binary-jaccard-dist requires binary values, not ~D different values." (length bins)))
-            (t (binary-jaccard-dist a b :key key :test #'(lambda (x) (equalp x min))))))))
+  (let ((present (or test #'(lambda (x) (and x (not (eql x 0))))))
+        (both 0) (one 0))
+    (loop for x in a
+          for y in b
+          do (let ((px (funcall present (funcall key x)))
+                   (py (funcall present (funcall key y))))
+               (cond ((and px py) (incf both))
+                     ((or px py) (incf one)))))
+    ;; nothing present in either: identical, 0
+    (if (zerop (+ both one)) 0.0 (float (/ one (+ both one))))))
 
 (defmethod binary-jaccard-dist ((a list) (b null) &key (key #'identity) (test nil))
   (let (r (l (length a)))
@@ -380,7 +372,6 @@ if b null, as usual in refrains, matrix of Jaccard distances of lists of a."))
 ;(binary-jaccard-dist '(1 0 1 0 0 0 0) '(1 0 0 1 0 1 1))
 ;(binary-jaccard-dist '((a 1) (b 0) (c 1) (d 0) (e 0) (f 0) (g 0)) '((a 1) (b 0) (c 0) (d 1) (e 0) (f 1) (g 1)) :key #'cadr)
 ;(binary-jaccard-dist '(1 0 1 0 0 0 0) '(1 0 0 1 0 1 1) :test #'(lambda (x) (= 1 x)))
-;(binary-jaccard-dist '(1 0 1 0 0 0 0) '(1 0 0 1 0 1 1) :test #'(lambda (x) (= 0 x)))
 
 (defun sorensen-similarity (a b &key (test #'equalp) (key #'identity))
   "Sorensen-Dice similarity, 2 |a & b| / (|a| + |b|): 1 for identical sets (two empty sets too), 0 for disjoint sets."
@@ -403,6 +394,13 @@ M itself is infinite for identical sets."
           (t (float (/ (* 2 j) (+ (- (* 2 ca cb) (* (+ ca cb) j)) (* 2 j))))))))
 
 ;(mountford-similarity '(1 0 1 0 0 0 0 2 3 4) '(1 0 0 1 0 1 1))
+
+(defun semi-matrix (fn list)
+  "The semi-matrix of the distances (fn x y) between all the elements of list, as a list of (i j d(i,j))."
+  (let (r (l (length list)))
+    (dotimes (i l (nreverse r))
+      (loop for j from (1+ i) below l
+            do (push (list i j (funcall fn (nth i list) (nth j list))) r)))))
 
 (defgeneric struct-dist (a b &optional w-occ w-rep test)
   (:documentation   "Dissemblance value (0 to 1) between sequences a and b according to their internal structures:

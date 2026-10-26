@@ -8,6 +8,33 @@ refrains continues [fv-morphologie](https://github.com/FredVoisin/fv-morphologie
 refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 (fv-morphologie 1.4.0 to 0.1.0) are those of fv-morphologie.
 
+## [Unreleased]
+
+### Added
+
+- Four distances between sets, exported in the family `dist-`:
+  `dist-jaccard`, `dist-jaccard-binary` (binary vectors of presence, with
+  the standard convention: a value other than nil and 0 is present),
+  `dist-sorensen` and `dist-mountford` (1 - their similarity). The order and
+  the repetitions of the elements are ignored; with `b` nil, the semi-matrix
+  of the distances, as for the other distances. Documented in
+  `doc/refrains.fr.md` and `doc/refrains-fonctions.fr.md`.
+
+### Fixed
+
+- The defgeneric of `intersection-card` was misspelled
+  `intersectioon-card`.
+
+### Removed
+
+- Dead code: the functions that neither the exported functions nor the tests
+  use (`insert-tree`, `graphtodot`, `list-mod`, the matrix functions, the old
+  helpers of Prim's algorithm...).
+- The LispWorks variants (`#+Lispworks`) of `graph2dot`, `shell-command`,
+  `e-shannon`, `kind-of-entropie-conditionnelle` and `dendrogram>dot`: only
+  portable Common Lisp remains. The entropies sum with `reduce` instead of
+  `apply`, which is bounded by `call-arguments-limit`.
+
 ## [0.2.1] - 2026-10-24
 
 ### Added

@@ -277,7 +277,8 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
        graph-degree, graph-path
 ;;  3.2 COMPARER : distances et dissimilarités
        dist-euclidean, dist-cityblock, dist-hamming, dist-edit,
-       dist-multi-edit, dist-structure, dist-graph
+       dist-multi-edit, dist-structure, dist-graph, dist-jaccard,
+       dist-jaccard-binary, dist-sorensen, dist-mountford
 ;;  3.3 QUANTIFIER : information propre, diversité
        histogram, entropy, self-info, inner-dynamic, graph-length
 ;;; 4. LIRE/ÉCRIRE des fichiers
@@ -1558,6 +1559,82 @@ nœuds, dans l'ordre de `graph-nodes`.
 (dist-graph 'a '(c d) '((a b 1) (b c 2) (b d 1)))   ;=> (3 2)
 (dist-graph 'a nil '((a b 1) (b c 2) (b d 1)))      ;=> (0 1 3 2), pour (A B C D)
 ```
+#### Distances entre ensembles
+
+Les quatre fonctions suivantes comparent des **ensembles** : l'ordre et les
+répétitions des éléments sont ignorés, seuls comptent les éléments présents
+(par exemple les hauteurs d'un accord, ou le vocabulaire de deux mélodies).
+Elles valent 0 pour les mêmes éléments (deux ensembles vides aussi) et 1 pour
+des ensembles sans élément commun. Pour comparer des suites en tenant compte
+de l'ordre, voir `dist-edit` et `dist-structure`.
+
+- `:test` : identité des éléments (`#'equalp` par défaut) ;
+- `:key` : la partie des éléments comparée (`#'identity` par défaut).
+
+Comme pour les autres distances, `b` à `nil` donne la semi-matrice des
+distances entre tous les ensembles de `a`.
+
+#### `dist-jaccard (a b &key test key)`
+
+Distance de Jaccard : 1 − |a ∩ b| / |a ∪ b|, la proportion des éléments qui
+ne sont pas communs parmi tous les éléments des deux ensembles.
+
+```lisp
+(dist-jaccard '(do mi sol) '(mi sol si))           ;=> 0.5
+(dist-jaccard '(do do mi sol do) '(sol mi do))     ;=> 0.0   ; ordre et répétitions ignorés
+(dist-jaccard '((do mi sol) (mi sol si) (re fa la)) nil)
+;=> ((0 1 0.5) (0 2 1.0) (1 2 1.0))
+```
+
+#### `dist-jaccard-binary (a b &key test key)`
+
+Distance de Jaccard entre deux vecteurs binaires de même longueur, qui
+indiquent la présence ou l'absence de quelque chose à chaque position (par
+exemple les 12 classes de hauteurs d'un accord) : parmi les positions
+présentes dans `a` ou dans `b`, la proportion de celles qui ne le sont que
+dans l'un des deux. Les positions absentes des deux ne comptent pas.
+
+`:test` est ici un prédicat qui dit si une valeur est présente ; par défaut,
+toute valeur autre que `nil` et 0 (1 ou `t` : présent ; 0 ou `nil` : absent).
+
+```lisp
+;; do-mi-sol et mi-sol-si en classes de hauteurs (do = 0)
+(dist-jaccard-binary '(1 0 0 0 1 0 0 1 0 0 0 0)
+                     '(0 0 0 0 1 0 0 1 0 0 0 1))   ;=> 0.5
+```
+
+**Référence.** Paul Jaccard a proposé son coefficient pour comparer la flore
+de différentes zones des Alpes : la proportion des espèces communes à deux
+zones parmi toutes les espèces présentes dans l'une ou l'autre (Paul Jaccard,
+« Étude comparative de la distribution florale dans une portion des Alpes et
+du Jura », *Bulletin de la Société vaudoise des sciences naturelles*, 37,
+1901, p. 547-579). La taxinomie numérique en a fait la mesure standard pour
+les données binaires de présence et d'absence, à côté du *simple matching
+coefficient*, qui compte aussi les positions absentes des deux (Peter H. A.
+Sneath et Robert R. Sokal, *Numerical Taxonomy*, San Francisco, W. H. Freeman,
+1973). Ne pas compter ces positions est justement le propos : deux accords ne
+se ressemblent pas parce qu'aucun des deux ne contient fa♯.
+
+#### `dist-sorensen (a b &key test key)`
+
+Distance de Sørensen-Dice : 1 − 2 |a ∩ b| / (|a| + |b|). Elle compte deux
+fois les éléments communs, et reste donc inférieure ou égale à la distance de
+Jaccard.
+
+```lisp
+(dist-sorensen '(do mi sol) '(mi sol si))   ;=> 0.3333333
+```
+
+#### `dist-mountford (a b &key test key)`
+
+Distance de Mountford : 1 / (1 + M), avec l'indice de Mountford
+M = 2j / (2|a||b| − (|a| + |b|) j), où j = |a ∩ b|. L'indice M est infini pour
+deux ensembles identiques, d'où cette normalisation de 0 à 1.
+
+```lisp
+(dist-mountford '(do mi sol) '(mi sol si))   ;=> 0.6
+```
+
 
 ### 3.3 Quantifier : information, diversité
 
@@ -2084,7 +2161,7 @@ rougequeue noir).
 
 ## Liste des fonctions
 
-La liste des 56 fonctions exportées, avec leurs arguments et leur docstring, est
+La liste des 60 fonctions exportées, avec leurs arguments et leur docstring, est
 dans
 [refrains-fonctions.fr.md](refrains-fonctions.fr.md).
 

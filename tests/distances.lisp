@@ -114,11 +114,15 @@
   ;; the union is counted with key (it used equalp only: 0.5)
   (is (approx= 0 (refrains::jaccard-dist '((x 1)) '((x 2)) :key #'car)))
   (is (approx= 0 (refrains::jaccard-dist nil '(() ()))))
-  ;; binary Jaccard: nothing present, or one value only (division by zero, nil)
-  (is (approx= 0 (refrains::binary-jaccard-dist '(0 0 0) '(0 0 0) :test #'(lambda (x) (= x 1)))))
+  ;; binary Jaccard: nothing present (division by zero, nil)
+  (is (approx= 0 (refrains::binary-jaccard-dist '(0 0 0) '(0 0 0))))
   (is (approx= 0 (refrains::binary-jaccard-dist '(1 1 1) '(1 1 1))))
   (is (approx= 0.8 (refrains::binary-jaccard-dist '(1 0 1 0 0 0 0) '(1 0 0 1 0 1 1))))
-  (signals error (refrains::binary-jaccard-dist '(1 2 3) '(1 2 3)))
+  ;; standard: 1 is present, 0 absent, even when 1 is the commoner value
+  (is (approx= 0.5 (refrains::binary-jaccard-dist '(1 1 1 0) '(1 1 0 1))))
+  (is (approx= 2/3 (refrains::binary-jaccard-dist '(t t nil) '(t nil t))))
+  (is (approx= 1 (refrains::binary-jaccard-dist '((a 1) (b 0)) '((a 0) (b 1)) :key #'cadr)))
+  (is (approx= 0 (refrains::binary-jaccard-dist '(1 0) '(2 0) :test #'zerop)))
   ;; Sorensen: two empty sets are identical
   (is (approx= 1 (refrains::sorensen-similarity '() '())))
   (is (approx= 2/3 (refrains::sorensen-similarity '(a b c) '(b c d))))
@@ -129,6 +133,26 @@
   (is (approx= 0 (refrains::mountford-similarity '() '(a b))))
   (is (approx= 2/3 (refrains::mountford-similarity '(a b c) '(a b))))
   (is (approx= 0.2 (refrains::mountford-similarity '(a b c d) '(c d e f)))))
+
+(test dist-sets
+  (is (approx= 0.5 (dist-jaccard '(a b c) '(b c d))))
+  ;; order and repetitions ignored
+  (is (approx= 0 (dist-jaccard '(a b a) '(b a))))
+  (is (approx= 0 (dist-jaccard '() '())))
+  (is (approx= 0 (dist-jaccard '((x 1)) '((x 2)) :key #'car)))
+  (is (equalp '((0 1 0.5) (0 2 1.0) (1 2 1.0))
+              (dist-jaccard '((a b c) (b c d) (e)) nil)))
+  (is (approx= 0.8 (dist-jaccard-binary '(1 0 1 0 0 0 0) '(1 0 0 1 0 1 1))))
+  (is (approx= 1/3 (dist-sorensen '(a b c) '(b c d))))
+  (is (approx= 0 (dist-sorensen '() '())))
+  (is (approx= 1 (dist-sorensen '(a) '(b))))
+  (is (approx= 1/3 (dist-mountford '(a b c) '(a b))))
+  (is (approx= 0.8 (dist-mountford '(a b c d) '(c d e f))))
+  (is (approx= 1 (dist-mountford '(a) '(b))))
+  (let ((m (dist-sorensen '((a b) (a b) (c)) nil)))
+    (is (equal '((0 1) (0 2) (1 2)) (mapcar #'butlast m)))
+    (is (approx= 0 (third (first m))))
+    (is (approx= 1 (third (second m))))))
 
 (test dist-structure-any-element
   ;; strings, lists, and symbols mixed with numbers had no applicable method
