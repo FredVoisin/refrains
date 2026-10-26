@@ -40,6 +40,8 @@ result without computing distances."
          (lseq (length v))
          (l+ (floor (* l l-var)))   ; for length tolerance
          (exact (and (null distance-fct) (zerop diss)))
+         ;; integer codes for the edit distance, when test is an equality (see element-codes)
+         (codes (unless (or exact distance-fct) (element-codes test m v)))
          ;; with a margin for the rounding of floats
          (rdiss (+ (rational diss) 1/1000000))
          pos)
@@ -52,7 +54,9 @@ result without computing distances."
                      ;; the normalized edit distance, computed only while it may be <= diss;
                      ;; same decision as before
                      (let* ((maxlen (max l j))
-                            (d (edit-dist-bounded m v i j (floor (* rdiss maxlen)) test)))
+                            (d (if codes
+                                   (edit-dist-bounded (first codes) (second codes) i j (floor (* rdiss maxlen)) nil)
+                                   (edit-dist-bounded m v i j (floor (* rdiss maxlen)) (coerce test 'function)))))
                        (and d (>= diss (float (/ d maxlen)))))))))
       (loop for i from start to (- lseq l+ 1)
             do (loop for j from (max 1 (- l l+)) to (+ l l+)

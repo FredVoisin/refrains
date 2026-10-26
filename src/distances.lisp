@@ -156,31 +156,59 @@ If a and b are lists with not same size (i.e points with not same dimensions),
   "The edit distance (costs 1) between the vector a and the lb elements of the vector b from
 position start, if it is not more than the integer bound, else nil. The computation stops as
 soon as the distance is certainly more than bound: the minimum of a row of the matrix of costs
-never decreases in the next rows."
-  (declare (simple-vector a b) (fixnum start lb bound) (function test))
-  (let ((la (length a)))
-    (declare (fixnum la))
+never decreases in the next rows. With test nil, a and b hold integer codes of their elements,
+compared with eql (see element-codes).
+Only the cells within bound of the diagonal are computed: any other cell is more than bound, and
+counts as bound + 1, which changes no distance within bound (Esko Ukkonen, 'Algorithms for
+approximate string matching', Information and Control, 64, 1985, p. 100-118)."
+  (declare (simple-vector a b) (fixnum start lb bound) (type (or null function) test))
+  (let ((la (length a))
+        (out (1+ bound)))   ; the value of the cells outside the band
+    (declare (fixnum la out))
     (when (<= (abs (- la lb)) bound)
       (let ((prev (make-array (1+ la) :element-type 'fixnum))
             (row (make-array (1+ la) :element-type 'fixnum)))
         (declare (type (simple-array fixnum (*)) prev row))
-        (dotimes (i (1+ la)) (setf (aref prev i) i))
-        (loop for j fixnum from 1 to lb
-              do (setf (aref row 0) j)
-                 (let ((m j) (bj (svref b (+ start j -1))))
-                   (declare (fixnum m))
-                   (loop for i fixnum from 1 to la
-                         do (let ((d (min (+ (aref prev (1- i))
-                                             (if (funcall test (svref a (1- i)) bj) 0 1))
-                                          (1+ (aref prev i))
-                                          (1+ (aref row (1- i))))))
-                              (declare (fixnum d))
-                              (setf (aref row i) d)
-                              (when (< d m) (setf m d))))
-                   (when (> m bound) (return-from edit-dist-bounded nil)))
-                 (rotatef prev row))
+        (dotimes (i (1+ la)) (setf (aref prev i) (min i out)))
+        ;; the loops are written once, and compiled twice: integer codes compared with eql, or test
+        (macrolet ((rows (same)
+                     `(loop for j fixnum from 1 to lb
+                            do (let ((lo (max 1 (- j bound)))
+                                     (hi (min la (+ j bound)))
+                                     (m (min j out))
+                                     (bj (svref b (+ start j -1))))
+                                 (declare (fixnum lo hi m))
+                                 (setf (aref row 0) (min j out))
+                                 ;; the cell before the band, read by the first cell of the band
+                                 (when (> lo 1) (setf (aref row (1- lo)) out))
+                                 (loop for i fixnum from lo to hi
+                                       do (let ((d (min (+ (aref prev (1- i)) (if ,same 0 1))
+                                                        (1+ (aref prev i))
+                                                        (1+ (aref row (1- i))))))
+                                            (declare (fixnum d))
+                                            (setf (aref row i) d)
+                                            (when (< d m) (setf m d))))
+                                 ;; the cell after the band, read by the next row
+                                 (when (< hi la) (setf (aref row (1+ hi)) out))
+                                 (when (> m bound) (return-from edit-dist-bounded nil)))
+                               (rotatef prev row))))
+          (if test
+              (rows (funcall test (svref a (1- i)) bj))
+              (rows (eql (svref a (1- i)) bj))))
         (let ((d (aref prev la)))
           (when (<= d bound) d))))))
+
+(defun element-codes (test &rest sequences)
+  "If test is eq, eql, equal or equalp (an equality, by which a hash table can be built), the sequences
+as simple vectors of integer codes, the same code for elements equal by test; otherwise nil."
+  (when (member test (list #'eq #'eql #'equal #'equalp 'eq 'eql 'equal 'equalp))
+    (let ((codes (make-hash-table :test test)))
+      (mapcar #'(lambda (s)
+                  (map 'simple-vector
+                       #'(lambda (x) (or (gethash x codes)
+                                         (setf (gethash x codes) (hash-table-count codes))))
+                       s))
+              sequences))))
 
 (defgeneric edit-dist (seq1 seq2 &optional change insert delete inex normalized test)
   (:documentation
