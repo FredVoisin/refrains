@@ -158,10 +158,27 @@ step values. See window-block for the values given by the result of func."
 (defun median-simple (list w)
   "Sliding median over w values centred on each value of list, w odd: the median is always a value of list.
 At the edges, the first and last values are repeated. The result has the same length as list."
-  (let ((v (coerce list 'vector))
-        (h (floor w 2)))
-    (loop for i below (length v)
-          collect (nth h (sort (centred-window v i h :repeat) #'<)))))
+  ;; the window kept sorted while it slides: the value leaving it is removed and the value entering it
+  ;; inserted (it was sorted again at each position); equal values stay in their order of arrival,
+  ;; as in the stable sort of the window, so that the same value is taken (1 or 1.0)
+  (let* ((v (coerce list 'vector))
+         (n (length v))
+         (h (floor w 2)))
+    (when (plusp n)
+      (flet ((at (k) (aref v (max 0 (min (1- n) k)))))
+        (let ((win (coerce (stable-sort (loop for k from (- h) to h collect (at k)) #'<) 'vector)))
+          (loop for i below n
+                collect (aref win h)
+                when (< i (1- n))
+                  do (let* ((out (at (- i h)))
+                            (in (at (+ i h 1)))
+                            ;; the first value not below out: out itself, the oldest of its equals
+                            (p (position-if-not #'(lambda (x) (< x out)) win)))
+                       (replace win win :start1 p :start2 (1+ p))
+                       ;; in after its equals, among the w - 1 values left
+                       (let ((q (or (position-if #'(lambda (x) (< in x)) win :end (1- w)) (1- w))))
+                         (replace win win :start1 (1+ q) :start2 q :end2 (1- w))
+                         (setf (aref win q) in)))))))))
 
 (defgeneric median-filter (seq window)
   (:documentation "Median filter."))
