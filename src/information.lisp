@@ -30,95 +30,82 @@
 ;;;
 ;; stats
 
+(defun frequencies (data test)
+  "The list of (element count) of the distinct elements of data (by test), in their order of first appearance."
+  (let ((table nil))
+    (map nil #'(lambda (x)
+                 (let ((e (assoc x table :test test)))
+                   (if e (incf (second e)) (push (list x 1) table))))
+         data)
+    (nreverse table)))
+
 (defun histogramme (data &key (test #'equalp) (thes nil))
   "The list of (element count) of data, for the different elements (or those of thes): sorted by
 increasing value for numbers, else by decreasing count, elements of equal count in their order of
 first appearance (in data, or in thes)."
-  (let* ((cl (or thes (remove-duplicates data :test test :from-end t)))
-         (histo (mapcar #'(lambda (c) (list c (count-if #'(lambda (x) (funcall test c x)) data)))
-                        cl)))
-    (if (every #'numberp cl)
+  (let ((histo (if thes
+                   (mapcar #'(lambda (c) (list c (count-if #'(lambda (x) (funcall test c x)) data))) thes)
+                   (frequencies data test))))
+    (if (every #'numberp (mapcar #'first histo))
         (stable-sort histo #'< :key #'car)
         (stable-sort histo #'> :key #'cadr))))
 
 ;;;
 ;; info theory
 
+(defun counts-entropy (counts base &optional (total (reduce #'+ counts)))
+  "The Shannon entropy, in base base, of the distribution given by the counts, the probabilities being
+the counts divided by total (their sum by default); the counts of 0 are ignored."
+  ;; (- 0 x) and not (- x): 0.0 for a single element, not -0.0
+  (- 0 (reduce #'+ (mapcar #'(lambda (c) (if (zerop c) 0 (let ((p (/ c total))) (* p (log p base)))))
+                           counts))))
+
+(defun successive-pairs (data)
+  "The list of the pairs (x y) of successive elements of the sequence data."
+  (loop for tail on (coerce data 'list)
+        while (cdr tail)
+        collect (list (first tail) (second tail))))
+
+(defun pair-test (test)
+  "The identity of two pairs: test on their first elements and on their second elements."
+  #'(lambda (p q) (and (funcall test (first p) (first q)) (funcall test (second p) (second q)))))
+
 (defun e-shannon (data &optional (base nil) (test #'equalp))
-  "Returns the shannon entropy value of data.
-Shannon entropy value may be between 0 and (log n base)."
-  (let* ((cl (remove-duplicates data :test test))
-	 (n (length data))
-	 (p nil)
-	 (b (if (numberp base)
-		base (if (eql base 'e)
-			 (exp 1)
-			 (max 2 (length cl))))))
-    (dolist (ci cl (- 0 (reduce #'+ (mapcar #'(lambda (x) (* x (log! x b))) p))))
-      (push (/ (length (remove-if-not #'(lambda (x) (funcall test x ci)) data)) n)
-            p))))
+  "The Shannon entropy of data, in base base (nil: the number of distinct elements, at least 2):
+from 0 to (log n base) for n distinct elements."
+  (let ((counts (mapcar #'second (frequencies data test))))
+    (counts-entropy counts (or base (max 2 (length counts))))))
 
-(defun kind-of-entropie-conditionnelle (data &optional (base 2) (test #'equalp))
-  "Kind of conditionnal entropy based on a hack of shannon entropy by me. Experimental."
-  (let* ((p nil) (len (length data))
-	 ;; the distinct symbols by test, as they are counted (equalp failed with a stricter test)
-	 (s (remove-duplicates data :test test))
-	 (n (length s))
-	 (b (if (numberp base)
-		base (if (eql base 'e) (exp 1) (max 2 n))))
-	 (r (mapcar (lambda (x) (cons x (mapcar (lambda (y) (list y 0)) s))) s)))
-    (dotimes (d (1- (length data))) ;build table of P(a if b)
-      (let ((k (assoc (nth d data) r :test test))
-	    (l (nth (1+ d) data)))
-	(incf (cadr (assoc l (cdr k) :test test)) )))
-    (dolist (i r (- 0 (reduce #'+ (mapcar #'(lambda (x) (* x (log! x (* b b)))) p)))) ; sqr log to scale
-      (dolist (j (cdr i))
-	(push (/ (cadr j) len) p))))) ; P(i)
-
-;(kind-of-entropie-conditionnelle (loop for i from  0 to 1000 collect (random 2)) nil)
-
-(defun distinct-counts (items test)
-  "The number of occurrences of each distinct element of items (by test)."
-  (let ((distinct nil))
-    (dolist (x items (mapcar #'cdr distinct))
-      (let ((d (assoc x distinct :test test)))
-        (if d (incf (cdr d)) (push (cons x 1) distinct))))))
-
-(defun counts-entropy (counts base)
-  "The Shannon entropy, in base base, of the distribution given by the counts."
-  (let ((n (reduce #'+ counts)))
-    (- (reduce #'+ (mapcar #'(lambda (c) (let ((p (/ c n))) (* p (log p base)))) counts)))))
+(defun kind-of-entropie-conditionnelle (data &optional (base nil) (test #'equalp))
+  "The entropy of the pairs of successive elements of data divided by 2 (a logarithm in base n^2, n the
+number of distinct elements, or base^2), the probabilities of the pairs being divided by the length of data
+(not by the number of pairs). Experimental: see the mode cond-sh of entropy."
+  (let ((b (or base (max 2 (length (frequencies data test))))))
+    (counts-entropy (mapcar #'second (frequencies (successive-pairs data) (pair-test test)))
+                    (* b b)
+                    (length data))))
 
 (defun conditional-entropy (data &optional (base 2) (test #'equalp))
   "The conditional entropy H(x(t+1) | x(t)) of the sequence data: the uncertainty on an element knowing the
 previous one, H(pairs) - H(first elements of the pairs), over the pairs of successive elements.
 0 when each element determines the next one (a periodic sequence), up to the entropy of the elements
 when the successions are random."
-  (let ((pairs (loop for tail on (coerce data 'list)
-                     while (cdr tail)
-                     collect (list (first tail) (second tail)))))
+  (let ((pairs (successive-pairs data)))
     (if (null pairs)
         0
-        (- (counts-entropy (distinct-counts pairs #'(lambda (p q) (and (funcall test (first p) (first q))
-                                                                       (funcall test (second p) (second q)))))
-                           base)
-           (counts-entropy (distinct-counts (mapcar #'first pairs) test) base)))))
+        (- (counts-entropy (mapcar #'second (frequencies pairs (pair-test test))) base)
+           (counts-entropy (mapcar #'second (frequencies (mapcar #'first pairs) test)) base)))))
 
-(defgeneric self-information (data elt &optional test)
-  (:documentation "Amount of information of each element <elt> in data: -log2 of its frequency, nil if
-it is absent from data (the information is infinite) or if data is empty.
-Element <elt> may be of any kind (symbol, number, string, list...).
-If <elt> is null, self-information returns the amount of information for each element in data,
-sorted in decreasing order of amount of information in data (equal amounts in the order of first appearance)."))
-
-(defmethod self-information ((data list) (elt t) &optional (test #'equalp))
-  (when (not test) (setf test #'equalp))
-  (let ((n (count-if #'(lambda (x) (funcall test x elt)) data)))
-    (if (zerop n)
-        nil
-        (- 0 (log (/ n (length data)) 2)))))
-
-(defmethod self-information ((data list) (elt null) &optional (test #'equalp))
-  (when (not test) (setf test #'equalp))
-  (let ((elts (remove-duplicates data :test test :from-end t)))
-    (stable-sort (mapcar #'(lambda (x) (list x (self-information data x test))) elts) '> :key #'second)))
+(defun self-information (data elt &optional (test #'equalp))
+  "Amount of information of the element elt in data: -log2 of its frequency, nil if it is absent from data
+(the information is infinite) or if data is empty. Element elt may be of any kind (symbol, number,
+string, list...). If elt is null, the amount of information of each element of data, sorted in decreasing
+order (equal amounts in the order of first appearance)."
+  (let ((test (or test #'equalp))
+        (n (length data)))
+    (flet ((info (count) (- 0 (log (/ count n) 2))))
+      (if elt
+          (let ((count (count-if #'(lambda (x) (funcall test x elt)) data)))
+            (unless (zerop count) (info count)))
+          (stable-sort (mapcar #'(lambda (f) (list (first f) (info (second f)))) (frequencies data test))
+                       #'> :key #'second)))))
