@@ -57,6 +57,10 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   was always used) and gave nil for the mode nil; an unknown mode gave nil
   instead of an error. The mode is now recognized by its name, from any
   package or as a string. `s-class-with-fixed` is merged into `s-class`.
+- `class-sym` with `:mst` and `:excluded` stopped on an obscure error (the
+  tree of all the forms was used for the forms not excluded), and a tree
+  which did not match the data gave wrong classes without error. The tree
+  is now checked, and the documentation tells how to build it.
 
 ### Removed
 

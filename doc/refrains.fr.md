@@ -1247,8 +1247,16 @@ que de formes distinctes.
   numérotée d'abord, à partir de 0, et les classes trouvées suivent. Utile par
   exemple pour exclure les silences de la classification tout en les gardant
   dans la transcription.
-- `:mst` : un arbre de recouvrement minimal déjà calculé, ce qui en épargne le
-  calcul.
+- `:mst` : l'arbre de recouvrement minimal des formes, déjà calculé, ce qui en
+  épargne le calcul. Ce calcul fait presque tout le travail de `class-sym` :
+  passer l'arbre devient utile à partir de quelques centaines de formes, par
+  exemple pour essayer plusieurs nombres de classes sur les mêmes données
+  (environ 3,5 s pour un millier de formes, contre moins d'un dixième de
+  seconde avec l'arbre). Il se construit sur les formes distinctes, dans
+  l'ordre de `remove-duplicates`, avec les mêmes coûts que `class-sym`, les
+  formes exclues retirées d'abord :
+  `(graph-span (dist-edit (remove-duplicates data :test #'equalp) nil :uncom 0.5))`.
+  Un arbre qui ne correspond pas aux données est une erreur.
 
 ```lisp
 (class-sym '((a b c) (a b d) (x y z) (x y w) (a b c d)

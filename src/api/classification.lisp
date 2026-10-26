@@ -191,7 +191,10 @@ edit-norm, the edit distance relative to the length of the longer sequence.
 Keyword arguments :sub :ins :del :uncom for tuning editing distance (see dist-edit).
 The argument :excluded is a list of elements of data excluded from classification ;
 in the output, the numbering of the different instances begins by numbering these elements first (from zero), 
-in the order defined with the argument :excluded."))
+in the order defined with the argument :excluded.
+The argument :mst, the minimum spanning tree of the forms, avoids computing it again (useful from a few hundred forms):
+(graph-span (dist-edit (remove-duplicates data :test #'equalp) nil ...)) with the same costs, the excluded forms removed
+from data first; another tree is an error."))
 
 (defmethod class-sym ((data t) (classes integer) (mode t)
 		      &key (sub 1) (ins 1) (del 1) (uncom .5) (excluded nil) (mst nil))

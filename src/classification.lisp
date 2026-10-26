@@ -235,32 +235,48 @@ Returns (classes centres iterations), the classes numbered by order of first app
 ;;;
 ;;; classification par partitionnement de graphe
 
+(defun check-mst (mst k)
+  "MST if it can be the minimum spanning tree of K distinct forms: K - 1 edges (a b distance) between the
+ranks 0 to K - 1, every rank present; otherwise an error which tells how to build it."
+  (unless (and (listp mst)
+               (= (length mst) (max 0 (1- k)))
+               (every #'(lambda (e) (and (consp e) (integerp (first e)) (integerp (second e))
+                                         (< -1 (first e) k) (< -1 (second e) k) (realp (third e))))
+                      mst)
+               (or (< k 2) (= k (length (remove-duplicates (append (mapcar #'first mst) (mapcar #'second mst)))))))
+    (error "class-sym: :mst is not the minimum spanning tree of the ~D distinct forms of the data (without the ~
+excluded ones): it must have ~D edges (a b distance) between the ranks 0 and ~D, as given by ~
+(graph-span (dist-edit (remove-duplicates data :test #'equalp) nil ...)) with the costs of class-sym."
+           k (max 0 (1- k)) (max 0 (1- k))))
+  mst)
+
 (defun s-class (data n &optional (norm nil) (change 1) (insert 1) (delete 1) (inex 1) (mst nil) (excluded nil))
   "Classification of symbolic data into n classes according to their ressemblance:
 the n-1 longest edges of the minimum spanning tree of the data are cut (single linkage).
 Returns the class of each datum, numbered by order of first appearance, and the list of classes.
 With excluded, a list of elements of data excluded from the classification (compared with equalp):
 each one is numbered first (from 0, in the order of excluded), the classes of the others follow;
-only the classes are returned."
+only the classes are returned. mst, the minimum spanning tree of the distinct forms of data (not excluded)
+in the order of (remove-duplicates data :test #'equalp), avoids computing it; another tree is an error."
   (if excluded
       (let ((others (s-class (remove-if #'(lambda (x) (member x excluded :test #'equalp)) data)
                              n norm change insert delete inex mst)))
         (mapcar #'(lambda (d) (or (position d excluded :test #'equalp)
                                   (+ (length excluded) (pop others))))
                 data))
-  (let* ((symlist (remove-duplicates data :test #'equalp))
-         (grm (cond (mst mst)
-                    ((cdr symlist)
-                     (spanning-tree (edit-dist symlist nil change insert delete inex norm)))
-                    (t nil)))
-         ;; the edges kept: all but the n-1 longest (the first one in the tree if equal)
-         (kept (nthcdr (min (max 0 (1- n)) (length grm))
-                       (stable-sort (copy-list grm) '> :key #'third)))
-         (symclass (tree-components (length symlist) kept))
-         (class-of (mapcar #'(lambda (d) (nth (position d symlist :test #'equalp) symclass)) data))
-         (renum (normalize-class class-of #'=)))
-    (values renum
-            (loop for c from 0 to (if renum (apply #'max renum) -1)
-                  collect (list c (loop for s in symlist for i from 0
-                                        when (= c (nth (position s data :test #'equalp) renum))
-                                          collect (list i s))))))))
+    (let* ((symlist (remove-duplicates data :test #'equalp))
+           (grm (cond (mst (check-mst mst (length symlist)))
+                      ((cdr symlist)
+                       (spanning-tree (edit-dist symlist nil change insert delete inex norm)))
+                      (t nil)))
+           ;; the edges kept: all but the n-1 longest (the first one in the tree if equal)
+           (kept (nthcdr (min (max 0 (1- n)) (length grm))
+                         (stable-sort (copy-list grm) '> :key #'third)))
+           (symclass (tree-components (length symlist) kept))
+           (class-of (mapcar #'(lambda (d) (nth (position d symlist :test #'equalp) symclass)) data))
+           (renum (normalize-class class-of #'=)))
+      (values renum
+              (loop for c from 0 to (if renum (apply #'max renum) -1)
+                    collect (list c (loop for s in symlist for i from 0
+                                          when (= c (nth (position s data :test #'equalp) renum))
+                                            collect (list i s))))))))

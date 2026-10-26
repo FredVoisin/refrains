@@ -111,6 +111,19 @@
     ;; an unknown mode is an error (it gave nil)
     (signals error (class-sym d 3 :foo))))
 
+(test class-sym-mst
+  (let* ((d '((q) (a b) (a b c d e f g h) (a c) (x y) (a b c d e f g x) (z z) (a b)))
+         (others (remove '(q) d :test #'equalp))
+         (mst (graph-span (dist-edit (remove-duplicates d :test #'equalp) nil :uncom 0.5)))
+         (mst2 (graph-span (dist-edit (remove-duplicates others :test #'equalp) nil :uncom 0.5))))
+    ;; the tree built as documented gives the classes computed without it
+    (is (equal (class-sym d 3 :edit-nn) (class-sym d 3 :edit-nn :mst mst)))
+    (is (equal (class-sym d 3 :edit-nn :excluded '((q)))
+               (class-sym d 3 :edit-nn :excluded '((q)) :mst mst2)))
+    ;; with :excluded, the tree of all the forms was passed to the others: an obscure error
+    (signals error (class-sym d 3 :edit-nn :excluded '((q)) :mst mst))
+    (signals error (class-sym d 3 :edit-nn :mst '((0 1 1) (1 9 2))))))
+
 (test class-sym-n-classes
   ;; equal longest edges were all cut at once: 3 classes when 2 were asked for
   (let ((segs '((a b c) (a b d) (x y z) (x y w) (a b c d) (k l m n o p) (k l m n o q))))

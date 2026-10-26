@@ -1134,8 +1134,16 @@ appearance; there are never more classes than distinct forms.
   numbered first, from 0, and the classes found follow. Useful for example to
   exclude silences from the classification but keep them in the
   transcription.
-- `:mst`: a minimum spanning tree already computed, which saves its
-  computation.
+- `:mst`: the minimum spanning tree of the forms, already computed, which
+  saves its computation. This computation does almost all the work of
+  `class-sym`: passing the tree becomes useful from a few hundred forms, for
+  instance to try several numbers of classes on the same data (about 3.5 s
+  for a thousand forms, against less than a tenth of a second with the
+  tree). It is built on the distinct forms, in the order of
+  `remove-duplicates`, with the same costs as `class-sym`, the excluded forms
+  removed first:
+  `(graph-span (dist-edit (remove-duplicates data :test #'equalp) nil :uncom 0.5))`.
+  A tree which does not match the data is an error.
 
 ```lisp
 (class-sym '((a b c) (a b d) (x y z) (x y w) (a b c d)
