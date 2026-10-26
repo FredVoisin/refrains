@@ -112,7 +112,7 @@
     (is (loop repeat 500
               always (let* ((a (loop repeat (random 8) collect (nth (random 3) '(a b c))))
                             (b (loop repeat (random 8) collect (nth (random 3) '(a b c))))
-                            (d (refrains::edit-dist1 a b))
+                            (d (refrains::edit-distance a b))
                             (bound (random 6))
                             (r (refrains::edit-dist-bounded (coerce a 'simple-vector)
                                                                   (coerce b 'simple-vector)

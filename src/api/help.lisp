@@ -84,7 +84,7 @@ Exemples:
   "1 if word contains key, else 1 - the normalized edit distance between them (case ignored)."
   (if (search key word :test #'char-equal)
       1
-      (- 1 (edit-dist1 (coerce word 'list) (coerce key 'list) :normalized t :test #'char-equal))))
+      (- 1 (edit-distance (coerce word 'list) (coerce key 'list) :normalized t :test #'char-equal))))
 
 (defgeneric help (&optional keyword threshold)
   (:documentation "HELP: looks for a keyword (a symbol of any package, a keyword or a string) in the names and the

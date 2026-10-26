@@ -25,6 +25,8 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 
 - The defgeneric of `intersection-card` was misspelled
   `intersectioon-card`.
+- `dist-edit` and `edit-dist` looped forever on two empty sequences: nil is
+  also a symbol, and the method for symbols called itself. They give 0.
 
 ### Removed
 
@@ -42,6 +44,10 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   are now those of `graph-degree`, `graph-path` and `dist-graph`;
   `rep-strct` and `find-self` are now the bodies of `motif-structure` and
   `motif-list`. No exported function changes.
+- `edit-dist1`, `edit-dist2` and `editing-dist` are merged into
+  `edit-distance` (with `:inex`, 0 by default; its loop is compiled with
+  and without `inex`, as fast as before), and `edit-dist-ldl1` and
+  `edit-dist-ldl2` into `multi-edit-dist`.
 
 ## [0.2.1] - 2026-10-24
 

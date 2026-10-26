@@ -96,16 +96,20 @@
     (is (approx= 1/3 (third (first (refrains::multi-edit-dist (list a b) nil 1)))))))
 
 (test edit-dist-rewrite
-  ;; edit-dist2: whether an element exists in the other sequence is decided by test (it was eql)
-  (is (= 2 (refrains::edit-dist2 '(1.0 2) '(2 1) :inex 1)))
-  (is (= 4 (refrains::edit-dist2 '(1.0 2) '(2 1) :inex 1 :test #'eql)))
+  ;; edit-distance with inex: whether an element exists in the other sequence is decided by test (it was eql)
+  (is (= 2 (refrains::edit-distance '(1.0 2) '(2 1) :inex 1)))
+  (is (= 4 (refrains::edit-distance '(1.0 2) '(2 1) :inex 1 :test #'eql)))
   ;; usual values
-  (is (= 1 (refrains::edit-dist1 '(a b c) '(a b d))))
-  (is (= 3 (refrains::edit-dist1 '() '(a b c))))
-  (is (approx= 1/3 (refrains::edit-dist1 '(a b c) '(a b d) :normalized t)))
+  (is (= 1 (refrains::edit-distance '(a b c) '(a b d))))
+  (is (= 3 (refrains::edit-distance '() '(a b c))))
+  (is (approx= 1/3 (refrains::edit-distance '(a b c) '(a b d) :normalized t)))
   ;; two empty sequences, normalized, divided by zero
-  (is (approx= 0 (refrains::edit-dist1 '() '() :normalized t)))
-  (is (approx= 0 (refrains::edit-dist2 '() '() :inex 1 :normalized t))))
+  (is (approx= 0 (refrains::edit-distance '() '() :normalized t)))
+  (is (approx= 0 (refrains::edit-distance '() '() :inex 1 :normalized t)))
+  ;; two empty sequences: nil is also a symbol, and edit-dist called itself forever
+  (is (= 0 (refrains::edit-dist nil nil)))
+  (is (= 0 (dist-edit nil nil)))
+  (is (approx= 0 (dist-edit nil nil :norm t))))
 
 (test similarity-measures-no-division-by-zero
   ;; Jaccard: two empty sets are identical (division by zero)

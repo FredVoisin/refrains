@@ -109,84 +109,51 @@ If a and b are lists with not same size (i.e points with not same dimensions),
 ;; the less it does, the closest it is...
 ;; (I may write here a Turing machine here to do the same :)
 
-(defun edit-dist1 (seq1 seq2 &key (change 1) (insert 1) (delete 1) (normalized nil) (test #'equalp))
-"Smallest distance between two lists of symbols.
- Keywords arguments:
-  change: cost if changing a elt in sequences;
-  insert: cost if deleting or inserting;
-  normalized (T or NIL): normalized distance - 0 the closest, 1 the farest."
+(defun edit-distance (seq1 seq2 &key (change 1) (insert 1) (delete 1) (inex 0) (normalized nil) (test #'equalp))
+  "The smallest cost of the changes, insertions and deletions that turn the sequence seq1 into seq2.
+ change, insert, delete: the cost of each operation;
+ inex: the extra cost of an element which does not exist (according to test) in the other sequence (0 by default);
+ normalized: the cost divided by the length of the longer sequence, from 0 (the closest) to 1 with costs of 1;
+ test: the identity of the elements (equalp by default)."
   (let* ((a (coerce seq1 'vector))
          (b (coerce seq2 'vector))
          (la (length a))
          (lb (length b))
+         (inex (or inex 0))
+         ;; 1 for an element which does not exist (according to test) in the other sequence,
+         ;; computed only when it costs something
+         (ex (unless (zerop inex) (map 'vector #'(lambda (x) (if (member x seq2 :test test) 0 1)) a)))
+         (ey (unless (zerop inex) (map 'vector #'(lambda (y) (if (member y seq1 :test test) 0 1)) b)))
          (prev (make-array (1+ la)))
          (row (make-array (1+ la))))
-    ;; row j of the matrix of costs: (aref row i) for the first i elements of seq1, j of seq2
-    (dotimes (i (1+ la)) (setf (aref prev i) (* i delete)))
-    (loop for j from 1 to lb
-          do (setf (aref row 0) (+ (aref prev 0) insert))
-             (loop for i from 1 to la
-                   do (setf (aref row i)
-                            (min (+ (aref prev (1- i))
-                                    (if (funcall test (aref a (1- i)) (aref b (1- j))) 0 change))
-                                 (+ (aref prev i) insert)
-                                 (+ (aref row (1- i)) delete))))
-             (rotatef prev row))
+    ;; the loops are written once, and compiled twice: without inex (the usual case, faster) and with it
+    (macrolet ((fill-matrix (xa yb)
+                 ;; xa, yb: the extra cost of the element (1- i) of a and (1- j) of b, left out when 0
+                 (setf xa (unless (eql xa 0) (list xa))
+                       yb (unless (eql yb 0) (list yb)))
+                 `(progn
+                    ;; row j of the matrix of costs: (aref row i) for the first i elements of seq1, j of seq2
+                    (setf (aref prev 0) 0)
+                    (loop for i from 1 to la
+                          do (setf (aref prev i) (+ (aref prev (1- i)) delete ,@xa)))
+                    (loop for j from 1 to lb
+                          do (setf (aref row 0) (+ (aref prev 0) insert ,@yb))
+                             (loop for i from 1 to la
+                                   do (setf (aref row i)
+                                            (min (+ (aref prev (1- i))
+                                                    (if (funcall test (aref a (1- i)) (aref b (1- j)))
+                                                        0
+                                                        (+ change ,@xa ,@yb)))
+                                                 (+ (aref prev i) insert ,@yb)
+                                                 (+ (aref row (1- i)) delete ,@xa))))
+                             (rotatef prev row)))))
+      (if ex
+          (fill-matrix (* (aref ex (1- i)) inex) (* (aref ey (1- j)) inex))
+          (fill-matrix 0 0)))
     (let ((d (aref prev la)))
       (if normalized
           (if (zerop (max la lb)) 0.0 (float (/ d (max la lb))))
           d))))
-
-(defun edit-dist2 (seq1 seq2 &key (change 1) (insert 1) (delete 1) (inex 0) (normalized nil) (test #'equalp))
-  "Returns the smallest distance between two lists of symbols.
- Keywords arguments:
-  change: cost if changing a elt in sequences;
-  insert: cost if deleting or inserting;
-  inex = cost if changing with an element which doesn't exist on the other sequence;
-  normalized (T or NIL): normalized distance, 0 the closest, 1 the farest."
-  (let* ((a (coerce seq1 'vector))
-         (b (coerce seq2 'vector))
-         (la (length a))
-         (lb (length b))
-         ;; 1 for an element which does not exist (according to test) in the other sequence
-         (ex (map 'vector #'(lambda (x) (if (member x seq2 :test test) 0 1)) a))
-         (ey (map 'vector #'(lambda (y) (if (member y seq1 :test test) 0 1)) b))
-         (prev (make-array (1+ la)))
-         (row (make-array (1+ la))))
-    (setf (aref prev 0) 0)
-    (loop for i from 1 to la
-          do (setf (aref prev i) (+ (aref prev (1- i)) delete (* (aref ex (1- i)) inex))))
-    (loop for j from 1 to lb
-          do (setf (aref row 0) (+ (aref prev 0) insert (* (aref ey (1- j)) inex)))
-             (loop for i from 1 to la
-                   do (let ((exi (aref ex (1- i))) (eyj (aref ey (1- j))))
-                        (setf (aref row i)
-                              (min (+ (aref prev (1- i))
-                                      (if (funcall test (aref a (1- i)) (aref b (1- j)))
-                                          0
-                                          (+ change (* (+ exi eyj) inex))))
-                                   (+ (aref prev i) insert (* eyj inex))
-                                   (+ (aref row (1- i)) delete (* exi inex))))))
-             (rotatef prev row))
-    (let ((d (aref prev la)))
-      (if normalized
-          (if (zerop (max la lb)) 0.0 (float (/ d (max la lb))))
-          d))))
-
-(defun editing-dist (seq1 seq2 change insert delete inex normalized test)
-"Editing distance between sequences of symbols.
- seq1: first sequence;
- seq2: second sequence;
- change: cost for changing a symbol;
- insert: cost for deleting or inserting a symbol;
- inex: cost for changig with a symbol from seq2 which doesn't exist in seq1;
- normalized: normalized output, in ratio to the length of the longest sequence;
- test: any binary function to compare symbols (default: #'equalp)."
- (if (not inex)
-     (edit-dist1 seq1 seq2 :change change :insert insert :delete delete :normalized normalized :test test)
-     (if (zerop inex)
-	 (edit-dist1 seq1 seq2 :change change :insert insert :delete delete :normalized normalized :test test)
-	 (edit-dist2 seq1 seq2 :change change :insert insert :delete delete :inex inex :normalized normalized :test test))))
 
 (defgeneric edit-dist (seq1 seq2 &optional change insert delete inex normalized test)
   (:documentation
@@ -200,9 +167,13 @@ If a and b are lists with not same size (i.e points with not same dimensions),
  test: any binary function to compare symbols (default: #'equalp)."))
 
 (defmethod edit-dist ((seq1 list) (seq2 list) &optional (change 1) (insert 1) (delete 1) (inex 0) (normalized nil) (test #'equalp))
-  ;(if (not (member t (mapcar #'listp seq2)))
-  ;    (mapcar #'(lambda (a b) (edit-dist 
-  (editing-dist seq1 seq2 change insert delete inex normalized test))
+  (edit-distance seq1 seq2 :change change :insert insert :delete delete :inex inex
+                           :normalized normalized :test test))
+
+(defmethod edit-dist ((seq1 null) (seq2 null) &optional (change 1) (insert 1) (delete 1) (inex 0) (normalized nil) (test #'equalp))
+  ;; two empty sequences: nil is also a symbol, and the method for symbols called itself forever
+  (declare (ignore seq1 seq2 change insert delete inex test))
+  (if normalized 0.0 0))
 
 (defmethod edit-dist ((seq1 list) (seq2 null) &optional (change 1) (insert 1) (delete 1) (inex 0) (normalized nil) (test #'equalp))
   (declare (ignore seq2))
@@ -247,32 +218,6 @@ If all the weights are 0, all are 0 (every dimension is ignored)."
         w
         (normalize w))))
 
-(defun edit-dist-ldl1 (seq1 seq2 &key (change 1) (insert 1) (delete 1) (wgth '(1 1)) (test #'equalp))
-  (assert (and (apply #'= (mapcar #'length seq1))
-	       (apply #'= (mapcar #'length seq2))
-	       (= (length (car seq1)) (length (car seq2)))))
-  (let* ((r 0)
-	 (matrix1 (mat-transpose seq1))
-	 (matrix2 (mat-transpose seq2))
-	 (wgth (dimension-weights wgth (length (car seq1)))))
-    (dotimes (n (length matrix1) r) ;(/ r (length (car seq1))))
-      (incf r (* (nth n wgth)
-		 (edit-dist1 (nth n matrix1) (nth n matrix2)
-				   :change change :insert insert :delete delete :normalized 'T :test test))))))
-
-(defun edit-dist-ldl2 (seq1 seq2 &key (change 1) (insert 1) (delete 1) (inex 0) (wgth '(1 1)) (test #'equalp))
-  (assert (and (apply #'= (mapcar #'length seq1))
-	       (apply #'= (mapcar #'length seq2))
-	       (= (length (car seq1)) (length (car seq2)))))
-  (let* ((r 0)
-	 (matrix1 (mat-transpose seq1))
-	 (matrix2 (mat-transpose seq2))
-	 (wgth (dimension-weights wgth (length (car seq1)))))
-    (dotimes (n (length matrix1) r) ;(/ r (length (car seq1))))
-      (incf r (* (nth n wgth)
-		 (edit-dist2 (nth n matrix1) (nth n matrix2)
-			     :change change :insert insert :delete delete :inex inex :normalized 'T :test test))))))
-
 (defgeneric multi-edit-dist (seq1 seq2 wgth &key change insert delete inex test)
   (:documentation
  "Considering each element of sequences seq1 and seq2 as an event described into symbolic dimensions,
@@ -282,11 +227,19 @@ By symbolic dimensions, I consider a structured list of 'arbitrary' symbols desc
 
 (defmethod multi-edit-dist ((seq1 list) (seq2 list) (wgth t)
 			    &key (change 1) (insert 1) (delete 1) (inex 0) (test #'equalp))
-  (if inex
-      (if (zerop inex)
-	  (edit-dist-ldl1 seq1 seq2 :change change :insert insert :delete delete :wgth wgth :test test)
-	  (edit-dist-ldl2 seq1 seq2 :change change :insert insert :delete delete :inex inex :wgth wgth :test test))
-      (edit-dist-ldl1 seq1 seq2 :change change :insert insert :delete delete :wgth wgth :test test)))
+  ;; the normalized edit distance of each dimension (a column of the lists of descriptors), weighted
+  (assert (and (apply #'= (mapcar #'length seq1))
+	       (apply #'= (mapcar #'length seq2))
+	       (= (length (car seq1)) (length (car seq2)))))
+  (let ((r 0)
+        (matrix1 (mat-transpose seq1))
+        (matrix2 (mat-transpose seq2))
+        (wgth (dimension-weights wgth (length (car seq1)))))
+    (dotimes (n (length matrix1) r)
+      (incf r (* (nth n wgth)
+                 (edit-distance (nth n matrix1) (nth n matrix2)
+                                :change change :insert insert :delete delete :inex inex
+                                :normalized t :test test))))))
 
 (defmethod multi-edit-dist ((seq1 list) (seq2 null) (wgth t)
 			    &key (change 1) (insert 1) (delete 1) (inex 0) (test #'equalp))
