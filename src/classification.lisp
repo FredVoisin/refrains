@@ -124,7 +124,7 @@ There are fewer than n classes only if data has fewer than n distinct points."))
              (setf tmp (list (copy-tree r) (car tmp)))
              (loop for i from 0 to (1- l) do ; attribution des classes selon centre
                (let ((d (mapcar #'(lambda (c) (when c (funcall dist c (nth i data)))) centres)))
-                 (let ((m (apply #'min (remove nil d))))
+                 (let ((m (reduce #'min (remove nil d))))
                    (setf (nth i r) (position-if #'(lambda (x) (and x (= x m))) d)))))
              (when fill (fill-empty-classes r data centres dist))
              (dolist (i (remove-duplicates r))  ; mise a jour des centres de gravite de chaque classe
@@ -184,7 +184,7 @@ Returns (classes centres iterations), the classes numbered by order of first app
              (nuees (numbers>points data) (numbers>points centres) dist)
            (list r (mapcar #'car c) i)))
         ((and (every #'listp data) (every #'listp centres)
-              (apply #'= (mapcar #'length (append data centres))))
+              (same-lengths-p (append data centres)))
          (multiple-value-bind (r c i) (nuees data centres dist)
            (list r c i)))
         (t (error "class-num: the initial centres must be of the same kind as the points of data."))))
@@ -219,7 +219,7 @@ Returns (classes centres iterations), the classes numbered by order of first app
          (fx (mapcar fct (dx sx)))
          (c2 (nuees (numbers>points fx) 2))
          ;; the class of the largest gaps
-         (big (nth (position (apply #'max fx) fx) c2)))
+         (big (nth (position (reduce #'max fx) fx) c2)))
     (1d-nuees data (1d-cut-centres sx (allpos big c2)))))
 
 (defmethod 1d-class ((data list) (n integer) &optional (fct #'identity))
@@ -276,7 +276,7 @@ in the order of (remove-duplicates data :test #'equalp), avoids computing it; an
            (class-of (mapcar #'(lambda (d) (nth (position d symlist :test #'equalp) symclass)) data))
            (renum (normalize-class class-of #'=)))
       (values renum
-              (loop for c from 0 to (if renum (apply #'max renum) -1)
+              (loop for c from 0 to (if renum (reduce #'max renum) -1)
                     collect (list c (loop for s in symlist for i from 0
                                           when (= c (nth (position s data :test #'equalp) renum))
                                             collect (list i s))))))))

@@ -55,7 +55,7 @@ with time true, the date and time, such as \"22 Oct 2026 14:05:09\"."
 (defun mean (data)
   "The mean of the numbers of data (an error if data is empty)."
   (if data
-      (float (/ (apply #'+ data) (length data)))
+      (float (/ (reduce #'+ data) (length data)))
       (error "mean: no value (the list is empty).")))
 
 (defun test (mode)
@@ -80,7 +80,7 @@ If x is a graph or tree (a list of lists), change only the third element of each
 
 (defun normalize (data)
   "The numbers of data divided by their sum, which is then 1 (an error if the sum is 0)."
-  (let ((sum (apply #'+ data)))
+  (let ((sum (reduce #'+ data)))
     (cond ((null data) nil)
           ((zerop sum) (error "normalize: the sum of ~S is 0." data))
           ((= 1 sum) data)
@@ -93,10 +93,19 @@ If x is a graph or tree (a list of lists), change only the third element of each
 
 ;;; FOR COMPATIBILITIES (OM, PWGL etc)
 
+(defun same-lengths-p (lists)
+  "T if all the lists have the same length (or if there is none)."
+  (let ((n (length (first lists))))
+    (every #'(lambda (l) (= n (length l))) lists)))
+
 (defun mat-transpose (liste)
-  (assert (apply #'= (mapcar #'length liste)) nil
+  "The transpose of the matrix liste, a list of rows of the same length (an error otherwise)."
+  (assert (same-lengths-p liste) nil
 	  "we usually consider regular matrix. so, this should not happen. Please report this to Kilian Sprotte or Fred Voisin")
-  (when liste (apply #'mapcar #'list liste)))
+  ;; the columns one by one: (apply #'mapcar #'list liste) passed one argument by row
+  (loop for rows = liste then (mapcar #'cdr rows)
+        while (and rows (first rows))
+        collect (mapcar #'car rows)))
 
 ; when list have decreasing size, recursively (used by newold function)
 (defun ldlrot (ldl &optional (r (list)))
@@ -183,9 +192,9 @@ Empty segments are removed."
   (if (atom liste) liste
       (let ((a (car liste)))
 	(cond ((listp a)
-	       (apply #'append liste))
+	       (loop for l in liste append l))
 	      ((stringp a)
-	       (eval `(concatenate 'string .,liste)))
+	       (format nil "~{~A~}" liste))
 	      (t
 	       (safe-read-from-string (concat (mapcar #'(lambda (x) (format nil "~S" x))
 						 liste))))))))

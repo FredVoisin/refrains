@@ -51,7 +51,7 @@
       (remove-duplicates pos :test #'(lambda (x y) (= (- x y) 1)) :from-end t))))
 
 (defmethod all-pos ((seq t) (elt list) &optional (test #'equalp) (cons T))
-  (sort (remove-duplicates (apply #'append (loop for e in elt collect (all-pos seq e test cons))) :test #'=) '<))
+  (sort (remove-duplicates (loop for e in elt append (all-pos seq e test cons)) :test #'=) '<))
 
 ;(all-pos '(0 1 0 0 1 2 1 1 0 1 2) 0 nil nil)
 ;(all-pos '(0 1 0 0 1 2 1 1 0 1 2) '(0 1) nil nil)
@@ -268,9 +268,9 @@ ident: test to compare resulting subsequences, for instance: #'equalp."))
   ;; the same symbols in seq
   (let* ((seq+ (cons (make-symbol "START") (append seq (list (make-symbol "STOP")))))
 	 (d (mapcar #'dx (renum-mat seq+ test)))
-	 (w (mapcar (lambda (x) (apply #'+ x)) (renum-mat seq+ test)))
+	 (w (mapcar (lambda (x) (reduce #'+ x)) (renum-mat seq+ test)))
 	 (c (mapcar (lambda (x y) (mapcar (lambda (z) (* x z)) y)) w d)))
-    (butlast (reverse (mapcar (lambda (x) (apply #'+ x)) (ldlrot (mapcar #'reverse c)))))))
+    (butlast (reverse (mapcar (lambda (x) (reduce #'+ x)) (ldlrot (mapcar #'reverse c)))))))
 
 ;(new-old-analysis '(a b c a d e a))
 

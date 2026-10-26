@@ -64,8 +64,8 @@ If a and b are lists with not same size (i.e points with not same dimensions),
 (defmethod dist-euclid ((a list) (b list) &optional (key #'identity))
   ;(assert (equalp (mapcar #'numberp a) (mapcar #'numberp b)))
   (if key
-      (sqrt (apply #'+ (loop for i in (funcall key a) for j in (funcall key b) collect (expt (- j i) 2))))
-    (sqrt (apply #'+ (loop for i in a for j in b collect (expt (- j i) 2))))
+      (sqrt (loop for i in (funcall key a) for j in (funcall key b) sum (expt (- j i) 2)))
+    (sqrt (loop for i in a for j in b sum (expt (- j i) 2)))
     ))
 
 (defmethod dist-euclid ((a list) (b null) &optional (key #'identity))
@@ -79,10 +79,10 @@ If a and b are lists with not same size (i.e points with not same dimensions),
 
 (defmethod city-block ((a list) (b list))
   (assert (= (length a) (length b)))
-  (apply #'+ (mapcar #'(lambda (x y) (city-block x y)) a b)))
+  (loop for x in a for y in b sum (city-block x y)))
 
 (defmethod city-block ((a list) (b null))
-  (assert (apply #'= (mapcar #'length a)))
+  (assert (same-lengths-p a))
   (semi-matrix #'city-block a))
 
 (defun hamming-distance (v1 v2 &optional (test #'eq))
@@ -213,7 +213,7 @@ If all the weights are 0, all are 0 (every dimension is ignored)."
                                    (length wgth) n))
                   (subseq wgth 0 n))
                  (t wgth))))
-    (if (zerop (apply #'+ w))
+    (if (zerop (reduce #'+ w))
         w
         (normalize w))))
 
@@ -227,8 +227,8 @@ By symbolic dimensions, I consider a structured list of 'arbitrary' symbols desc
 (defmethod multi-edit-dist ((seq1 list) (seq2 list) (wgth t)
 			    &key (change 1) (insert 1) (delete 1) (inex 0) (test #'equalp))
   ;; the normalized edit distance of each dimension (a column of the lists of descriptors), weighted
-  (assert (and (apply #'= (mapcar #'length seq1))
-	       (apply #'= (mapcar #'length seq2))
+  (assert (and (same-lengths-p seq1)
+	       (same-lengths-p seq2)
 	       (= (length (car seq1)) (length (car seq2)))))
   (let ((r 0)
         (matrix1 (mat-transpose seq1))
@@ -282,7 +282,7 @@ if b null, as usual in refrains, matrix of Jaccard distances of lists of a."))
 
 (defmethod jaccard-dist ((a null) (b list) &key (test #'equalp) (key #'identity))
   (declare (ignore a))
-  (let ((n (length (apply #'append b))))
+  (let ((n (loop for x in b sum (length x))))
     (if (zerop n) 0.0 (float (/ (intersection-card b nil :key key :test test) n)))))
 
 ;(jaccard-dist '((a b c d e f) (a b c 1 2 3) (b x y)) nil)

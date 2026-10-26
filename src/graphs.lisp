@@ -160,11 +160,11 @@ its number of edges (a loop (a a ...) counts once)."
     (remove-if-not #'(lambda (v) (= 1 (gethash v deg))) (all-vertices graph))))
 
 (defun all-vertices (tree)
-  (let ((v (remove-duplicates (apply #'append (mapcar #'(lambda (x) (subseq x 0 2)) tree)) :test #'equal)))
+  (let ((v (remove-duplicates (loop for e in tree collect (first e) collect (second e)) :test #'equal)))
     (sort v #'vertex<)))
 
 (defun min-total-length (tree)
-  (apply #'+ (mapcar #'caddr tree)))
+  (reduce #'+ (mapcar #'caddr tree)))
 
 ;;Strahler number to do
 
@@ -226,7 +226,7 @@ Returns the edges of each partition (((node)) for a single node) and the nodes o
                                 (mapcar #'(lambda (e) (list (position (first e) nodes :test #'equal)
                                                             (position (second e) nodes :test #'equal)))
                                         kept)))
-         (parts (loop for c from 0 to (if comp (apply #'max comp) -1)
+         (parts (loop for c from 0 to (if comp (reduce #'max comp) -1)
                       collect (loop for x in nodes for k in comp when (= k c) collect x))))
     (values (mapcar #'(lambda (p)
                         (or (remove-if-not #'(lambda (e) (member (first e) p :test #'equal)) kept)
