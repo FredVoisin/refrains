@@ -134,25 +134,29 @@
   (is (approx= 2/3 (refrains::mountford-similarity '(a b c) '(a b))))
   (is (approx= 0.2 (refrains::mountford-similarity '(a b c d) '(c d e f)))))
 
-(test dist-sets
-  (is (approx= 0.5 (dist-jaccard '(a b c) '(b c d))))
+(test dist-set
+  (is (approx= 0.5 (dist-set '(a b c) '(b c d))))
+  (is (approx= 0.5 (dist-set '(a b c) '(b c d) :measure :jaccard)))
   ;; order and repetitions ignored
-  (is (approx= 0 (dist-jaccard '(a b a) '(b a))))
-  (is (approx= 0 (dist-jaccard '() '())))
-  (is (approx= 0 (dist-jaccard '((x 1)) '((x 2)) :key #'car)))
+  (is (approx= 0 (dist-set '(a b a) '(b a))))
+  (is (approx= 0 (dist-set '() '())))
+  (is (approx= 0 (dist-set '((x 1)) '((x 2)) :key #'car)))
   (is (equalp '((0 1 0.5) (0 2 1.0) (1 2 1.0))
-              (dist-jaccard '((a b c) (b c d) (e)) nil)))
-  (is (approx= 0.8 (dist-jaccard-binary '(1 0 1 0 0 0 0) '(1 0 0 1 0 1 1))))
-  (is (approx= 1/3 (dist-sorensen '(a b c) '(b c d))))
-  (is (approx= 0 (dist-sorensen '() '())))
-  (is (approx= 1 (dist-sorensen '(a) '(b))))
-  (is (approx= 1/3 (dist-mountford '(a b c) '(a b))))
-  (is (approx= 0.8 (dist-mountford '(a b c d) '(c d e f))))
-  (is (approx= 1 (dist-mountford '(a) '(b))))
-  (let ((m (dist-sorensen '((a b) (a b) (c)) nil)))
+              (dist-set '((a b c) (b c d) (e)) nil)))
+  ;; the measure by its name: a symbol of any package, a keyword or a string
+  (is (approx= 1/3 (dist-set '(a b c) '(b c d) :measure 'sorensen)))
+  (is (approx= 1/3 (dist-set '(a b c) '(b c d) :measure "sorensen")))
+  (is (approx= 0 (dist-set '() '() :measure :sorensen)))
+  (is (approx= 1 (dist-set '(a) '(b) :measure :sorensen)))
+  (is (approx= 1/3 (dist-set '(a b c) '(a b) :measure :mountford)))
+  (is (approx= 0.8 (dist-set '(a b c d) '(c d e f) :measure :mountford)))
+  (is (approx= 1 (dist-set '(a) '(b) :measure :mountford)))
+  (let ((m (dist-set '((a b) (a b) (c)) nil :measure :sorensen)))
     (is (equal '((0 1) (0 2) (1 2)) (mapcar #'butlast m)))
     (is (approx= 0 (third (first m))))
-    (is (approx= 1 (third (second m))))))
+    (is (approx= 1 (third (second m)))))
+  (signals error (dist-set '(a) '(b) :measure :cosine))
+  (is (approx= 0.8 (dist-jaccard-bin '(1 0 1 0 0 0 0) '(1 0 0 1 0 1 1)))))
 
 (test dist-structure-any-element
   ;; strings, lists, and symbols mixed with numbers had no applicable method

@@ -57,7 +57,7 @@
    #:graph-nodes #:graph-leaves #:graph-degree #:graph-path
    #:dist-euclidean #:dist-cityblock #:dist-hamming #:dist-edit
    #:dist-multi-edit #:dist-structure #:dist-graph
-   #:dist-jaccard #:dist-jaccard-binary #:dist-sorensen #:dist-mountford
+   #:dist-set #:dist-jaccard-bin
    #:histogram #:entropy #:self-info #:inner-dynamic
    #:graph-length
    ;; 4. read/write

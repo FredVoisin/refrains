@@ -39,7 +39,7 @@
     ;; 3. evaluation
     mark-position mark-list motif-position motif-list graph-nodes graph-leaves graph-degree graph-path
     dist-euclidean dist-cityblock dist-hamming dist-edit dist-multi-edit
-    dist-structure dist-graph dist-jaccard dist-jaccard-binary dist-sorensen dist-mountford
+    dist-structure dist-graph dist-set dist-jaccard-bin
     histogram entropy self-info inner-dynamic graph-length
     ;; 4. reading and writing files
     read-text write-list display-list seq>plot seq>abc seq>ly graph>dot dendrogram>dot

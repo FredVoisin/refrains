@@ -114,53 +114,39 @@ If <y> is null, <x> may represent a list of points, then the output is the list 
 
 ;; distances between sets: the order and the repetitions of the elements are ignored
 
-(defgeneric dist-jaccard (a b &key test key)
-  (:documentation "DIST-JACCARD: Jaccard distance between the sets a and b, 1 - |a & b| / |a | b|:
-0 for the same elements (two empty sets too), 1 for sets with no common element.
-The order and the repetitions of the elements are ignored. :test: identity of the elements (equalp by default);
-:key: the part of the elements compared (identity by default).
+(defgeneric dist-set (a b &key measure test key)
+  (:documentation "DIST-SET: distance between the sets a and b, from 0 (the same elements, two empty sets too)
+to 1 (no common element). The order and the repetitions of the elements are ignored. :measure (a symbol
+of any package, a keyword or a string):
+jaccard (or nil, default): Jaccard distance, 1 - |a & b| / |a | b|;
+sorensen: Sorensen-Dice distance, 1 - 2 |a & b| / (|a| + |b|), which weighs the common elements more;
+mountford: Mountford distance, 1 / (1 + M), with Mountford's index M = 2j / (2|a||b| - (|a| + |b|)j), j = |a & b|.
+:test: identity of the elements (equalp by default); :key: the part of the elements compared (identity by default).
 If <b> is nil, the distances between all the sets of <a>."))
 
-(defmethod dist-jaccard ((a t) (b t) &key (test #'equalp) (key #'identity))
-  (if (and a (null b))
-      (refrains::semi-matrix #'(lambda (x y) (refrains::jaccard-dist x y :test test :key key)) a)
-      (refrains::jaccard-dist a b :test test :key key)))
+(defmethod dist-set ((a t) (b t) &key (measure nil) (test #'equalp) (key #'identity))
+  ;; measures are recognized by their names: 'sorensen from any package, :sorensen or "sorensen"
+  (let* ((name (if measure (string-upcase (string measure)) "JACCARD"))
+         (d (cond ((string= name "JACCARD")
+                   #'(lambda (x y) (refrains::jaccard-dist x y :test test :key key)))
+                  ((string= name "SORENSEN")
+                   #'(lambda (x y) (- 1.0 (refrains::sorensen-similarity x y :test test :key key))))
+                  ((string= name "MOUNTFORD")
+                   #'(lambda (x y) (- 1.0 (refrains::mountford-similarity x y :test test :key key))))
+                  (t (error "dist-set: unknown measure ~S, use jaccard, sorensen or mountford." measure)))))
+    (if (and a (null b))
+        (refrains::semi-matrix d a)
+        (funcall d a b))))
 
-(defgeneric dist-jaccard-binary (a b &key test key)
-  (:documentation "DIST-JACCARD-BINARY: Jaccard distance between the binary vectors (lists of the same length) a and b:
+(defgeneric dist-jaccard-bin (a b &key test key)
+  (:documentation "DIST-JACCARD-BIN: Jaccard distance between the binary vectors (lists of the same length) a and b:
 among the positions where a value is present in a or in b, the proportion of those where it is present in only one;
 the positions absent from both are not counted. :test: a predicate telling if a value is present (by default,
 any value other than nil and 0); :key: the part of the elements tested (identity by default).
 If <b> is nil, the distances between all the vectors of <a>."))
 
-(defmethod dist-jaccard-binary ((a t) (b t) &key (test nil) (key #'identity))
+(defmethod dist-jaccard-bin ((a t) (b t) &key (test nil) (key #'identity))
   (refrains::binary-jaccard-dist a b :test test :key key))
-
-(defgeneric dist-sorensen (a b &key test key)
-  (:documentation "DIST-SORENSEN: Sorensen-Dice distance between the sets a and b, 1 - 2 |a & b| / (|a| + |b|):
-0 for the same elements (two empty sets too), 1 for sets with no common element; it weighs the common
-elements more than dist-jaccard. The order and the repetitions of the elements are ignored.
-:test: identity of the elements (equalp by default); :key: the part of the elements compared (identity by default).
-If <b> is nil, the distances between all the sets of <a>."))
-
-(defmethod dist-sorensen ((a t) (b t) &key (test #'equalp) (key #'identity))
-  (flet ((d (x y) (- 1.0 (refrains::sorensen-similarity x y :test test :key key))))
-    (if (and a (null b))
-        (refrains::semi-matrix #'d a)
-        (d a b))))
-
-(defgeneric dist-mountford (a b &key test key)
-  (:documentation "DIST-MOUNTFORD: Mountford distance between the sets a and b, 1 / (1 + M), with Mountford's index
-M = 2j / (2|a||b| - (|a| + |b|)j), j = |a & b|: 0 for the same elements (two empty sets too), 1 for sets
-with no common element. The order and the repetitions of the elements are ignored.
-:test: identity of the elements (equalp by default); :key: the part of the elements compared (identity by default).
-If <b> is nil, the distances between all the sets of <a>."))
-
-(defmethod dist-mountford ((a t) (b t) &key (test #'equalp) (key #'identity))
-  (flet ((d (x y) (- 1.0 (refrains::mountford-similarity x y :test test :key key))))
-    (if (and a (null b))
-        (refrains::semi-matrix #'d a)
-        (d a b))))
 
 (defgeneric dist-edit (seq1 seq2 &key sub ins del uncom norm test)
   (:documentation "DIST-EDIT: editing distance from seq1 to seq2.

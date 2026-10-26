@@ -34,7 +34,7 @@
                 ;; distances
                 #:dist-euclid #:dist-euclidean #:dist-cityblock #:dist-hamming
                 #:dist-edit #:dist-multi-edit #:dist-structure #:dist-graph
-                #:dist-jaccard #:dist-jaccard-binary #:dist-sorensen #:dist-mountford
+                #:dist-set #:dist-jaccard-bin
                 ;; information
                 #:histogram #:entropy #:self-info #:inner-dynamic
                 ;; classification

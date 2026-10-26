@@ -12,13 +12,14 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 
 ### Added
 
-- Four distances between sets, exported in the family `dist-`:
-  `dist-jaccard`, `dist-jaccard-binary` (binary vectors of presence, with
-  the standard convention: a value other than nil and 0 is present),
-  `dist-sorensen` and `dist-mountford` (1 - their similarity). The order and
-  the repetitions of the elements are ignored; with `b` nil, the semi-matrix
-  of the distances, as for the other distances. Documented in
-  `doc/refrains.fr.md` and `doc/refrains-fonctions.fr.md`.
+- Distances between sets, exported in the family `dist-`: `dist-set`, with
+  `:measure` `jaccard` (by default), `sorensen` or `mountford` (1 - their
+  similarity), and `dist-jaccard-bin` for binary vectors of presence,
+  with the standard convention: a value other than nil and 0 is present.
+  The order and the repetitions of the elements are ignored; with `b` nil,
+  the semi-matrix of the distances, as for the other distances. Documented
+  in `doc/refrains.fr.md` (with the references to Jaccard, 1901, and to
+  Sneath & Sokal, 1973) and `doc/refrains-fonctions.fr.md`.
 
 ### Fixed
 
