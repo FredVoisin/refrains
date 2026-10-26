@@ -27,12 +27,6 @@
 
 (in-package :refrains)
 
-(defgeneric graph2matrix (graph)
-  (:documentation "represents a graph (list of (v1 v2 edge)) as a standart adjacent matrix"))
-
-(defmethod graph2matrix ((graph list))
-  (adj-matrix graph))
-
 ;;; TREES AND GRAPHS
 ; 1. minimum spanning tree (in french: arbre de longueur minimum ou arbre de recouvrement)
 ; using Prim's algorithm
@@ -63,16 +57,6 @@ if graph is not connected, it is a minimum spanning forest (one tree for each co
         (message (format nil "graph-span: the graph is not connected: minimum spanning forest of ~D trees."
                          (- vertices (length tree)))))
       (nreverse tree))))
-
-(defgeneric minimum-spanning-tree (graph &optional verbose)
-  (:documentation "Returns the span tree for a list of points according to the list of their distance.
-The list of distances must have the form: ((xi yi di) ...), for instance a semi-matrix of distances.
-The edges of the tree are given by increasing distance. See spanning-tree (Kruskal's algorithm;
-the former version used Prim's algorithm, after E. Diday & all, 1982 : Elements d'analyse de donnees,
-Dunod, Paris. pp. 110-111)."))
-
-(defmethod minimum-spanning-tree ((graph list) &optional (verbose nil))
-  (spanning-tree graph verbose))
 
 (defun graph-neighbours (graph)
   "Hash table (test equal) of the neighbours of each node of graph, a list of edges
@@ -156,43 +140,6 @@ In a tree there is only one path; in other graphs, Dijkstra's algorithm gives th
     (loop for (l . others) on (tree-leaf-nodes tree)
           append (paths-from l others nb))))
 
-(defgeneric tree-path (from to tree)
-  (:documentation "path from vertex to vertex in tree."))
-
-(defmethod tree-path ((from number) (to number) (tree list))
-  (find-path tree from to))
-
-(defmethod tree-path ((from symbol) (to symbol) (tree list))
-  (find-path tree from to))
-
-(defmethod tree-path ((from null) (to null) (tree list))
-  (all-paths tree))
-
-(defmethod tree-path ((from t) (to null) (tree list))
-  (paths-to-leaves from tree))
-
-;; nil is a symbol: without this method, (tree-path 'a nil tree) would look for a node named nil
-(defmethod tree-path ((from symbol) (to null) (tree list))
-  (paths-to-leaves from tree))
-
-(defmethod tree-path ((from null) (to t) (tree list))
-  (paths-to-leaves to tree))
-
-(defmethod tree-path ((from list) (to null) (tree list))
-  (mapcar #'(lambda (v) (paths-to-leaves v tree)) from))
-
-(defmethod tree-path ((from null) (to list) (tree list))
-  (mapcar #'(lambda (v) (paths-to-leaves v tree)) to))
-
-(defmethod tree-path ((from list) (to list) (tree list))
-  (mapcar #'(lambda (s)
-              (remove-duplicates (mapcar #'(lambda (e)
-                                             (find-path tree s e)) to)
-                                 :test #'equal))  from))
-
-(defmethod tree-path ((from string) (to string) (tree list))
-  (find-path tree from to))
-
 ;; a tree is a list of list of edges each defined by two vertices, such as: ( (a b) (b c) (b d) (c e)...) 
 ; any edge can be defined by some properties in the rest of the list of its vertices ;
 ; for instance: (a b .1 2 z) is an edge between vertices a and b with (.12 z) as properties of the edge.
@@ -212,26 +159,8 @@ In a tree there is only one path; in other graphs, Dijkstra's algorithm gives th
 (defun min-total-length (tree)
   (apply #'+ (mapcar #'caddr tree)))
 
-(defgeneric tree-minlen (tree)
-  (:documentation "Minimum total length of a tree (sum of all edge's length)."))
-
-(defmethod tree-minlen ((tree list))
-  (min-total-length tree))
-
 (defun tree-degree (vertex tree)
   (count-if #'(lambda (x) (or (equal vertex (first x)) (equal vertex (second x)))) tree))
-
-(defgeneric tree-deg (vertex tree)
-  (:documentation "Degree of a vertex in a tree."))
-
-(defmethod tree-deg ((vertex t) (tree list))
-  (tree-degree vertex tree))
-
-(defmethod tree-deg ((vertex list) (tree list))
-  (mapcar #'(lambda (x) (tree-deg x tree)) vertex))
-
-(defmethod tree-deg ((vertex null) (tree list))
-  (tree-deg (all-vertices tree) tree))
 
 (defun nodes (tree &optional (min-degree 2))
   (let* ((e  (mapcar #'butlast (remove-if #'(lambda (x) (zerop (caddr x))) tree)))  ;; remove if dist = 0
@@ -246,27 +175,6 @@ In a tree there is only one path; in other graphs, Dijkstra's algorithm gives th
   (let ((e (mapcar #'butlast tree)))
     (remove-if-not #'(lambda (k) (= 1 (count-if #'(lambda (x) (member k x :test #'equal)) e)))
                    (all-vertices tree))))
-
-(defgeneric tree-leaves (tree)
-   (:documentation "List of leaves in a tree."))
-
-(defmethod tree-leaves ((tree list))
-  (leaves tree))
-
-(defgeneric tree-dist (vertex1 vertex2 tree)
-   (:documentation "Distance between vertex1 and vertex2 in tree."))
-
-(defmethod tree-dist ((vertex1 t) (vertex2 t) (tree list))
-  ;; the length of the shortest path, nil if there is none (it gave 0)
-  (graph-distance tree vertex1 vertex2))
-
-(defmethod tree-dist ((vertex1 t) (vertex2 list) (tree list))
-  (mapcar #'(lambda (x) (tree-dist vertex1 x tree)) vertex2))
-
-(defmethod tree-dist ((vertex1 t) (vertex2 null) (tree list))
-  ;; the distances to all the nodes, in the order of all-vertices (graph-nodes), 0 to vertex1 itself
-  ;; (it gave the number of nodes of the paths to the other nodes)
-  (mapcar #'(lambda (x) (tree-dist vertex1 x tree)) (all-vertices tree)))
 
 ;;Strahler number to do
 

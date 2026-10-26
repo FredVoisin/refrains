@@ -101,8 +101,25 @@ A motif is a segment repeated at least once, later and without overlapping.
               (and (listp lengths) (= 2 (length lengths)) (every #'integerp lengths)
                    (<= 1 (first lengths) (second lengths))))
     (error "motif-structure: :lengths must be (min max) or a maximum length, not ~S." lengths))
-  (refrains::rep-strct seq :diss diss :l-var l-var :n lengths :criteria criteria
-                                 :distance-fct distance :test test))
+  ;; the motifs found, each with its positions, then the motifs kept: the longest (:length) or the
+  ;; most frequent (:freq) of the motifs contained in one another with the same number of repetitions
+  (let* ((x (whenlooploopwhenwhen seq diss l-var lengths distance test))
+         (same #'(lambda (a b) (and (subseq-p (car a) (car b)) (= (length (cdr a)) (length (cdr b))))))
+         (ptrns (if (eq criteria :freq)
+                    (remove-duplicates (sort x '> :key #'(lambda (x) (length (cdr x)))) :from-end nil :test same)
+                    (remove-duplicates (sort x '> :key #'(lambda (x) (length (car x)))) :from-end t :test same)))
+         (pos (sort (remove-duplicates (apply #'append (mapcar #'(lambda (x) (mapcar #'car (cdr x))) ptrns))) '<))
+         (ptrn-list nil)
+         (st nil))
+    (mapcar #'(lambda (x) (setf (cdr x) (mapcar #'car (cdr x)))) ptrns)
+    (dotimes (k (length ptrns))
+      (push (list (car (nth k ptrns)) k) ptrn-list))
+    (dolist (p pos)
+      (push (apply #'append (list (list p)
+                                  (mapcar #'(lambda (x) (cadr (assoc (car x) ptrn-list :test #'equalp)))
+                                          (remove-if-not #'(lambda (x) (member p (cdr x))) ptrns))))
+            st))
+    (list (reverse st) (mapcar #'car (sort ptrn-list '< :key #'cadr)))))
 
 (defgeneric motif-group (seq test &optional key)
   (:documentation "MOTIF-GROUP: assembles consecutive elements or motifs of <seq> for which the comparison <test> (by default: equalp) is successful.

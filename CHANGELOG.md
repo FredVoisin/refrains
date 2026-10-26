@@ -35,6 +35,13 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `e-shannon`, `kind-of-entropie-conditionnelle` and `dendrogram>dot`: only
   portable Common Lisp remains. The entropies sum with `reduce` instead of
   `apply`, which is bounded by `call-arguments-limit`.
+- The internal relays inherited from OpenMusic and PWGL, which only passed
+  their arguments on: `tree-minlen`, `tree-leaves`, `graph2matrix`,
+  `minimum-spanning-tree`, `find-pos`, `randsort` (`randswap` takes a part
+  of the length), and `tree-deg`, `tree-path`, `tree-dist`, whose methods
+  are now those of `graph-degree`, `graph-path` and `dist-graph`;
+  `rep-strct` and `find-self` are now the bodies of `motif-structure` and
+  `motif-list`. No exported function changes.
 
 ## [0.2.1] - 2026-10-24
 

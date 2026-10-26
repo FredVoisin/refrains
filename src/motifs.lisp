@@ -29,13 +29,6 @@
 
 ;;; PATTERN STRUCTURE is old Structure 2 totally rewritten
 
-(defgeneric find-pos (motif seq &optional diss l-var distance-fct)
-  (:documentation "Yet another find pattern in a sequence with resemblance (default) criteria.
-Returns the positions of sequence <ptrn> into sequence <seq> with some tolerance in comparing to be adjusted by optional arguments.
-<motif> : motif to search;
-<seq> : sequence of symbols.
-Optional argument: distance function in lambda form, for instance : (lambda (a b) (edit-dist a b))."))
-
 (defun edit-dist-bounded (a b start lb bound &optional (test #'equalp))
   "The edit distance (costs 1) between the vector a and the lb elements of the vector b from
 position start, if it is not more than the integer bound, else nil. The computation stops as
@@ -67,7 +60,7 @@ never decreases in the next rows."
           (when (<= d bound) d))))))
 
 (defun find-pos-in (motif v start diss l-var distance-fct &optional (test #'equalp))
-  "Positions (first last) of motif in the vector v, from position start (see find-pos).
+  "Positions (first last) of motif in the vector v, from position start (see motif-position).
 Without distance-fct, the normalized edit distance is used, test being the identity of elements;
 with diss 0 too, the windows are compared element by element with test, which gives the same
 result without computing distances."
@@ -101,13 +94,6 @@ result without computing distances."
                             (some #'(lambda (a) (subpos-p x a))
                                   (remove x pos :test #'equalp)))
                         pos))))
-
-(defmethod find-pos ((motif list) (seq list) &optional (diss 0) (l-var 0) (distance-fct nil))
-  (find-pos-in motif (coerce seq 'vector) 0 diss l-var distance-fct))
-
-; (time (find-pos '(a b c) '(t x a  b c y  t a e  b c k  r a b  c)))
-; (time (find-pos  '(a b c) '(t x a b c y t a e b c k r a b c) .25 .34))
-; (time (find-pos  '(a b c) '(t x a b c y t a e b c k r a b c) .25 .2 1 0 1 0))
 
 (defun subseq-p (a b &optional (test #'equalp))
   (let ((la (length a))
@@ -180,66 +166,6 @@ result without computing distances."
 ;; next function does also an brut-force run on the seqs which may be not well adapted to huge lists
 ;; for huge lists of symbols, I rather like to do the same but using an random search to be tuned - kind of sondage or windowing -
 ;; in the list, following more flexible or fuzzy/lazy rules for probabiltistic retrieval - may be use of a dict ?
-
-(defgeneric find-self (seq out &optional diss l-var n distance-fct test)
-  (:documentation "List all patterns in seq found using ptrn-find."))
-
-(defmethod find-self ((seq list) (out symbol) &optional (diss 0) (l-var 0) (n nil) (distance-fct nil) (test #'equalp))
-  ;; distance-fct nil: the normalized edit distance with test (see find-pos-in)
-  (when (null diss) (setf diss 0))
-  (when (null l-var) (setf l-var 0))
-  (when (null out) (setf out ':length))
-  (case out
-    (:length
-     (sort (whenlooploopwhenwhen seq diss l-var n distance-fct test) '> :key (lambda (x) (length (car x)))))
-    (:freq
-     (sort (whenlooploopwhenwhen seq diss l-var n distance-fct test) '> :key (lambda (x) (length (cdr x)))))
-    (t (whenlooploopwhenwhen seq diss l-var n distance-fct test))))
-
-;(print (find-self '(t x a  b c y  t a e  b c k  r t x  a t x  a b c  i y t  a e c  e i b  c k r) :length))
-;(print (find-self '(t x a  b c y  t a e  b c k  r t x  a t x  a b c  i y t  a e c  e i b  c k r) :freq))
-
-(defgeneric rep-strct (seq &key diss l-var n criteria distance-fct test)
-  (:documentation "Possibles structures of seq based of automatically found patterns (plist)."))
-
-(defmethod rep-strct ((seq t) &key (diss 0) (l-var 0) (n nil) (criteria :length) distance-fct (test #'equalp))
-  ;; without distance-fct, the normalized edit distance with test (with diss 0: element by element)
-  (let* ((x (whenlooploopwhenwhen seq diss l-var n distance-fct test))
-         (ptrns
-          (case criteria
-            (:length
-             (remove-duplicates (sort x '> :key #'(lambda (x) (length (car x))))
-                                :from-end t
-                                :test #'(lambda (a b) (and (subseq-p (car a) (car b)) (= (length (cdr a)) (length (cdr b)))))))
-            (:freq
-             (remove-duplicates (sort x '> :key #'(lambda (x) (length (cdr x))))
-                                :from-end nil
-                                :test #'(lambda (a b) (and (subseq-p (car a) (car b)) (= (length (cdr a)) (length (cdr b)))))))
-            (t (remove-duplicates x
-                                  :from-end t
-                                  :test #'(lambda (a b) (and (subseq-p (car a) (car b)) (= (length (cdr a)) (length (cdr b)))))))))
-         (pos (sort (remove-duplicates (apply #'append (mapcar #'(lambda (x) (mapcar #'car (cdr x))) ptrns))) '<))
-         (ptrn-list nil)
-         (st nil))
-    (mapcar #'(lambda (x) (setf (cdr x) (mapcar #'car (cdr x)))) ptrns)
-    (dotimes (k (length ptrns))
-      (push (list (car (nth k ptrns)) k) ptrn-list))
-    (dolist (p pos)
-      (push (apply #'append (list (list p)
-                                  (mapcar #'(lambda (x) (cadr (assoc (car x) ptrn-list :test #'equalp)))
-                                          (remove-if-not #'(lambda (x) (member p (cdr x))) ptrns))))
-            st))
-    (list (reverse st) (mapcar #'car (sort ptrn-list '< :key #'cadr)))))
-    
-#|
-(print (rep-strct '(t x a  b c y  t a e  b c k  r t x  a t x  a b c  i y t  a e c  e i b  c k r) :criteria :length))
-(print (rep-strct '(t x a  b c y  t a e  b c k  r t x  a t x  a b c  i y t  a e c  e i b  c k r) :criteria :freq)
-(print (rep-strct '(t x a  b c y  t a e  b c k  r t x  a t x  a b c  i y t  a e c  e i b  c k r) :criteria nil)
-(print (rep-strct '(t x a  b c y  t a e  b c k  r t x  a t x  a b c  i y t  a e c  e i b  c k r) :criteria :freq
-                  :diss 0.25 :l-var 0.3 :n '(2 8)))
-(print (rep-strct '(t x a  b c y  t a e  b c k  r t x  a t x  a b c  i y t  a e c  e i b  c k r) :criteria nil
-                  :diss 0.25 :l-var 0.3 :n '(2 8)))
-|#
 
 ;; groupadjif1 / 2 a optimiser !
 

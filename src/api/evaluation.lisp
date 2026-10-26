@@ -53,8 +53,8 @@ argument :l-var is the threshold for variation in length of the motifs to be com
 arguments :sub :ins :del :uncom and :test for tuning the editing distance (see dist-edit)."))
 
 (defmethod motif-position ((motif t) (seq t) &key (diss 0) (l-var 0) (sub 1) (ins 1) (del 1) (uncom 0) (test #'equalp))
-  (find-pos motif seq diss l-var
-            #'(lambda (a b) (edit-dist a b sub ins del uncom t test))))
+  (find-pos-in motif (coerce seq 'vector) 0 diss l-var
+               #'(lambda (a b) (edit-dist a b sub ins del uncom t test))))
 
 (defmethod motif-position ((motif string) (seq string) &key (diss 0) (l-var 0) (sub 1) (ins 1) (del 1) (uncom 0) (test #'equalp))
   ;; a string is searched as a list of characters (there was no method for strings)
@@ -75,16 +75,19 @@ arguments :sub :ins :del :uncom and :test for tuning the editing distance (see d
   (when (not out) (setf out :length))
   (unless (member out '(:length :freq))
     (error "motif-list: unknown output ~S, use :length or :freq." out))
-  (refrains::find-self
-   seq out diss l-var n
-   ;; the default distance (nil) gives the same results faster: with diss 0 and positive costs,
-   ;; a distance of 0 means identical elements by test; with the default costs, it is the same
-   ;; normalized edit distance
-   (if (or (and (zerop diss) (plusp sub) (plusp ins) (plusp del) (not (minusp uncom)))
-           (and (= sub ins del 1) (zerop uncom)))
-       nil
-       #'(lambda (a b) (edit-dist a b sub ins del uncom t test)))
-   test))
+  (let* ((diss (or diss 0))
+         (l-var (or l-var 0))
+         ;; the default distance (nil) gives the same results faster: with diss 0 and positive costs,
+         ;; a distance of 0 means identical elements by test; with the default costs, it is the same
+         ;; normalized edit distance
+         (distance (if (or (and (zerop diss) (plusp sub) (plusp ins) (plusp del) (not (minusp uncom)))
+                           (and (= sub ins del 1) (zerop uncom)))
+                       nil
+                       #'(lambda (a b) (edit-dist a b sub ins del uncom t test)))))
+    (sort (whenlooploopwhenwhen seq diss l-var n distance test) '>
+          :key (if (eq out :freq)
+                   #'(lambda (x) (length (cdr x)))
+                   #'(lambda (x) (length (car x)))))))
 
 (defgeneric dist-euclidean (a b)
   (:documentation "DIST-EUCLIDEAN: euclidean distance between points a and b.
@@ -186,8 +189,17 @@ between them (Dijkstra, see graph-path), 0 from a node to itself, nil if there i
 A list of nodes <v2> gives the list of their distances to <v1>, and nil the distances of <v1> to all the nodes,
 in the order of graph-nodes."))
 
-(defmethod dist-graph ((v1 t) (v2 t) (graph t))
-  (refrains::tree-dist v1 v2 graph))
+(defmethod dist-graph ((v1 t) (v2 t) (graph list))
+  ;; the length of the shortest path, nil if there is none (it gave 0)
+  (graph-distance graph v1 v2))
+
+(defmethod dist-graph ((v1 t) (v2 list) (graph list))
+  (mapcar #'(lambda (x) (dist-graph v1 x graph)) v2))
+
+(defmethod dist-graph ((v1 t) (v2 null) (graph list))
+  ;; the distances to all the nodes, in the order of all-vertices (graph-nodes), 0 to v1 itself
+  ;; (it gave the number of nodes of the paths to the other nodes)
+  (mapcar #'(lambda (x) (dist-graph v1 x graph)) (all-vertices graph)))
 
 (defgeneric histogram (data &key test thes)
   (:documentation "HISTOGRAM: histogram of data, as a list of (element count): sorted by increasing value for numbers,
@@ -248,14 +260,20 @@ del messaggio, attivita' mnemonico-percettiva e risposta psichica', Prisma 01, E
 (see graph-span), a measure of the diversity of the objects."))
 
 (defmethod graph-length ((graph list))
-  (refrains::tree-minlen graph))
+  (refrains::min-total-length graph))
 
 (defgeneric graph-degree (node graph)
   (:documentation "GRAPH-DEGREE: degree of a node in a graph, the number of its edges (0 if it is not in the graph).
 A list of nodes gives the list of their degrees, nil the degrees of all the nodes, in the order of graph-nodes."))
 
 (defmethod graph-degree ((node t) (graph list))
-  (refrains::tree-deg node graph))
+  (tree-degree node graph))
+
+(defmethod graph-degree ((node list) (graph list))
+  (mapcar #'(lambda (x) (graph-degree x graph)) node))
+
+(defmethod graph-degree ((node null) (graph list))
+  (graph-degree (all-vertices graph) graph))
 
 (defgeneric graph-nodes (graph)
   (:documentation "GRAPH-NODES: list of all nodes of a graph, each node once, sorted."))
@@ -267,10 +285,41 @@ A list of nodes gives the list of their degrees, nil the degrees of all the node
   (:documentation "GRAPH-LEAVES: returns all extremities (leaves) of a graph, the nodes of degree 1, sorted as by graph-nodes."))
 
 (defmethod graph-leaves ((graph list))
-  (refrains::tree-leaves graph))
+  (refrains::leaves graph))
 
 (defgeneric graph-path (from to graph)
   (:documentation "GRAPH-PATH: returns path(s) from node(s) or leave(s) to one or some other node(s) or leave(s) of a graph; in a graph with cycles, the shortest path by distance."))
 
-(defmethod graph-path ((from t) (to t) (graph list))
-  (refrains::tree-path from to graph))
+(defmethod graph-path ((from number) (to number) (graph list))
+  (find-path graph from to))
+
+(defmethod graph-path ((from symbol) (to symbol) (graph list))
+  (find-path graph from to))
+
+(defmethod graph-path ((from null) (to null) (graph list))
+  (all-paths graph))
+
+(defmethod graph-path ((from t) (to null) (graph list))
+  (paths-to-leaves from graph))
+
+;; nil is a symbol: without this method, (graph-path 'a nil graph) would look for a node named nil
+(defmethod graph-path ((from symbol) (to null) (graph list))
+  (paths-to-leaves from graph))
+
+(defmethod graph-path ((from null) (to t) (graph list))
+  (paths-to-leaves to graph))
+
+(defmethod graph-path ((from list) (to null) (graph list))
+  (mapcar #'(lambda (v) (paths-to-leaves v graph)) from))
+
+(defmethod graph-path ((from null) (to list) (graph list))
+  (mapcar #'(lambda (v) (paths-to-leaves v graph)) to))
+
+(defmethod graph-path ((from list) (to list) (graph list))
+  (mapcar #'(lambda (s)
+              (remove-duplicates (mapcar #'(lambda (e)
+                                             (find-path graph s e)) to)
+                                 :test #'equal))  from))
+
+(defmethod graph-path ((from string) (to string) (graph list))
+  (find-path graph from to))

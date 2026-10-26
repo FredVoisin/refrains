@@ -253,7 +253,7 @@ Returns the class of each datum, numbered by order of first appearance, and the 
   (let* ((symlist (remove-duplicates data :test #'equalp))
          (grm (cond (mst mst)
                     ((cdr symlist)
-                     (minimum-spanning-tree (edit-dist symlist nil change insert delete inex norm)))
+                     (spanning-tree (edit-dist symlist nil change insert delete inex norm)))
                     (t nil)))
          ;; the edges kept: all but the n-1 longest (the first one in the tree if equal)
          (kept (nthcdr (min (max 0 (1- n)) (length grm))

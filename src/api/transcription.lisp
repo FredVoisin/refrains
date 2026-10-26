@@ -52,7 +52,7 @@ strings into a string, other elements into a symbol."))
 as a list of rows: rows and columns in the order of graph-nodes, the distance of each edge, 0 elsewhere."))
 
 (defmethod graph>matrix ((list t))
-  (refrains::graph2matrix list))
+  (refrains::adj-matrix list))
 
 (defgeneric filt-function (seq func window &optional step)
   (:documentation "Apply function <func> to sequence <seq> thru a sliding window of length <window> by (optional) step <step> (1 by default).
@@ -241,7 +241,7 @@ For instance (lambda (x l) (declare (ignore x)) (nth (random (length l)) l)) rep
   (:documentation   "GRAPH-SPAN: minimum spanning tree build on a semi-matrix of distances <mat-dist>."))
 
 (defmethod graph-span ((mat-dist list) &optional (verbose nil))
-  (minimum-spanning-tree mat-dist verbose))
+  (spanning-tree mat-dist verbose))
 
 (defgeneric graph-dendrogram (mat-dist &key linkage)
   (:documentation "GRAPH-DENDROGRAM: dendrogram of the hierarchical classification of the objects of a semi-matrix of

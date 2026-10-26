@@ -47,7 +47,7 @@ l being (a copy of) the whole list, shared by all the calls (it should not be mo
            (let ((l (copy-list list)))
              (mapcar #'(lambda (x) (funcall mode x l)) list)))
           ((null list) nil)
-          ((notevery #'numberp list) (randsort list val))
+          ((notevery #'numberp list) (randswap list val))
           (t (let ((range (- (reduce #'max list) (reduce #'min list))))
                (case mode
                  (:nozero
@@ -55,7 +55,7 @@ l being (a copy of) the whole list, shared by all the calls (it should not be mo
                     (unless (plusp q)
                       (error "filt-noise :nozero: val must be positive, not ~S." val))
                     (mapcar #'(lambda (x) (if (zerop x) (random-positive q) x)) list)))
-                 (:swap (randsort list val))
+                 (:swap (randswap list val))
                  (:relative
                   (let ((q (float (* val range))))
                     (mapcar #'(lambda (x) (+ x (* q (- (random 2.0) 1.0)))) list)))

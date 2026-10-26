@@ -194,7 +194,11 @@ Empty segments are removed."
 						 liste))))))))
 
 (defun randswap (list &optional iter)
-  (when (not iter) (setf iter (floor (/ (length list) 2))))
+  "A copy of list with iter random swaps of two elements: an integer, or a float, a part of the length
+of list (half of it by default)."
+  (setf iter (cond ((null iter) (floor (length list) 2))
+                   ((floatp iter) (floor (* iter (length list))))
+                   (t iter)))
   (let ((l (copy-tree list))
         (le (length list)))
     (loop repeat iter
@@ -206,14 +210,6 @@ Empty segments are removed."
     (values l)))
 
 ;(randswap '(1 2 3 4 5 6 7 8 9 0) 10)
-
-(defgeneric randsort (list &optional n)
-  (:documentation "Sort randomly elements of list.
-Optional argument is the amount randomness if <n> a float (0.0 to 1.0) or the number of iterations if <n> is an integer
-(where each iteration change the place of one element of list)."))
-
-(defmethod randsort ((list list) &optional (n 1.0))
-  (randswap list (if (floatp n) (floor (* n (length list))) n)))
 
 (defun list-display (tree &optional res (n 0))
   (cond ((null tree) (if res (list-display (car res) (cdr res) (1- n)) (values)))
