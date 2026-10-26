@@ -1,6 +1,6 @@
 # Quantifier une F0 : *Hìndèhú*
 
-[Exemples](../exemples.md)
+[Exemples](../exemples.md) · In English: [Quantizing an F0: *Hìndèhú*](../examples/hindehu.md)
 
 F. Voisin, 2026 (enregistrement : S. Arom, V. Dehoux, S. Fürniss et F. Voisin, Centrafrique, 1989).
 
@@ -391,9 +391,9 @@ LilyPond) et, si `lilypond` est installé, sa partition (SVG) dans
 ;;;; hindehu.lisp
 ;;;;
 ;;;; Quantifier une fréquence fondamentale (F0) mesurée : un extrait de Hìndèhú, des Aka
-;;;; (Centrafrique), voix et mòbéké (une flûte de pan) alternés, enregistré par S. Arom,
-;;;; V. Dehoux, S. Fürniss et F. Voisin en 1989.
-;;;; La F0 a été détectée toutes les 10 ms (algorithme YIN, de 60 à 1000 Hz), avec
+;;;; (Centrafrique), voix et mòbéké alternés, enregistré par S. Arom, V. Dehoux,
+;;;; S. Fürniss et F. Voisin en 1989.
+;;;; La F0 a été mesurée toutes les 10 ms (algorithme YIN, de 60 à 1000 Hz), avec
 ;;;; l'intensité : doc/data/hindehu-f0.txt, une ligne par trame (temps en s, F0 en Hz ou 0
 ;;;; si la trame n'est pas voisée, intensité en dB). La F0, telle que détectée, est
 ;;;; quantifiée par filt-quantize, sur l'ensemble et sur une fenêtre glissante, puis par

@@ -9,6 +9,7 @@ Examples of use of refrains, one per file. The documentation of each function is
 - [Automatic transcription of a sonogram: the black redstart](examples/black-redstart.md) (F. Voisin, JIM 2011, Saint-Étienne): transcribing the song of a bird by classifying the instantaneous spectra of a sonogram read as an image (`class-sym`).
 - [Contrastive analysis: marks and resemblance](examples/contrastive-analysis.md) (F. Voisin, 2010): treating as one motif segments close in edit distance (`mark-list`).
 - [Quantization](examples/quantization.md) (F. Voisin, 2010): quantizing a flow on its own centres of attraction (`class-num`).
+- [Quantizing an F0: *Hìndèhú*](examples/hindehu.md) (F. Voisin, 2026): the fundamental frequency of an extract of *Hìndèhú* of the Aka (voice and *mòbéké*), quantized on the whole, on a sliding window (`filt-quantize`) and by notes (`class-num`, `histogram`): five levels of a scale that is not tempered, transcribed a quarter tone lower for LilyPond (`seq>ly`) and in the ABC notation (`seq>abc`) (in Common Lisp).
 - [Segmentation of a fundamental frequency (F0)](examples/fundamental-frequency.md) (F. Voisin, 2010-2013): cutting an analysis of fundamental frequency (F0) into segments, exported for Max.
 - [Classification, quantization and entropy: *Zoboko*](examples/zoboko.md) (F. Voisin, 2009): in the rhythmic part of a piece of the Aka of Central Africa, the threshold of intensity that gives the most coherent structure (`class-num`, `entropy`).
 

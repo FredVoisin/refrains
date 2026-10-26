@@ -28,7 +28,7 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 - Example: quantizing an F0 (`doc/exemples/hindehu.md`,
   `doc/lisp/hindehu.lisp`, `doc/data/hindehu-f0.txt`, `doc/data/hindehu.mp3`):
   the fundamental frequency of an extract of *Hìndèhú* of the Aka (voice and
-  *mòbéké*, a pan flute), detected with YIN, quantized by `filt-quantize`
+  *mòbéké*), detected with YIN, quantized by `filt-quantize`
   (whole, sliding window), then by notes (`class-num` on the notes,
   `histogram` on a quarter-tone grid): five levels of a scale that is not
   tempered, about a quarter tone above the tempered one; transcribed a

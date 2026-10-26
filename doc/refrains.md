@@ -237,7 +237,7 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
 ;;  3.3 QUANTIFY : self information, diversity
        histogram, entropy, self-info, inner-dynamic, graph-length
 ;;; 4. READ/WRITE files
-       read-text, write-list, display-list, seq>plot, graph>dot, dendrogram>dot
+       read-text, write-list, display-list, seq>plot, seq>ly, graph>dot, dendrogram>dot
 ```
 
 In the REPL, `(doc)` lists the documented functions and `(doc 'dist-edit)`
@@ -1604,6 +1604,40 @@ there).
 60
 0                8
 ```
+
+#### `seq>ly (seq &key out title rhythm unit)`
+
+Writes a sequence of notes for [LilyPond](https://lilypond.org/), to the
+quarter tone, and can make a score of it (SVG, PDF or PNG). `seq` is a list of
+MIDI notes (60 is middle C, `c'`), a list of notes being a chord and a `nil` a
+rest; each note is rounded to the quarter tone, not to the semitone: a
+quarter tone higher is written `ih` (74.5 is `dih''`, a D a quarter tone
+higher). This is useful for a scale that is not tempered. Consecutive equal
+notes or chords make one. There is no meter (`\cadenzaOn`), so no bar line;
+an accidental is written on each note.
+
+- `:out`: `nil` (by default) returns the LilyPond text; `t` prints it in the
+  listener; a stream receives it; a path (string or pathname) writes the text
+  in a file of type `ly` and, unless the type is `ly`, runs `lilypond` to make
+  the score in the format of the type (`svg`, `pdf` or `png`), cropped to the
+  music (an SVG on a white background), and returns its name. If `lilypond`
+  cannot be run, the `.ly` file is still written, and an error says so;
+  another type is an error;
+- `:title`: the title of the score ("refrains" by default);
+- `:rhythm`: `nil` (by default), no rhythm: each note a quarter note, without
+  stem; `t`, each note lasts its number of positions divided by `:unit` (1 by
+  default), in sixteenths, in tied values where needed (9 sixteenths:
+  `2~ 16`).
+
+```lisp
+(seq>ly '(60 62 64 nil 74.5))
+;=> "... c'4 d'4 e'4 r4 dih''4 ..."
+(seq>ly '(60 60 60 60 60 60 60 60 60 62) :rhythm t)   ; ... c'2~ c'16 d'16
+(seq>ly melody :out "score.svg")                       ; score.ly and score.svg
+```
+
+`lilypond` is needed only for the score; refrains does not depend on it. See
+the example [Quantizing an F0: *Hìndèhú*](examples/hindehu.md).
 
 #### `graph>dot (graph &key out dis scale shape legend overlap invert)`
 
