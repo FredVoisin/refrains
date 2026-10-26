@@ -52,9 +52,6 @@ with time true, the date and time, such as \"22 Oct 2026 14:05:09\"."
 
 ;;; SOME "MATHS"
 
-(defun log! (x b)
-  (if (zerop x) 0 (log x b)))
-
 (defun mean (data)
   "The mean of the numbers of data (an error if data is empty)."
   (if data

@@ -175,10 +175,10 @@ first appearance in <data>."))
                (error "class-num: the points of data must all be numbers, or lists of the same number of coordinates."))
              (if (and numbers data (null iter))
                  ;; the centres of numbers are numbers (they were (x 0), the points used internally)
-                 (let ((r (refrains::n-class data classes iter dist)))
+                 (let ((r (refrains::dynclouds data classes iter dist)))
                    (list (first r) (mapcar #'car (second r)) (third r)))
                  ;; all the values (with an integer iter: the partition and its frequency)
-                 (refrains::n-class data classes iter dist))))
+                 (refrains::dynclouds data classes iter dist))))
           (t
            (refrains::1d-class data (max 2 classes) (if dist dist #'identity))))))
 

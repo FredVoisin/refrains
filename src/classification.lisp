@@ -45,6 +45,10 @@
             (progn (push (cons c (incf marker)) set)
                    (push marker r)))))))
 
+(defun numbers>points (numbers)
+  "The numbers as points of one coordinate for the dynamic clouds, (x 0) for each x."
+  (mapcar #'(lambda (x) (list x 0)) numbers))
+
 (defun random-dot (data)
   "A random point in the space defined by data, a list of points (lists of coordinates): each coordinate
 is drawn uniformly between the minimum and the maximum of this coordinate in data."
@@ -147,9 +151,10 @@ The second argument <dist> is the distance function (#'dist-euclid by default).
 "))
 
 (defmethod dynclouds ((data list) (n t) &optional (iter nil) (dist nil))
-  (when (not (member nil (mapcar #'numberp data)))
-    (setf data (mat-transpose (list data (make-list (length data) :initial-element 0)))))
+  (when (every #'numberp data)
+    (setf data (numbers>points data)))
   (cond
+   ((null data) nil)
    ((null iter) (multiple-value-bind (r c i) (nuees data n dist) (list r c i)))
    ((listp iter) (let* ((k (max 1 (car iter)))
                         (r (loop repeat k
@@ -169,21 +174,6 @@ The second argument <dist> is the distance function (#'dist-euclid by default).
 ;(dynclouds '((0) (.1) (.11)  (1) (1.1)  (.9) (1.9)  (-2) (-2.1)) 2 8)
 ;(dynclouds '((0) (.1) (.11)  (1) (1.1)  (.9) (1.9)  (-2) (-2.1)) 2 '(8))
 
-(defgeneric n-class (data n &optional iter dist)
-  (:documentation "Classification of data into N classes using the 'dynamic clouds' algorithm.
-Adapted from Diday & all: Elements d'analyse de donnees, Dunod, Paris, 1982.
-The first optional argument <iter> fixes the output form:
-if nil, runs the algorithm once and returns (classes centres iterations) ;
-if <iter> is a list of one number k, runs the algorithm k times and returns each different classification
-with its frequency (the frequencies sum to 1), the most frequent first ;
-if <iter> is a number k, runs the algorithm k times and returns two values: the most frequent classification and its frequency ;
-if t, the same with N * N runs, where N is the number of classes to be found, and returns the most frequent classification.
-The second argument <dist> is the distance function (#'dist-euclid by default).
-"))
-
-(defmethod n-class ((data list) (n t) &optional (iter nil) (dist nil))
-  (if data (dynclouds data n iter dist) nil))
-
 (defun centres-class (data centres &optional dist)
   "The dynamic clouds on data (numbers, or lists of coordinates) from the initial centres (of the same kind).
 Returns (classes centres iterations), the classes numbered by order of first appearance."
@@ -191,7 +181,7 @@ Returns (classes centres iterations), the classes numbered by order of first app
          (error "class-num: the list of initial centres is empty."))
         ((and (every #'realp data) (every #'realp centres))
          (multiple-value-bind (r c i)
-             (nuees (mapcar #'(lambda (x) (list x 0)) data) (mapcar #'(lambda (x) (list x 0)) centres) dist)
+             (nuees (numbers>points data) (numbers>points centres) dist)
            (list r (mapcar #'car c) i)))
         ((and (every #'listp data) (every #'listp centres)
               (apply #'= (mapcar #'length (append data centres))))
@@ -220,15 +210,14 @@ Returns (classes centres iterations), the classes numbered by order of first app
 (defun 1d-nuees (data centres)
   "Runs the dynamic clouds algorithm on 1D data from the initial centres."
   (multiple-value-bind (r c i)
-      (nuees (mat-transpose (list data (make-list (length data) :initial-element 0)))
-             (mapcar #'(lambda (x) (list (car x) 0)) centres))
+      (nuees (numbers>points data) (numbers>points (mapcar #'car centres)))
     (list r (mapcar #'car c) i)))
 
 (defmethod 1d-class ((data list) (n null) &optional (fct #'identity))
   (declare (ignore n))
   (let* ((sx (sort (copy-list data) '<))
          (fx (mapcar fct (dx sx)))
-         (c2 (nuees (mat-transpose (list fx (make-list (length fx) :initial-element 0))) 2))
+         (c2 (nuees (numbers>points fx) 2))
          ;; the class of the largest gaps
          (big (nth (position (apply #'max fx) fx) c2)))
     (1d-nuees data (1d-cut-centres sx (allpos big c2)))))

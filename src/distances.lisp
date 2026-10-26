@@ -27,6 +27,15 @@
 
 (in-package :refrains)
 
+(defun semi-matrix (fn list)
+  "The semi-matrix of the distances (fn x y) between all the elements of list, as a list of (i j d(i,j)),
+i < j, by increasing i then j: the form of the results of all the distances when their second argument is nil."
+  (let ((v (coerce list 'vector))
+        (r nil))
+    (dotimes (i (length v) (nreverse r))
+      (loop for j from (1+ i) below (length v)
+            do (push (list i j (funcall fn (aref v i) (aref v j))) r)))))
+
 ;;; DISTANCES DISSEMBLANCE ETC
 
 ;; 1. Distance euclidienne
@@ -60,11 +69,7 @@ If a and b are lists with not same size (i.e points with not same dimensions),
     ))
 
 (defmethod dist-euclid ((a list) (b null) &optional (key #'identity))
-  ;(assert (apply #'= (mapcar #'length a)))
-  (let ((r (list)))
-    (dotimes (i (length a) (nreverse r))
-      (loop for j from (1+ i) to (1- (length a))
-            do (push (list i j (dist-euclid (nth i a) (nth j a) key)) r)))))
+  (semi-matrix #'(lambda (x y) (dist-euclid x y key)) a))
 
 (defgeneric city-block (a b)
   (:documentation "City-block distance between a and b in euclidean space with n dimensions (with integer n > 0)."))
@@ -78,10 +83,7 @@ If a and b are lists with not same size (i.e points with not same dimensions),
 
 (defmethod city-block ((a list) (b null))
   (assert (apply #'= (mapcar #'length a)))
-  (let ((r (list)))
-    (dotimes (i (length a) (nreverse (remove 'nil r)))
-      (loop for j from (1+ i) to (1- (length a)) do
-	 (push (list i j (city-block (nth i a) (nth j a))) r)))))
+  (semi-matrix #'city-block a))
 
 (defun hamming-distance (v1 v2 &optional (test #'eq))
   (assert (= (length v1) (length v2)))
@@ -180,10 +182,7 @@ If a and b are lists with not same size (i.e points with not same dimensions),
   (when (not (= (length seq1)
 		(length (remove-duplicates (copy-tree seq1) :test #'equalp))))
     (message "gen-dist: warning ! duplicates in input list."))
-  (let ((r nil) (l (length seq1)))
-    (dotimes (i l (nreverse r))
-      (dotimes (j (- l i 1))
-        (push (list i (+ i j 1) (edit-dist (nth i seq1) (nth (+ i j 1) seq1) change insert delete inex normalized test)) r))) ))
+  (semi-matrix #'(lambda (x y) (edit-dist x y change insert delete inex normalized test)) seq1))
 
 (defmethod edit-dist ((seq1 string) (seq2 string) &optional (change 1) (insert 1) (delete 1) (inex 0) (normalized nil) (test #'equalp))
   (edit-dist (string2code seq1) (string2code seq2) change insert delete inex normalized test))
@@ -243,12 +242,9 @@ By symbolic dimensions, I consider a structured list of 'arbitrary' symbols desc
 
 (defmethod multi-edit-dist ((seq1 list) (seq2 null) (wgth t)
 			    &key (change 1) (insert 1) (delete 1) (inex 0) (test #'equalp))
-  ;(assert (apply #'= (mapcar #'length seq1)))
-  (let (r (l (length seq1)))
-    (dotimes (i l (nreverse r))
-      (dotimes (j (- l i 1))
-        (push (list i (+ i j 1) (multi-edit-dist (nth i seq1) (nth (+ i j 1) seq1) wgth
-                                                 :change change :insert insert :delete delete :inex inex :test test)) r)))))
+  (semi-matrix #'(lambda (x y) (multi-edit-dist x y wgth :change change :insert insert :delete delete
+                                                          :inex inex :test test))
+               seq1))
 
 (defgeneric intersection-card (a b &key key test)
  (:documentation "Cardinal de l'intersection des ensembles a et b, ou de tous les éléments de a si b est vide."))
@@ -282,11 +278,7 @@ if b null, as usual in refrains, matrix of Jaccard distances of lists of a."))
 
 (defmethod jaccard-dist ((a list) (b null) &key (test #'equalp) (key #'identity))
   (declare (ignore b))
-  (let (r (l (length a)))
-    (dotimes (i l (nreverse r))
-      (dotimes (j (- l i 1))
-        (push (list i (+ i j 1) (jaccard-dist (nth i a) (nth (+ i j 1) a)
-                                              :key key :test test)) r)))))
+  (semi-matrix #'(lambda (x y) (jaccard-dist x y :key key :test test)) a))
 
 (defmethod jaccard-dist ((a null) (b list) &key (test #'equalp) (key #'identity))
   (declare (ignore a))
@@ -316,11 +308,7 @@ by default a value other than nil and 0."))
     (if (zerop (+ both one)) 0.0 (float (/ one (+ both one))))))
 
 (defmethod binary-jaccard-dist ((a list) (b null) &key (key #'identity) (test nil))
-  (let (r (l (length a)))
-    (dotimes (i l (nreverse r))
-      (dotimes (j (- l i 1))
-        (push (list i (+ i j 1) (binary-jaccard-dist (nth i a) (nth (+ i j 1) a)
-                                              :key key :test test)) r)))))
+  (semi-matrix #'(lambda (x y) (binary-jaccard-dist x y :key key :test test)) a))
 
 ;(binary-jaccard-dist '(1 0 1 0 0 0 0) '(1 0 0 1 0 1 1))
 ;(binary-jaccard-dist '((a 1) (b 0) (c 1) (d 0) (e 0) (f 0) (g 0)) '((a 1) (b 0) (c 0) (d 1) (e 0) (f 1) (g 1)) :key #'cadr)
@@ -348,13 +336,6 @@ M itself is infinite for identical sets."
 
 ;(mountford-similarity '(1 0 1 0 0 0 0 2 3 4) '(1 0 0 1 0 1 1))
 
-(defun semi-matrix (fn list)
-  "The semi-matrix of the distances (fn x y) between all the elements of list, as a list of (i j d(i,j))."
-  (let (r (l (length list)))
-    (dotimes (i l (nreverse r))
-      (loop for j from (1+ i) below l
-            do (push (list i j (funcall fn (nth i list) (nth j list))) r)))))
-
 (defgeneric struct-dist (a b &optional w-occ w-rep test)
   (:documentation   "Dissemblance value (0 to 1) between sequences a and b according to their internal structures:
 for each element, the number of its occurrences and the position of its first occurrence in its sequence,
@@ -371,9 +352,4 @@ test: identity of the elements (equalp by default)."))
     (multi-edit-dist (codes a) (codes b) (list w-occ w-rep) :inex 0 :test #'eql)))
 
 (defmethod struct-dist ((a list) (b null) &optional (w-occ 1.) (w-rep 1.) (test #'equalp))
-  (let ((r 'nil))
-    (dotimes (i (length a) (reverse r))
-      (dotimes (j (- (length a) (1+ i)))
-	(push (list i (+ i j 1)
-		    (struct-dist (nth i a) (nth (+ i j 1) a) w-occ w-rep test))
-	      r)))))
+  (semi-matrix #'(lambda (x y) (struct-dist x y w-occ w-rep test)) a))
