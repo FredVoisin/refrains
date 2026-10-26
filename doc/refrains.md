@@ -1124,8 +1124,10 @@ original and empirical method, Frédéric Voisin.
 Returns the class number of each form, from 0, numbered by order of first
 appearance; there are never more classes than distinct forms.
 
-- `mode`: `:edit-nn` (or `nil`), absolute edit distance; `:edit-norm`,
-  relative edit distance.
+- `mode` (a symbol of any package, a keyword or a string; another mode is an
+  error): `:edit-nn` (or `nil`), absolute edit distance; `:edit-norm`, edit
+  distance relative to the length of the longer form, with or without
+  `:excluded`.
 - `:sub`, `:ins`, `:del`, `:uncom`: costs of the edit distance (see
   `dist-edit`).
 - `:excluded`: forms excluded from the classification. Each excluded form is

@@ -53,6 +53,10 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 - `entropy` in mode `cond-sh` with a test stricter than `equalp` (`eql`,
   `equal`) stopped on an error: the distinct symbols were taken with
   `equalp`, and an element they did not contain was not found.
+- `class-sym` with `:excluded` ignored `:edit-norm` (the absolute distance
+  was always used) and gave nil for the mode nil; an unknown mode gave nil
+  instead of an error. The mode is now recognized by its name, from any
+  package or as a string. `s-class-with-fixed` is merged into `s-class`.
 
 ### Removed
 

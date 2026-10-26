@@ -186,25 +186,22 @@ first appearance in <data>."))
   (:documentation "CLASS-SYM: classify a set of segments or sequences into different classes according to their editing distance to each other and
 by partitioning the resulting spanning tree (see graph-part).
 The output is a list of numbers (from zero) as instances of the different classes retrieved.
+<mode> (a symbol of any package, a keyword or a string): edit-nn (or nil), the absolute edit distance;
+edit-norm, the edit distance relative to the length of the longer sequence.
 Keyword arguments :sub :ins :del :uncom for tuning editing distance (see dist-edit).
 The argument :excluded is a list of elements of data excluded from classification ;
 in the output, the numbering of the different instances begins by numbering these elements first (from zero), 
 in the order defined with the argument :excluded."))
 
-(defmethod class-sym ((data t) (classes integer) (mode symbol)
+(defmethod class-sym ((data t) (classes integer) (mode t)
 		      &key (sub 1) (ins 1) (del 1) (uncom .5) (excluded nil) (mst nil))
-  (setf classes (max 2 classes))
-  (if (not excluded)
-      (cond ((or (eq mode :edit-nn) (not mode))
-             (refrains::s-class data classes nil sub ins del uncom mst))
-            ((eq mode :edit-norm)
-             (refrains::s-class data classes t sub ins del uncom mst))
-            (t nil))
-    (cond ((eq mode :edit-nn)
-           (refrains::s-class-with-fixed data classes excluded nil nil nil sub ins del uncom mst))
-          ((eq mode :edit-norm)
-           (refrains::s-class-with-fixed data classes excluded nil nil t sub ins del uncom mst))
-          (t nil))))
+  ;; modes are recognized by their names: 'edit-norm from any package, :edit-norm or "edit-norm"
+  ;; (with :excluded, :edit-norm was ignored and nil gave nil; an unknown mode gave nil)
+  (let* ((name (if mode (string-upcase (string mode)) "EDIT-NN"))
+         (norm (cond ((string= name "EDIT-NN") nil)
+                     ((string= name "EDIT-NORM") t)
+                     (t (error "class-sym: unknown mode ~S, use :edit-nn or :edit-norm." mode)))))
+    (refrains::s-class data (max 2 classes) norm sub ins del uncom mst excluded)))
 
 ;; 2.5 CONCATENATION
 

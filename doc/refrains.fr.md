@@ -1237,8 +1237,10 @@ Frédéric Voisin. Renvoie le numéro de classe de chaque forme, à partir de 0,
 numérotées par ordre de première apparition ; il n'y a jamais plus de classes
 que de formes distinctes.
 
-- `mode` : `:edit-nn` (ou `nil`), distance d'édition absolue ; `:edit-norm`,
-  distance d'édition relative.
+- `mode` (un symbole de n'importe quel paquet, un mot-clé ou une chaîne ; un
+  autre mode est une erreur) : `:edit-nn` (ou `nil`), distance d'édition
+  absolue ; `:edit-norm`, distance d'édition relative à la longueur de la
+  plus longue forme, avec ou sans `:excluded`.
 - `:sub`, `:ins`, `:del`, `:uncom` : coûts de la distance d'édition (voir
   `dist-edit`).
 - `:excluded` : formes exclues de la classification. Chaque forme exclue est

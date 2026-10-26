@@ -246,10 +246,19 @@ Returns (classes centres iterations), the classes numbered by order of first app
 ;;;
 ;;; classification par partitionnement de graphe
 
-(defun s-class (data n &optional (norm nil) (change 1) (insert 1) (delete 1) (inex 1) (mst nil)) ; (dist #'e-dist 1 1 .5)
+(defun s-class (data n &optional (norm nil) (change 1) (insert 1) (delete 1) (inex 1) (mst nil) (excluded nil))
   "Classification of symbolic data into n classes according to their ressemblance:
 the n-1 longest edges of the minimum spanning tree of the data are cut (single linkage).
-Returns the class of each datum, numbered by order of first appearance, and the list of classes."
+Returns the class of each datum, numbered by order of first appearance, and the list of classes.
+With excluded, a list of elements of data excluded from the classification (compared with equalp):
+each one is numbered first (from 0, in the order of excluded), the classes of the others follow;
+only the classes are returned."
+  (if excluded
+      (let ((others (s-class (remove-if #'(lambda (x) (member x excluded :test #'equalp)) data)
+                             n norm change insert delete inex mst)))
+        (mapcar #'(lambda (d) (or (position d excluded :test #'equalp)
+                                  (+ (length excluded) (pop others))))
+                data))
   (let* ((symlist (remove-duplicates data :test #'equalp))
          (grm (cond (mst mst)
                     ((cdr symlist)
@@ -265,18 +274,4 @@ Returns the class of each datum, numbered by order of first appearance, and the 
             (loop for c from 0 to (if renum (apply #'max renum) -1)
                   collect (list c (loop for s in symlist for i from 0
                                         when (= c (nth (position s data :test #'equalp) renum))
-                                          collect (list i s)))))))
-
-(defun s-class-with-fixed (data n fixed &optional (fixed-dist nil) (norm nil) (mode t) (change 1) (insert 1) (delete 1) (inex 1) (mst nil))
-  (declare (ignore mode))
-  (let* ((f-dist (if fixed-dist fixed-dist #'equalp)) ; may be edit-dist change insert inex ?
-         (f-length (length fixed))
-         (fixed-pos (mat-transpose (list (mapcar #'(lambda (f) (allpos f data f-dist)) fixed) fixed)))
-         (data-f (remove-if #'(lambda (x) (member x fixed :test f-dist)) data)) ; :test #'equalp))
-         (c-data (s-class data-f n norm change insert delete inex mst)))
-    (loop ;for d in data
-          for i from 0 to (1- (length data))
-          collect (let ((k (assoc i fixed-pos :test #'member)))
-		    (if k
-			(position (cadr k) fixed :test #'equalp)
-			(+ f-length (pop c-data)))))))
+                                          collect (list i s))))))))

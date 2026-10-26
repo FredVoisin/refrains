@@ -95,6 +95,22 @@
     ;; no more classes than distinct values
     (is (equal '(0 0 1 1) (first (class-num '(1 1 2 2) 4 :1d-centroids))))))
 
+(test class-sym-modes
+  (let ((d '((a b) (a b c d e f g h) (a c) (x y) (a b c d e f g x) (z z) (q))))
+    ;; with :excluded, :edit-norm was ignored (the same classes as :edit-nn)
+    (is (equal '(1 2 1 3 2 1 0) (class-sym d 3 :edit-nn :excluded '((q)))))
+    (is (equal '(1 1 1 2 1 3 0) (class-sym d 3 :edit-norm :excluded '((q)))))
+    (is (equal (mapcar #'1+ (class-sym (butlast d) 3 :edit-norm))
+               (butlast (class-sym d 3 :edit-norm :excluded '((q))))))
+    ;; nil is :edit-nn with :excluded too (it gave nil)
+    (is (equal (class-sym d 3 :edit-nn :excluded '((q))) (class-sym d 3 nil :excluded '((q)))))
+    ;; the mode by its name, from any package or as a string
+    (is (equal (class-sym d 3 :edit-norm) (class-sym d 3 "edit-norm")))
+    (let ((*package* (find-package :cl-user)))
+      (is (equal (class-sym d 3 :edit-norm) (class-sym d 3 (intern "EDIT-NORM" :cl-user)))))
+    ;; an unknown mode is an error (it gave nil)
+    (signals error (class-sym d 3 :foo))))
+
 (test class-sym-n-classes
   ;; equal longest edges were all cut at once: 3 classes when 2 were asked for
   (let ((segs '((a b c) (a b d) (x y z) (x y w) (a b c d) (k l m n o p) (k l m n o q))))
