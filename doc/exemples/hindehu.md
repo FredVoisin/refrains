@@ -4,25 +4,31 @@
 
 F. Voisin, 2026 (enregistrement : S. Arom, V. Dehoux, S. Fürniss et F. Voisin, Centrafrique, 1989).
 
-Un court extrait (12 s) de *Hìndèhú*, des Aka de Centrafrique, où alternent la
-voix et le *mòbéké*, une flûte de pan. Sa fréquence fondamentale (F0) a été
-détectée toutes les 10 ms, avec l'algorithme YIN (de Cheveigné et Kawahara,
-2002), entre 60 et 1000 Hz, ainsi que son intensité :
-[data/hindehu-f0.txt](../data/hindehu-f0.txt) donne une ligne par trame (temps en
-s, F0 en Hz ou 0 si la trame n'est pas voisée, intensité en dB). L'extrait
-lui-même, filtré, est dans [data/hindehu.mp3](../data/hindehu.mp3).
+Cet exemple montre comment quantifier des données brutes de détection de hauteur (F0)
+afin de les interpréter et de les transcrire sous la forme d'une partition.
 
-Cet exemple quantifie cette F0, telle que détectée, sur ses propres centres
-d'attraction avec `filt-quantize` (voir [1.2](../refrains.fr.md#12-filtrer)),
-sur l'ensemble et sur une fenêtre glissante, puis par notes avec `class-num`
-et `histogram`, et la transcrit pour LilyPond (`seq>ly`), au quart de ton, et
-en notation ABC (`seq>abc`).
+Il s'agit ici d'un court extrait (12 s) de *Hìndèhú* des Aka de Centrafrique, où 
+alternent voix et *mòbéké*, instrument constitué de deux sifflets taillés dans du bambou.
+La fréquence fondamentale (F0) et l'intensité de l'enregistrement a été détectée
+toutes les 10 ms, avec l'algorithme YIN (de Cheveigné et Kawahara, 2002), entre 
+60 et 1000 Hz : [data/hindehu-f0.txt](../data/hindehu-f0.txt), où chaque ligne 
+donne la temps (en s), la F0 (en Hz, ou 0 si la trame n'est pas voisée) et intensité (en dB). 
+L'extrait lui-même (filtré) est le fichier [data/hindehu.mp3](../data/hindehu.mp3).
 
-## 1. Regarder
 
-Chaque fréquence est convertie en note MIDI, 69 + 12 log₂(f / 440), `nil` dans
-les trames non voisées ; `seq>plot` trace une liste de nombres comme un flux
-d'une seule valeur, chaque trame à son rang :
+On se propose de quantifier la F0 avec les fonctions de refrains :
+- selon ses propres centres d'attraction avec `filt-quantize` (voir [1.2](../refrains.fr.md#12-filtrer)),
+- sur l'ensemble et sur une fenêtre glissante, puis par notes avec `class-num`
+et `histogram`
+- et de transcrire les données quantifiées au moyen de LilyPond (`seq>ly`), au quart de ton,
+et en notation ABC (`seq>abc`).
+
+## 1. Aperçu des données
+
+Les données sont d'abord lues avec la fonction `read-text`. Chaque fréquence 
+est convertie en note MIDI, 69 + 12 log₂(f / 440), `nil` dans les trames 
+non voisées ; `seq>plot` trace une liste de nombres comme un flux d'une seule 
+valeur, chaque trame à son rang :
 
 ```lisp
 (defparameter *trames* (read-text "doc/data/hindehu-f0.txt"))   ; (temps F0 intensité)
