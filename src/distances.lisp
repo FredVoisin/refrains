@@ -198,6 +198,47 @@ approximate string matching', Information and Control, 64, 1985, p. 100-118)."
         (let ((d (aref prev la)))
           (when (<= d bound) d))))))
 
+(defun first-close-length (a b start jmin jmax bmax accept test)
+  "The first length j, from jmin to jmax, such that (accept j d) is true, d being the edit distance (costs 1)
+between the vector a and the j elements of the vector b from position start, when d is not more than bmax;
+or nil. All the lengths come from one matrix of costs: the distance for the length j is the last cell of
+its row j. Only the band of bmax around the diagonal is computed (see edit-dist-bounded), and the search
+stops when the minimum of a row is more than bmax. test as in edit-dist-bounded (nil: integer codes)."
+  (declare (simple-vector a b) (fixnum start jmin jmax bmax) (function accept) (type (or null function) test))
+  (let* ((la (length a))
+         (out (1+ bmax))
+         (prev (make-array (1+ la) :element-type 'fixnum))
+         (row (make-array (1+ la) :element-type 'fixnum)))
+    (declare (fixnum la out) (type (simple-array fixnum (*)) prev row))
+    (dotimes (i (1+ la)) (setf (aref prev i) (min i out)))
+    (macrolet ((rows (same)
+                 `(loop for j fixnum from 1 to jmax
+                        do (let ((lo (max 1 (- j bmax)))
+                                 (hi (min la (+ j bmax)))
+                                 (m (min j out))
+                                 (bj (svref b (+ start j -1))))
+                             (declare (fixnum lo hi m))
+                             (setf (aref row 0) (min j out))
+                             (when (> lo 1) (setf (aref row (1- lo)) out))
+                             (loop for i fixnum from lo to hi
+                                   do (let ((d (min (+ (aref prev (1- i)) (if ,same 0 1))
+                                                    (1+ (aref prev i))
+                                                    (1+ (aref row (1- i))))))
+                                        (declare (fixnum d))
+                                        (setf (aref row i) d)
+                                        (when (< d m) (setf m d))))
+                             (when (< hi la) (setf (aref row (1+ hi)) out))
+                             ;; the distance for the length j, when its cell is in the band
+                             (when (and (>= j jmin) (<= (abs (- la j)) bmax) (<= (aref row la) bmax)
+                                        (funcall accept j (aref row la)))
+                               (return-from first-close-length j))
+                             (when (> m bmax) (return-from first-close-length nil)))
+                           (rotatef prev row))))
+      (if test
+          (rows (funcall test (svref a (1- i)) bj))
+          (rows (eql (svref a (1- i)) bj))))
+    nil))
+
 (defun element-codes (test &rest sequences)
   "If test is eq, eql, equal or equalp (an equality, by which a hash table can be built), the sequences
 as simple vectors of integer codes, the same code for elements equal by test; otherwise nil."
