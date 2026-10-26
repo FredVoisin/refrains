@@ -17,6 +17,9 @@ de refrains (`doc-lisp-license`) le vérifie.
   neurones de neuromuse qui apprennent la même chose, comparés avant et après
   l'apprentissage, présentés dans l'exemple
   [Comparer des réseaux de neurones](../exemples/neuromuse-comparaison.md).
+- [hindehu.lisp](hindehu.lisp) : la fréquence fondamentale d'un extrait de *Hìndèhú*
+  des Aka, quantifiée et transcrite pour LilyPond et en notation ABC, présentée
+  dans l'exemple [Quantifier une F0 : *Hìndèhú*](../exemples/hindehu.md).
 
 ---
 

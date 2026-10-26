@@ -25,6 +25,15 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   their neurons (geometry of the hidden layer, roles of the neurons with
   `histogram`, topology of the maps, segmentation of the song with
   `dist-hamming`).
+- Example: quantizing an F0 (`doc/exemples/hindehu.md`,
+  `doc/lisp/hindehu.lisp`, `doc/data/hindehu-f0.txt`, `doc/data/hindehu.mp3`):
+  the fundamental frequency of an extract of *Hìndèhú* of the Aka (voice and
+  *mòbéké*, a pan flute), detected with YIN, quantized by `filt-quantize`
+  (whole, sliding window), then by notes (`class-num` on the notes,
+  `histogram` on a quarter-tone grid): five levels of a scale that is not
+  tempered, about a quarter tone above the tempered one; transcribed a
+  quarter tone lower, for LilyPond by `seq>ly` (with the score) and in the
+  ABC notation by `seq>abc`.
 
 - `filt-quantize (seq levels &key mode thres window step segments out)`
   quantizes a sequence of numbers on its own centres of attraction

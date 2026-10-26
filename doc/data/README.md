@@ -9,6 +9,8 @@ sauf `Alice.txt`, qui est dans le domaine public.
 | Fichier | Contenu | Exemple |
 |---|---|---|
 | [diketo-db.txt](diketo-db.txt) | Intensités (dB) de la partie du *diketo* du *Zoboko* des Aka, mesurées avec Praat (temps, amplitude) ; enregistrement de Mongumba, 5 mars 1990. | [*Zoboko*](../exemples/zoboko.md) |
+| [hindehu.mp3](hindehu.mp3) | Extrait (12 s) de *Hìndèhú* des Aka, voix et *mòbéké*, une flûte de pan (filtré), MP3 128 kbit/s ; enregistrement inédit de S. Arom, V. Dehoux, S. Fürniss et F. Voisin, Centrafrique, 1989. | [Quantifier une F0 : *Hìndèhú*](../exemples/hindehu.md) |
+| [hindehu-f0.txt](hindehu-f0.txt) | Fréquence fondamentale et intensité de cet extrait de *Hìndèhú*, détectées toutes les 10 ms avec l'algorithme YIN (temps en s, F0 en Hz ou 0 si non voisée, intensité en dB) ; enregistrement de S. Arom, V. Dehoux, S. Fürniss et F. Voisin, Centrafrique, 1989. | [Quantifier une F0 : *Hìndèhú*](../exemples/hindehu.md) |
 | [rougequeue_noir.jpg](rougequeue_noir.jpg) | Sonagramme du chant d'un rougequeue noir, réalisé par Frédéric Voisin à partir d'un enregistrement de André Bossus, [*Les chants d'oiseaux d'Europe occidentale*](https://www.delachauxetniestle.com/livre/les-chants-doiseaux-deurope-occidentale-3/9782603020036), Delachaux et Niestlé (livre avec CD). | [Rougequeue noir](../exemples/rougequeue-noir.md) |
 | [rougequeue_noir.txt](rougequeue_noir.txt) | Le même sonagramme converti en texte avec jp2a (`x` pour le blanc, `.` pour le noir). | [Rougequeue noir](../exemples/rougequeue-noir.md) |
 | [babil-chant-3.pitch](babil-chant-3.pitch) | Une analyse de fréquence fondamentale (F0) faite avec Praat, d'un enregistrement de Frédéric Voisin. | [Fréquence fondamentale](../exemples/frequence-fondamentale.md) |
