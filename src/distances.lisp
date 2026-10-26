@@ -373,7 +373,14 @@ test: identity of the elements (equalp by default)."))
   ;; the occurrences and first positions are counted with test, for any kind of element
   ;; (match had methods for symbols and numbers only, and test compared the codes, not the elements)
   (flet ((codes (s)
-           (mapcar #'(lambda (x) (list (count x s :test test) (position x s :test test))) s)))
+           ;; the count and the first position of each element, computed once for each element (eql)
+           ;; instead of a pass over s for each element
+           (let ((known (make-hash-table :test #'eql)))
+             (mapcar #'(lambda (x)
+                         (or (gethash x known)
+                             (setf (gethash x known)
+                                   (list (count x s :test test) (position x s :test test)))))
+                     s))))
     (multi-edit-dist (codes a) (codes b) (list w-occ w-rep) :inex 0 :test #'eql)))
 
 (defmethod struct-dist ((a list) (b null) &optional (w-occ 1.) (w-rep 1.) (test #'equalp))

@@ -38,19 +38,15 @@
 (defgeneric all-pos (seq elt &optional test cons)
   (:documentation ""))
 
-(defmethod all-pos ((seq t) (elt number) &optional (test #'equalp) (cons T))
+(defmethod all-pos ((seq t) (elt t) &optional (test #'equalp) (cons T))
+  ;; one method for any element, nil included (the same methods for numbers and for symbols)
   (when (not test) (setf test #'equalp))
   (let ((pos (allpos elt seq test)))
     (if cons pos
       (remove-duplicates pos :test #'(lambda (x y) (= (- x y) 1)) :from-end t))))
 
-(defmethod all-pos ((seq t) (elt symbol) &optional (test #'equalp) (cons T))
-  (when (not test) (setf test #'equalp))
-  (let ((pos (allpos elt seq test)))
-    (if cons pos
-      (remove-duplicates pos :test #'(lambda (x y) (= (- x y) 1)) :from-end t))))
-
-(defmethod all-pos ((seq t) (elt list) &optional (test #'equalp) (cons T))
+(defmethod all-pos ((seq t) (elt cons) &optional (test #'equalp) (cons T))
+  ;; a list of elements: the positions of all of them
   (sort (remove-duplicates (loop for e in elt append (all-pos seq e test cons)) :test #'=) '<))
 
 ;(all-pos '(0 1 0 0 1 2 1 1 0 1 2) 0 nil nil)
@@ -284,22 +280,33 @@ ident: test to compare resulting subsequences, for instance: #'equalp."))
 ;;;
 ;; contrasts-all-lev from Paolo Aralla rewritten
 
-(defun renum-mat (seq &optional (test #'equalp) r)
-  (if seq
-      (renum-mat (cdr seq) test (cons (renum seq test) r))
-      (butlast (reverse r))))
-
-; (renum-mat  '(a b a c a d a e f g h a b a c a k a m n o))
-
 (defun new-old-analysis (seq &optional (test #'equalp))
   "'new-old' Paolo Aralla algorithm inspired by contrast/mark analysis, rewritten."
   ;; the bounds are fresh uninterned symbols: '*xstart* and '*xstop* were mistaken for
   ;; the same symbols in seq
-  (let* ((seq+ (cons (make-symbol "START") (append seq (list (make-symbol "STOP")))))
-	 (d (mapcar #'dx (renum-mat seq+ test)))
-	 (w (mapcar (lambda (x) (reduce #'+ x)) (renum-mat seq+ test)))
-	 (c (mapcar (lambda (x y) (mapcar (lambda (z) (* x z)) y)) w d)))
-    (butlast (reverse (mapcar (lambda (x) (reduce #'+ x)) (ldlrot (mapcar #'reverse c)))))))
+  ;; for each position p of seq+, the sum over the suffixes k before p of w(k) (rank(k, p) - rank(k, p - 1)):
+  ;; rank(k, p), the rank (from 1) of the element p in the order of first appearance in the suffix from k
+  ;; (renum), w(k) the sum of these ranks. The same values as the matrix of all the renumbered suffixes
+  ;; (renum-mat, computed twice, kept in memory, then turned by ldlrot), in two passes for each suffix.
+  (let* ((v (coerce (cons (make-symbol "START") (append seq (list (make-symbol "STOP")))) 'vector))
+         (l (length v))
+         (ranks (make-array l))
+         (result (make-array l :initial-element 0)))
+    (dotimes (k (1- l))
+      (let ((seen nil) (start 0) (w 0))
+        ;; the ranks as renum gives them: assoc with test on the elements already seen
+        (loop for p from k below l
+              do (let* ((elt (aref v p))
+                        (o (assoc elt seen :test test))
+                        (rank (if o
+                                  (cadr o)
+                                  (progn (push (list elt (incf start)) seen) start))))
+                   (setf (aref ranks p) rank)
+                   (incf w rank)))
+        (loop for p from (1+ k) below l
+              do (incf (aref result p) (* w (- (aref ranks p) (aref ranks (1- p))))))))
+    ;; the elements of seq, without START and STOP
+    (loop for p from 1 below (1- l) collect (aref result p))))
 
 ;(new-old-analysis '(a b c a d e a))
 

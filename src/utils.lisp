@@ -108,11 +108,6 @@ If x is a graph or tree (a list of lists), change only the third element of each
         collect (mapcar #'car rows)))
 
 ; when list have decreasing size, recursively (used by newold function)
-(defun ldlrot (ldl &optional (r (list)))
-  (if (caar ldl)
-      (ldlrot (mapcar #'cdr ldl) (cons (remove 'nil (mapcar #'car ldl)) r))
-      (reverse r)))
-
 (defun flat0 (tree res r)
   "At first in LispMe on my Visor :)"
   (cond ((null tree)

@@ -107,13 +107,18 @@ result without computing distances."
             n+ (cadr n)))
     (loop for i from 0 to (- l (max 2 n-)) 
        do (loop for j from n- to (if n+ (min n+ (- l i)) (- l i))
-	     do (let (f (candidat (subseq seq i (+ i j))))
+	     do (let (f searched (candidat (coerce (subseq v i (+ i j)) 'list)))
 		  ;; skip a candidate identical to an earlier motif, or which is one of its repetitions
 		  (when (not (or (assoc candidat r :test #'equalp)
 				 (let ((range (list i (+ i j -1))))
 				   (some #'(lambda (x) (member range (cdr x) :test #'equal)) r))))
-		    (setf f (find-pos-in candidat v (+ i j) diss l-var distance-fct test)))
-		  (when f (push (append (list candidat) (cons (list i (+ i j -1)) f)) r)))))
+		    (setf searched t
+                          f (find-pos-in candidat v (+ i j) diss l-var distance-fct test)))
+		  (when f (push (append (list candidat) (cons (list i (+ i j -1)) f)) r))
+                  ;; exact search: a segment not repeated after it cannot be lengthened into a repeated one
+                  ;; (each repetition of the longer one would contain one of the shorter one)
+                  (when (and searched (null f) (null distance-fct) (zerop diss))
+                    (return)))))
     (remove-if #'(lambda (x)
 		   (some #'(lambda (a) (l-subpos-p (cdr x) (cdr a)))
 			 (remove x r :test #'equalp)))
