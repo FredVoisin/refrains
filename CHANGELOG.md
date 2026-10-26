@@ -33,6 +33,11 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   method of `exsample` (`:minmax`: each turn counts once, fixed centres); on
   the whole sequence, on a sliding window (`:window`, a number of positions
   or a part of the length), or on each run between `nil`s (`:segments t`).
+- `seq>ly (seq &key out title rhythm unit)` writes a sequence of MIDI notes
+  for LilyPond, rounded to the quarter tone (`ih`: 74.5 is `dih''`), for
+  scales that are not tempered; without rhythm, or with tied lengths in
+  sixteenths; `:out` as for `seq>abc`, and a path of type svg, pdf or png
+  also makes the score with `lilypond`.
 - `seq>abc (seq &key out title rhythm unit)` writes a sequence of MIDI notes
   (rounded to the semitone; a list of notes is a chord, `nil` a rest) in the
   ABC music notation, without rhythm by default, or with lengths in

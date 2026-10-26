@@ -43,7 +43,7 @@
                 #:graph-span #:graph-dendrogram #:graph-path #:graph-length #:graph-degree #:graph-nodes
                 #:graph-leaves #:graph>dot #:graph-part #:dendrogram>dot
                 ;; io
-                #:read-text #:write-list #:seq>plot #:seq>abc #:date-string
+                #:read-text #:write-list #:seq>plot #:seq>abc #:seq>ly #:date-string
                 #:help #:doc))
 
 (in-package :refrains/tests)

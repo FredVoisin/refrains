@@ -98,6 +98,55 @@ There is no meter (M:none), so no bar."))
           (t (write-string text (if (streamp out) out *standard-output*))
              text))))
 
+(defgeneric seq>ly (seq &key out title rhythm unit)
+  (:documentation "SEQ>LY: writes the sequence of notes <seq> for LilyPond, to the quarter tone: <seq> is a list of MIDI notes (60 is
+middle C, c'; a number is rounded to the quarter tone, a quarter tone higher being written ih: 74.5 is dih''), a list of MIDI
+notes being a chord and a NIL a rest. Consecutive equal notes or chords make one. There is no meter, so no bar (cadenza).
+:out : NIL (by default) returns the LilyPond text; T prints it in the listener; a stream, writes it into it; a string or a
+pathname, writes the text in a file of type ly, and, unless the type is ly, the score made by lilypond in the format of
+the type (svg, pdf or png), cropped to the music (an svg on a white background), and returns its name.
+:title : the title of the score (\"refrains\" by default).
+:rhythm : NIL (by default), no rhythm: each note a quarter, without stem; T, each note lasts its number of positions
+divided by :unit (1 by default), in sixteenths, tied values where needed."))
+
+(defmethod seq>ly ((seq list) &key out title rhythm (unit 1))
+  (let ((text (ly-text seq :title title :rhythm rhythm :unit unit)))
+    (cond ((null out) text)
+          ((or (stringp out) (pathnamep out))
+           (let* ((path (pathname out))
+                  (type (pathname-type path))
+                  (ly (make-pathname :type "ly" :defaults path)))
+             (unless (or (null type) (member type '("ly" "svg" "pdf" "png") :test #'equalp))
+               (error "seq>ly: the type ~A is not ly, svg, pdf or png." type))
+             (with-open-file (s ly :direction :output :if-exists :supersede :if-does-not-exist :create)
+               (write-string text s))
+             (cond ((or (null type) (equalp type "ly")) (namestring ly))
+                   (t
+                    (handler-case
+                        ;; -dcrop: the score cropped to the music, in base.cropped.type
+                        (shell-command (list "lilypond" (format nil "--~(~A~)" type) "-dcrop"
+                                             "-o" (namestring (make-pathname :type nil :defaults path))
+                                             (namestring ly))
+                                       :error-output :interactive)
+                      (error (c)
+                        (error "seq>ly: the file ~A is written, but lilypond could not make the ~A file: ~A"
+                               (namestring ly) type c)))
+                    (let ((cropped (make-pathname :name (format nil "~A.cropped" (pathname-name path))
+                                                  :defaults path)))
+                      (when (probe-file cropped)
+                        (rename-file cropped path)))
+                    ;; a white background for an svg score (else transparent)
+                    (when (equalp type "svg")
+                      (let* ((svg (uiop:read-file-string path))
+                             (end (1+ (position #\> svg :start (search "<svg" svg)))))
+                        (with-open-file (s path :direction :output :if-exists :supersede)
+                          (write-string (subseq svg 0 end) s)
+                          (format s "~%<rect x=\"0\" y=\"0\" width=\"100%\" height=\"100%\" fill=\"white\"/>")
+                          (write-string (subseq svg end) s))))
+                    (namestring path)))))
+          (t (write-string text (if (streamp out) out *standard-output*))
+             text))))
+
 (defgeneric write-list (list file &optional mode)
   (:documentation "WRITE-LIST: write list to a file using following optional argument <mode> format:
 :flat (by default) : each element of list is written in a new line, sub-lists without parentheses (as read by read-text)

@@ -389,4 +389,61 @@ by UNIT when RHYTHM. The accidentals are written where needed, as they last unti
     (loop for notes on (abc-notes seq :rhythm rhythm :unit unit) by (lambda (l) (nthcdr per-line l))
           do (format s "~{~A~^ ~}~%" (subseq notes 0 (min per-line (length notes)))))))
 
+;;; LILYPOND : a sequence of notes written for LilyPond, to the quarter tone
+
+(defun ly-pitch (midi)
+  "The MIDI note MIDI (rounded to the quarter tone) in LilyPond (Dutch names, absolute octaves, 60 being
+c'), a quarter tone higher written ih: 74.5 is dih''."
+  (let* ((q (/ (round (* 2 midi)) 2))
+         (semitone (floor q))
+         (quarter (/= q semitone)))
+    (multiple-value-bind (octave class) (floor semitone 12)
+      (concatenate 'string
+                   (aref #("c" "cis" "d" "dis" "e" "f" "fis" "g" "gis" "a" "ais" "b") class)
+                   (if quarter "ih" "")
+                   (let ((marks (- octave 4)))   ; 48 is c, 60 c'
+                     (if (minusp marks)
+                         (make-string (- marks) :initial-element #\,)
+                         (make-string marks :initial-element #\')))))))
+
+(defun ly-lengths (sixteenths)
+  "SIXTEENTHS as a list of LilyPond lengths (1 2 4 8 16), the longest first, to be tied."
+  (loop for (value length) in '((16 1) (8 2) (4 4) (2 8) (1 16))
+        nconc (loop repeat (floor sixteenths value) collect length)
+        do (setf sixteenths (mod sixteenths value))))
+
+(defun ly-notes (seq &key rhythm (unit 1))
+  "The notes of SEQ (MIDI notes, lists of MIDI notes for chords, NIL a rest) in LilyPond: consecutive equal
+notes or chords (rounded to the quarter tone) make one, of a length of their number of positions divided by
+UNIT, in sixteenths, when RHYTHM (else a quarter, the stems hidden)."
+  (let ((runs nil))
+    (dolist (x seq)
+      (unless (or (null x) (realp x) (and (consp x) (every #'realp x)))
+        (error "seq>ly: ~S is neither a note (a number), nor a chord (a list of numbers), nor a rest (NIL)." x))
+      (let ((n (cond ((realp x) (/ (round (* 2 x)) 2))
+                     ((consp x) (let ((c (sort (remove-duplicates (mapcar (lambda (y) (/ (round (* 2 y)) 2)) x)) #'<)))
+                                  (if (rest c) c (first c)))))))
+        (if (and runs (equal n (car (first runs))))
+            (incf (cdr (first runs)))
+            (push (cons n 1) runs))))
+    (loop for (n . count) in (nreverse runs)
+          collect (let ((name (cond ((null n) "r")
+                                    ((consp n) (format nil "<~{~A~^ ~}>" (mapcar #'ly-pitch n)))
+                                    (t (ly-pitch n))))
+                        (lengths (if rhythm (ly-lengths (max 1 (round count unit))) (list 4))))
+                    ;; a note longer than one value: tied values; a rest: values one after the other
+                    (format nil (if n "~{~A~^~~ ~}" "~{~A~^ ~}")
+                            (mapcar (lambda (l) (format nil "~A~D" name l)) lengths))))))
+
+(defun ly-text (seq &key title rhythm (unit 1) (per-line 8))
+  "SEQ as a LilyPond score, without meter nor bar (cadenza), an accidental on each note, a possible line
+break every PER-LINE notes."
+  (with-output-to-string (s)
+    (format s "\\version \"2.24.0\"~%\\header { title = \"~A\" tagline = ##f }~%" (or title "refrains"))
+    (format s "\\score {~%  {~%    \\cadenzaOn~%~:[    \\omit Stem~%~;~]" rhythm)
+    (loop for notes on (ly-notes seq :rhythm rhythm :unit unit) by (lambda (l) (nthcdr per-line l))
+          do (format s "    ~{~A~^ ~} \\bar \"\"~%" (subseq notes 0 (min per-line (length notes)))))
+    ;; an accidental on each note (there is no bar to end it), and no time signature
+    (format s "  }~%  \\layout { \\context { \\Staff \\accidentalStyle forget \\omit TimeSignature } }~%}~%")))
+
 ;;; eof

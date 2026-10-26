@@ -281,7 +281,8 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
 ;;  3.3 QUANTIFIER : information propre, diversité
        histogram, entropy, self-info, inner-dynamic, graph-length
 ;;; 4. LIRE/ÉCRIRE des fichiers
-       read-text, write-list, display-list, seq>plot, seq>abc, graph>dot, dendrogram>dot
+       read-text, write-list, display-list, seq>plot, seq>abc, seq>ly, graph>dot,
+       dendrogram>dot
 ```
 
 Dans le REPL, `(doc)` liste les fonctions documentées et `(doc 'dist-edit)`
@@ -1863,6 +1864,41 @@ erreur.
 Une suite quantifiée (par `class-num`) devient ainsi une mélodie : voir
 l'exemple [Quantification](exemples/quantification.md).
 
+#### `seq>ly (seq &key out title rhythm unit)`
+
+Écrit une suite de notes pour [LilyPond](https://lilypond.org/), au quart de
+ton, et peut en faire une partition (SVG, PDF ou PNG). Comme `seq>abc`, `seq`
+est une liste de notes MIDI (60 est le do central, `c'`), une liste de notes
+étant un accord et un `nil` un silence ; mais chaque note est arrondie au
+quart de ton, non au demi-ton : un quart de ton plus haut s'écrit `ih` (74,5
+est `dih''`, un ré un quart de ton plus haut). C'est utile pour une échelle qui
+n'est pas tempérée. Les notes ou les accords égaux consécutifs n'en forment
+qu'un. Il n'y a pas de métrique (`\cadenzaOn`), donc pas de barre de mesure.
+
+- `:out` : `nil` (par défaut) renvoie le texte LilyPond ; `t` l'affiche dans
+  le listener ; un flux (stream) le reçoit ; un chemin (chaîne ou pathname)
+  écrit le texte dans un fichier de type `ly` et, sauf si le type est `ly`,
+  lance `lilypond` pour produire la partition au format du type (`svg`, `pdf`
+  ou `png`), rognée à la musique (un SVG sur fond blanc), et renvoie son nom.
+  Si `lilypond` ne peut pas être lancé, le
+  fichier `.ly` est tout de même écrit, et une erreur le signale ; un autre
+  type est une erreur ;
+- `:title` : le titre de la partition (« refrains » par défaut) ;
+- `:rhythm` : `nil` (par défaut), sans rythme : chaque note est une noire,
+  sans hampe ; `t`, chaque note dure son nombre de positions divisé par
+  `:unit` (1 par défaut), en doubles croches, en valeurs liées s'il le faut
+  (9 doubles croches : `2~ 16`).
+
+```lisp
+(seq>ly '(60 62 64 nil 74.5))
+;=> "... c'4 d'4 e'4 r4 dih''4 ..."
+(seq>ly '(60 60 60 60 60 60 60 60 60 62) :rhythm t)   ; ... c'2~ c'16 d'16
+(seq>ly melodie :out "partition.svg")                  ; partition.ly et partition.svg
+```
+
+`lilypond` n'est nécessaire que pour la partition ; refrains n'en dépend pas.
+Voir l'exemple [Quantifier une F0 : *Hìndèhú*](exemples/hindehu.md).
+
 #### `graph>dot (graph &key out dis scale shape legend overlap invert)`
 
 Trace un graphe non orienté au format **dot**.
@@ -2048,7 +2084,7 @@ rougequeue noir).
 
 ## Liste des fonctions
 
-La liste des 55 fonctions exportées, avec leurs arguments et leur docstring, est
+La liste des 56 fonctions exportées, avec leurs arguments et leur docstring, est
 dans
 [refrains-fonctions.fr.md](refrains-fonctions.fr.md).
 

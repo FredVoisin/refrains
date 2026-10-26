@@ -68,7 +68,7 @@
     dist-structure dist-graph
     histogram entropy self-info inner-dynamic graph-length
     ;; 4. reading and writing files
-    read-text write-list display-list seq>plot seq>abc graph>dot dendrogram>dot
+    read-text write-list display-list seq>plot seq>abc seq>ly graph>dot dendrogram>dot
     ;; documentation
     help doc)
   "The refrains functions, in the order of the documentation (all the exported functions).")

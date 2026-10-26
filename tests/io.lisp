@@ -247,3 +247,37 @@
   (is (search "[CE]3 D" (seq>abc '((60 64) (60 64) (64 60) 62) :rhythm t)))
   (signals error (seq>abc '((60 a))))
   (signals error (seq>abc '(60 a))))
+
+(test seq>ly
+  (let ((ly (seq>ly '(60 62 64 64 nil 74.5 74.4 48 36))))
+    (is (search "\\cadenzaOn" ly))
+    (is (search "\\omit Stem" ly))
+    (is (search "\\accidentalStyle forget" ly))
+    ;; to the quarter tone: 74.5 and 74.4 are dih'' (one note); octaves
+    (is (search "c'4 d'4 e'4 r4 dih''4 c4 c,4" ly)))
+  ;; chords, and rhythm: tied values
+  (is (search "<c' e'>4 d'4" (seq>ly '((60 64) (64 60) 62))))
+  (is (search "c'2~ c'16 d'16 r8" (seq>ly '(60 60 60 60 60 60 60 60 60 62 nil nil) :rhythm t)))
+  (is (equal '(2 16) (refrains::ly-lengths 9)))
+  (is (equal '(1 2 8 16) (refrains::ly-lengths 27)))
+  ;; a ly file
+  (uiop:with-temporary-file (:pathname tmp :type "ly" :keep nil)
+    (is (string= (namestring tmp) (seq>ly '(60 62) :out tmp)))
+    (is (search "c'4 d'4" (uiop:read-file-string tmp))))
+  (signals error (seq>ly '(60 a)))
+  ;; another type is an error, and no file is written
+  (uiop:with-temporary-file (:pathname tmp :type "txt" :keep nil)
+    (signals error (seq>ly '(60) :out tmp))
+    (is (not (probe-file (make-pathname :type "ly" :defaults tmp))))))
+
+(test seq>ly-lilypond
+  ;; a score made by lilypond, if it is installed (else the test is skipped)
+  (if (ignore-errors (uiop:run-program '("lilypond" "--version") :output nil :error-output nil) t)
+      (uiop:with-temporary-file (:pathname tmp :type "svg" :keep nil)
+        (seq>ly '(60 62 64.5) :out tmp)
+        (is (search "<svg" (uiop:read-file-string tmp)))
+        (is (search "fill=\"white\"" (uiop:read-file-string tmp)))
+        ;; cropped: no cropped file left beside it
+        (is (not (probe-file (make-pathname :name (format nil "~A.cropped" (pathname-name tmp)) :defaults tmp))))
+        (ignore-errors (delete-file (make-pathname :type "ly" :defaults tmp))))
+      (skip "lilypond is not installed")))
