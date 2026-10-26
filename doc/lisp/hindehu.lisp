@@ -175,18 +175,19 @@
                 (segments *transcription*)))
 
 ;;; 6. La transcription, avec le rythme : chaque note dure son nombre de trames divisé par 5, en
-;;; doubles croches (une double croche pour 50 ms). Pour simplifier la lecture, la mélodie est
-;;; descendue d'un quart de ton : chaque note tombe alors sur un demi-ton tempéré (mi, fa#, la,
-;;; si, ré), et le titre le précise. Pour LilyPond, avec la partition (svg) si lilypond est
-;;; installé ; en ABC
+;;; doubles croches (une double croche pour 50 ms). Pour LilyPond, aux hauteurs mesurées, au
+;;; quart de ton (ih : un quart de ton plus haut), avec la partition (svg) si lilypond est
+;;; installé. En ABC, qui ne note que des demi-tons : la mélodie est descendue d'un quart de
+;;; ton, pour que chaque note tombe sur un demi-ton tempéré (mi, fa#, la, si, ré), et le titre
+;;; le précise
+
+(format t "~&~A" (seq>ly *transcription* :title "Hìndèhú" :rhythm t :unit 5))
+(handler-case (seq>ly *transcription* :title "Hìndèhú" :rhythm t :unit 5
+                                      :out (merge-pathnames "pictures/hindehu-partition.svg" *doc*))
+  (error (c) (format t "~&~A~%" c)))
 
 (defparameter *plus-bas* (mapcar (lambda (n) (when n (- n 1/2))) *transcription*))
 (defparameter *titre* "Hìndèhú (un quart de ton plus bas)")
-
-(format t "~&~A" (seq>ly *plus-bas* :title *titre* :rhythm t :unit 5))
-(handler-case (seq>ly *plus-bas* :title *titre* :rhythm t :unit 5
-                                 :out (merge-pathnames "pictures/hindehu-partition.svg" *doc*))
-  (error (c) (format t "~&~A~%" c)))
 
 (format t "~&~A" (seq>abc *plus-bas* :title *titre* :rhythm t :unit 5))
 (seq>abc *plus-bas* :title *titre* :rhythm t :unit 5 :out (merge-pathnames "pictures/hindehu.abc" *doc*))

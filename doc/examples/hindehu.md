@@ -309,53 +309,49 @@ by a longer 71.5 (up to 520 ms) and a return to 74.5.
 ## 5. The transcription
 
 Each note lasts its number of frames divided by 5, in sixteenths (a
-sixteenth for 50 ms), the silences becoming rests.
+sixteenth for 50 ms), the silences becoming rests. The five levels fall about
+a quarter tone above the tempered semitones (at A 440): 64.5, 66.5, 69.5,
+71.5 and 74.5. The two transcriptions that follow show the difference between
+a notation to the quarter tone and a notation to the semitone.
 
-The five levels fall about a quarter tone above the tempered semitones (at
-A 440): 64.5, 66.5, 69.5, 71.5 and 74.5. To make the reading simpler, the
-melody is **lowered by a quarter tone**: each note then falls on a semitone,
-E, F♯, A, B and D, and the title says so. At the measured pitches, `seq>ly`
-would write a quarter tone higher `ih` (74.5 would be `dih''`); `seq>abc`,
-which rounds to the semitone, would cut the scale between two semitones.
-
-```lisp
-(defparameter *plus-bas* (mapcar (lambda (n) (when n (- n 1/2))) *transcription*))
-(defparameter *titre* "Hìndèhú (un quart de ton plus bas)")
-```
-
-**For LilyPond**: `seq>ly` writes the text, and makes the score if
-`lilypond` is installed:
+**For LilyPond**, at the measured pitches: `seq>ly` rounds to the quarter
+tone, and writes a quarter tone higher `ih` (74.5 is `dih''`, a D a quarter
+tone higher); it makes the score if `lilypond` is installed:
 
 ```lisp
-(seq>ly *plus-bas* :title *titre* :rhythm t :unit 5 :out "doc/pictures/hindehu-partition.svg")
+(seq>ly *transcription* :title "Hìndèhú" :rhythm t :unit 5 :out "doc/pictures/hindehu-partition.svg")
 ```
 
 ```lilypond
 \version "2.24.0"
-\header { title = "Hìndèhú (un quart de ton plus bas)" tagline = ##f }
+\header { title = "Hìndèhú" tagline = ##f }
 \score {
   {
     \cadenzaOn
-    r8 e'8~ e'16 d''4~ d''8 r4 r16 e'8~ e'16 d''8~ d''16 r16 b'4 \bar ""
-    r8 e'8~ e'16 d''4~ d''8 r4 r16 fis'8~ fis'16 r16 d''4~ d''8 r4 \bar ""
-    fis'8~ fis'16 r16 d''8~ d''16 a'16 b'4~ b'16 r16 fis'8~ fis'16 r16 \bar ""
-    d''4~ d''16 r4 r16 b'4 d''4~ d''8 r4 a'8~ a'16 r16 d''8~ d''16 \bar ""
-    b'2~ b'8 d''4~ d''8 r4 r16 e'4 d''4~ d''16 r8 r16 e'4 d''8~ d''16 \bar ""
-    r16 b'2~ b'8 d''4~ d''8 r4 fis'8~ fis'16 r16 d''4~ d''16 r4 r16 \bar ""
-    fis'8~ fis'16 r16 d''8~ d''16 b'4~ b'8 r16 fis'8~ fis'16 r16 d''4~ d''8 \bar ""
-    r8 e'16 r16 b'4 d''4~ d''8 r4 a'8~ a'16 r16 \bar ""
-    d''8~ d''16 b'2~ b'8 d''4~ d''8 r8 \bar ""
+    r8 eih'8~ eih'16 dih''4~ dih''8 r4 r16 eih'8~ eih'16 dih''8~ dih''16 r16 bih'4 \bar ""
+    r8 eih'8~ eih'16 dih''4~ dih''8 r4 r16 fisih'8~ fisih'16 r16 dih''4~ dih''8 r4 \bar ""
+    fisih'8~ fisih'16 r16 dih''8~ dih''16 aih'16 bih'4~ bih'16 r16 fisih'8~ fisih'16 r16 \bar ""
+    dih''4~ dih''16 r4 r16 bih'4 dih''4~ dih''8 r4 aih'8~ aih'16 r16 dih''8~ dih''16 \bar ""
+    bih'2~ bih'8 dih''4~ dih''8 r4 r16 eih'4 dih''4~ dih''16 r8 r16 eih'4 dih''8~ dih''16 \bar ""
+    r16 bih'2~ bih'8 dih''4~ dih''8 r4 fisih'8~ fisih'16 r16 dih''4~ dih''16 r4 r16 \bar ""
+    fisih'8~ fisih'16 r16 dih''8~ dih''16 bih'4~ bih'8 r16 fisih'8~ fisih'16 r16 dih''4~ dih''8 \bar ""
+    r8 eih'16 r16 bih'4 dih''4~ dih''8 r4 aih'8~ aih'16 r16 \bar ""
+    dih''8~ dih''16 bih'2~ bih'8 dih''4~ dih''8 r8 \bar ""
   }
   \layout { \context { \Staff \accidentalStyle forget \omit TimeSignature } }
 }
 ```
 
-![The transcription of the extract of Hìndèhú, lowered by a quarter tone](../pictures/hindehu-partition.svg)
+![The transcription of the extract of Hìndèhú, at the measured pitches, to the quarter tone](../pictures/hindehu-partition.svg)
 
-**In ABC**:
+**In ABC**, to the semitone: `seq>abc` rounds to the tempered semitone, which
+would cut this scale between two semitones. The melody is therefore lowered
+by a quarter tone: each note then falls on a semitone, E, F♯, A, B and D, and
+the title says so:
 
 ```lisp
-(seq>abc *plus-bas* :title *titre* :rhythm t :unit 5)
+(defparameter *plus-bas* (mapcar (lambda (n) (when n (- n 1/2))) *transcription*))
+(seq>abc *plus-bas* :title "Hìndèhú (un quart de ton plus bas)" :rhythm t :unit 5)
 ```
 
 ```abc
@@ -565,18 +561,19 @@ transcription (ABC, LilyPond) and, if `lilypond` is installed, its score
                 (segments *transcription*)))
 
 ;;; 6. La transcription, avec le rythme : chaque note dure son nombre de trames divisé par 5, en
-;;; doubles croches (une double croche pour 50 ms). Pour simplifier la lecture, la mélodie est
-;;; descendue d'un quart de ton : chaque note tombe alors sur un demi-ton tempéré (mi, fa#, la,
-;;; si, ré), et le titre le précise. Pour LilyPond, avec la partition (svg) si lilypond est
-;;; installé ; en ABC
+;;; doubles croches (une double croche pour 50 ms). Pour LilyPond, aux hauteurs mesurées, au
+;;; quart de ton (ih : un quart de ton plus haut), avec la partition (svg) si lilypond est
+;;; installé. En ABC, qui ne note que des demi-tons : la mélodie est descendue d'un quart de
+;;; ton, pour que chaque note tombe sur un demi-ton tempéré (mi, fa#, la, si, ré), et le titre
+;;; le précise
+
+(format t "~&~A" (seq>ly *transcription* :title "Hìndèhú" :rhythm t :unit 5))
+(handler-case (seq>ly *transcription* :title "Hìndèhú" :rhythm t :unit 5
+                                      :out (merge-pathnames "pictures/hindehu-partition.svg" *doc*))
+  (error (c) (format t "~&~A~%" c)))
 
 (defparameter *plus-bas* (mapcar (lambda (n) (when n (- n 1/2))) *transcription*))
 (defparameter *titre* "Hìndèhú (un quart de ton plus bas)")
-
-(format t "~&~A" (seq>ly *plus-bas* :title *titre* :rhythm t :unit 5))
-(handler-case (seq>ly *plus-bas* :title *titre* :rhythm t :unit 5
-                                 :out (merge-pathnames "pictures/hindehu-partition.svg" *doc*))
-  (error (c) (format t "~&~A~%" c)))
 
 (format t "~&~A" (seq>abc *plus-bas* :title *titre* :rhythm t :unit 5))
 (seq>abc *plus-bas* :title *titre* :rhythm t :unit 5 :out (merge-pathnames "pictures/hindehu.abc" *doc*))
