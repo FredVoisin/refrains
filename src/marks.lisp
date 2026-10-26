@@ -100,29 +100,53 @@ selon le critere d'identite des elements defini par la fontion test."
 ;(c-seg '(a b a a c a b a d a e f g h a i a j a k l m n o))
 
 (defun resemble-p  (a b thresh &key (change 1) (insert 1) (delete 1)  (inex 0) (test #'equalp))
-  "test based on resemblance usind editing distance."
+  "T if the segments a and b resemble each other: their normalized edit distance is at most thresh."
   (when (not thresh) (setf thresh 0))
-  (<= (edit-dist a b change insert delete inex 'T test) thresh))
+  (cond ((and (zerop thresh) (plusp change) (plusp insert) (plusp delete) (not (minusp (or inex 0))))
+         ;; with positive costs, a distance of 0 means the same length and the same elements by test:
+         ;; compared directly, without the matrix of the edit distance
+         (and (= (length a) (length b)) (every test a b)))
+        ((and (eql change 1) (eql insert 1) (eql delete 1) (eql (or inex 0) 0) (listp a) (listp b))
+         ;; costs of 1: the edit distance bounded by the largest number of operations within thresh,
+         ;; stopped as soon as it is exceeded
+         (let ((maxlen (max (length a) (length b))))
+           (or (zerop maxlen)
+               (let ((bound (floor (* thresh maxlen))))
+                 ;; the same decisions as (<= (float (/ d maxlen)) thresh), whatever the rounding of floats
+                 (loop while (<= (float (/ (1+ bound) maxlen)) thresh) do (incf bound))
+                 (loop while (and (>= bound 0) (> (float (/ bound maxlen)) thresh)) do (decf bound))
+                 (and (>= bound 0)
+                      (edit-dist-bounded (coerce a 'simple-vector) (coerce b 'simple-vector)
+                                         0 (length b) bound (coerce test 'function))
+                      t)))))
+        (t (<= (edit-dist a b change insert delete inex 'T test) thresh))))
 
 (defun l-resp (l thresh inex test)
- (let ((r (list)))
-   (dotimes (i (length l) (reverse (cdr r)))
-     (let ((tmp (list)))
-       (do ((j 1 (+ j 1))) ((= j (- (length l) i)))
-	 (push (resemble-p (nth i l) (nth (+ i j) l) thresh :inex inex :test test) tmp))  ;;;
-       (push (reverse tmp) r) ))))
+  "For each segment of l but the last, the list of its resemblances (resemble-p) with the following ones."
+  ;; a vector: (nth i l) and (nth (+ i j) l) for each pair made it cubic
+  (let ((v (coerce l 'vector)))
+    (loop for i from 0 below (1- (length v))
+          collect (loop for j from (1+ i) below (length v)
+                        collect (resemble-p (aref v i) (aref v j) thresh :inex inex :test test)))))
 
 ;(l-resp (car (segs '(a b a c a a b a d a e f g h a b a j a k l m n o) t)) 0 1 #'equalp)
 
 (defun nseg (lseg &optional (thresh 0) (inex 0) (test #'equalp))
-  (let ((r (make-list (length lseg)))
-	(tmp (l-resp lseg thresh inex test)))
-    (dotimes (i (length tmp))
-      (when (not (nth i r))
-	(let ((k (allpos 't  (cons 't (nth i tmp)))))
-	  (when k (mapcar (lambda (x) (setf (nth (+ x i) r) i)) k)))))
-    (when (and (null (car (last r))) (car r))
-	(setf (nth (1- (length r)) r) (1+ (car (sort (butlast r) '>))))) r))
+  "The class of each segment of lseg: the rank of the first segment it resembles (resemble-p);
+the last segment, if it resembles none before it, gets a new class."
+  (let ((r (make-array (length lseg) :initial-element nil)))
+    ;; each segment not yet classed opens a class with the following ones that resemble it
+    (loop for row in (l-resp lseg thresh inex test)
+          for i from 0
+          unless (aref r i)
+            do (setf (aref r i) i)
+               (loop for same in row
+                     for j from (1+ i)
+                     when same do (setf (aref r j) i)))
+    (let ((r (coerce r 'list)))
+      (when (and (null (car (last r))) (car r))
+        (setf (car (last r)) (1+ (reduce #'max (butlast r)))))
+      r)))
 
 ;(nseg (cdar (c-seg '(a b a c a a a b b a d a e f g h a b a c a b b a k a m n o))) )
 ;(nseg (cdar (c-seg '(a b a c a d a e f g h a b a c a k a m n o))) .5)

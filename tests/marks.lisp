@@ -75,3 +75,15 @@
   ;; a test given by its name
   (is (equal (mark-list '(a b a c) 'a) (mark-list '(a b a c) 'a :mark-test 'equalp :seg-test 'equalp))))
 
+(test resemble-p-shortcuts
+  ;; at 0, a direct comparison; with costs of 1, the bounded edit distance: the same decisions as
+  ;; the normalized edit distance compared with the threshold, floats included (0.29 * 100 < 29)
+  (let ((*random-state* (seeded-random-state 7)))
+    (loop repeat 2000
+          for a = (loop repeat (random 12) collect (random 3))
+          for b = (loop repeat (random 12) collect (random 3))
+          for thresh = (nth (random 6) '(0 0.1 0.29 1/3 0.5 1))
+          unless (and (null a) (null b))
+            do (is (eq (<= (refrains::edit-distance a b :normalized t) thresh)
+                       (refrains::resemble-p a b thresh))))))
+

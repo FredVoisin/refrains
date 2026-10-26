@@ -152,6 +152,36 @@ If a and b are lists with not same size (i.e points with not same dimensions),
           (if (zerop (max la lb)) 0.0 (float (/ d (max la lb))))
           d))))
 
+(defun edit-dist-bounded (a b start lb bound &optional (test #'equalp))
+  "The edit distance (costs 1) between the vector a and the lb elements of the vector b from
+position start, if it is not more than the integer bound, else nil. The computation stops as
+soon as the distance is certainly more than bound: the minimum of a row of the matrix of costs
+never decreases in the next rows."
+  (declare (simple-vector a b) (fixnum start lb bound) (function test))
+  (let ((la (length a)))
+    (declare (fixnum la))
+    (when (<= (abs (- la lb)) bound)
+      (let ((prev (make-array (1+ la) :element-type 'fixnum))
+            (row (make-array (1+ la) :element-type 'fixnum)))
+        (declare (type (simple-array fixnum (*)) prev row))
+        (dotimes (i (1+ la)) (setf (aref prev i) i))
+        (loop for j fixnum from 1 to lb
+              do (setf (aref row 0) j)
+                 (let ((m j) (bj (svref b (+ start j -1))))
+                   (declare (fixnum m))
+                   (loop for i fixnum from 1 to la
+                         do (let ((d (min (+ (aref prev (1- i))
+                                             (if (funcall test (svref a (1- i)) bj) 0 1))
+                                          (1+ (aref prev i))
+                                          (1+ (aref row (1- i))))))
+                              (declare (fixnum d))
+                              (setf (aref row i) d)
+                              (when (< d m) (setf m d))))
+                   (when (> m bound) (return-from edit-dist-bounded nil)))
+                 (rotatef prev row))
+        (let ((d (aref prev la)))
+          (when (<= d bound) d))))))
+
 (defgeneric edit-dist (seq1 seq2 &optional change insert delete inex normalized test)
   (:documentation
 "Dissemblance measurement between sequences of symbols <seq1> and <seq2>, according to the 'editing distance';
