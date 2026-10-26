@@ -55,7 +55,7 @@
 (defparameter *refrains-menu*
   '(;; 1. transcription
     transcode num>base num>alpha alpha>num list>sym str>sym
-    filt-median filt-extrema filt-mean filt-lowpass filt-repeat filt-noise filt-function
+    filt-median filt-extrema filt-mean filt-lowpass filt-repeat filt-noise filt-function filt-quantize
     graph-span graph-dendrogram graph>matrix
     morph-seq
     ;; 2. classification
@@ -68,7 +68,7 @@
     dist-structure dist-graph
     histogram entropy self-info inner-dynamic graph-length
     ;; 4. reading and writing files
-    read-text write-list display-list seq>plot graph>dot dendrogram>dot
+    read-text write-list display-list seq>plot seq>abc graph>dot dendrogram>dot
     ;; documentation
     help doc)
   "The refrains functions, in the order of the documentation (all the exported functions).")

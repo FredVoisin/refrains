@@ -259,7 +259,7 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
        transcode, num>base, num>alpha, alpha>num, list>sym, str>sym
 ;;  1.2 FILTRER
        filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-noise,
-       filt-function
+       filt-function, filt-quantize
 ;;  1.3 DÉLINÉER : tracer des graphes
        graph-span, graph-dendrogram, graph>matrix
 ;;  1.4 INTERPOLER
@@ -281,7 +281,7 @@ le [README](../README.md#if-the-system-refrains-is-not-found).
 ;;  3.3 QUANTIFIER : information propre, diversité
        histogram, entropy, self-info, inner-dynamic, graph-length
 ;;; 4. LIRE/ÉCRIRE des fichiers
-       read-text, write-list, display-list, seq>plot, graph>dot, dendrogram>dot
+       read-text, write-list, display-list, seq>plot, seq>abc, graph>dot, dendrogram>dot
 ```
 
 Dans le REPL, `(doc)` liste les fonctions documentées et `(doc 'dist-edit)`
@@ -538,6 +538,64 @@ longueur remplacent des blocs entiers.
 (filt-function '(1 2 3 4 5 6 7 8) #'reverse 3 3)
 ;=> (3 2 1 6 5 4 8 7)
 ```
+
+#### `filt-quantize (seq levels &key mode thres window step segments out)`
+
+Quantifie une suite de nombres : chaque valeur est remplacée par le centre de
+sa classe. Les niveaux ne sont pas fixés a priori : ce sont les centres
+d'attraction de la suite, trouvés par `class-num` (voir
+[2.3](#23-différencier)). Sur la suite entière, `filt-quantize` revient à
+`class-num` (avec `:sort t`), chaque valeur étant remplacée par son centre ;
+elle y ajoute des fenêtres, des segments, et une quantification par les
+points saillants. Un `nil` est une valeur absente : il reste `nil`.
+
+- `levels` : le nombre de niveaux, ou la liste de leurs centres initiaux
+  (voir `class-num`).
+- `:mode` : ce qui compte dans la quantification :
+  - `:1d-centroids` (par défaut) ou `:centroids` : les nuées dynamiques de
+    `class-num` sur toutes les valeurs. Chaque valeur compte, donc le temps
+    passé : les niveaux vont là où la suite s'attarde, et un passage bref,
+    comme un pic, est absorbé par le niveau voisin ;
+  - une méthode d'`exsample` (`:minmax`, `:minflexmax`, `:major-extrema`,
+    `:landmarks`, `:angles`), avec son seuil `:thres` (0 par défaut) :
+    `class-num` classe les seuls points saillants que donne cette méthode,
+    puis chaque valeur est ramenée au centre le plus proche, les centres
+    restant fixes. Avec `:minmax`, chaque retournement de la suite (un minimum
+    ou un maximum) compte une fois, quelle que soit sa durée : un pic bref a
+    son niveau.
+- `:window` : `nil` (par défaut), la suite entière ; un entier, une fenêtre
+  glissante de ce nombre de positions ; un flottant ou une fraction, une part
+  de la longueur (`1/4` : un quart). `:step` : un entier, un nombre de
+  positions ; un flottant ou une fraction, une part de la fenêtre (`1/2` par
+  défaut) ; comme pour `filt-function`. La dernière fenêtre finit à la
+  dernière position. Quand les fenêtres se chevauchent, chaque valeur est
+  quantifiée dans la fenêtre dont elle est le plus près du centre. Les niveaux
+  suivent ainsi le registre du moment.
+- `:segments` : `t`, chaque suite de nombres entre deux `nil` est quantifiée à
+  part, dans son propre registre (avec `:window`, la part de la longueur est
+  celle du segment). Mettre des `nil` dans les pauses d'une mélodie, par
+  exemple, la quantifie phrase par phrase.
+- `:out` : `:values` (par défaut), la suite quantifiée ; `:classes`, le niveau
+  de chaque valeur, numéroté par centre croissant dans sa fenêtre ou son
+  segment ; `:all`, trois valeurs : la suite quantifiée, les niveaux, et la
+  liste des `(début fin centres)` de chaque fenêtre ou segment.
+
+Un autre mode, `:thres` avec les nuées dynamiques, une valeur qui n'est ni un
+nombre ni `nil`, ou une fenêtre ou un pas qui n'est pas un nombre positif sont
+des erreurs.
+
+```lisp
+(filt-quantize '(0 1 2 10 11 12 20 21 22) 3)
+;=> (1.0 1.0 1.0 11.0 11.0 11.0 21.0 21.0 21.0)
+(filt-quantize '(0 1 10 11 nil 100 101 110 111) 2 :segments t)
+;=> (0.5 0.5 10.5 10.5 NIL 100.5 100.5 110.5 110.5)
+;; une montée et une descente répétées (de 0 à 50), avec un pic bref à 60 :
+;; par le temps passé, le pic est absorbé ; par les retournements, il a son niveau
+(filt-quantize s 3)                 ; niveaux 8.5 26.5 45.137615
+(filt-quantize s 3 :mode :minmax)   ; niveaux 0.0 50.0 60.0
+```
+
+Voir l'exemple [Quantification](exemples/quantification.md).
 
 ### 1.3 Délinéer : graphes
 
@@ -796,6 +854,14 @@ Méthodes :
   les landmarks d'avant et d'après la paire deviennent consécutifs et peuvent
   former une nouvelle paire. `(0 6 4 5 0)` avec `thres` 3 donne `((1 1 6))` :
   la paire 4, 5 (différence 1) est supprimée, et non 6, 4 (différence 2).
+- `:angles` : les *points anguleux*, là où la pente à gauche (depuis la
+  valeur précédente) et la pente à droite (vers la valeur suivante) diffèrent
+  d'au moins `thres` (de plus de 0 quand `thres` vaut 0), quels que soient
+  leurs signes. Le type est `-1` là où la pente augmente (la courbe s'infléchit
+  vers le haut, comme en un minimum) et `1` là où elle diminue (vers le bas,
+  comme en un maximum). `thres` est ici un écart de pentes, en unités de valeur
+  par position. Avec des nombres flottants, un petit seuil (par exemple
+  `1/1000`) écarte les écarts de pente dus aux arrondis.
 
 `:diff`, avec `:major-extrema` et `:landmarks`, est la différence entre deux
 valeurs a et b :
@@ -804,9 +870,9 @@ valeurs a et b :
 - `:relative` : 2|a − b| / (|a| + |b|), le pourcentage de Perng et al. ;
 - une fonction lambda sur `(a b)`.
 
-Une clé dont la méthode ne se sert pas (`:diff` avec `:minmax` ou
-`:minflexmax`, `:duration` avec `:minmax` ou `:major-extrema`) est une
-erreur, de même qu'une autre méthode.
+Une clé dont la méthode ne se sert pas (`:diff` avec `:minmax`,
+`:minflexmax` ou `:angles`, `:duration` avec `:minmax`, `:major-extrema` ou
+`:angles`) est une erreur, de même qu'une autre méthode.
 
 Avec toutes les méthodes, un extremum plat (un plateau qui est un minimum ou
 un maximum) est donné une seule fois, à sa première position ; avec
@@ -824,6 +890,30 @@ plateau est défini par toute son étendue : ainsi une dérive lente dont la var
 atteint `thres` n'est pas un seul plateau. Une montée régulière de moins de
 `thres` sur `:duration` positions est découpée en escalier de plateaux 
 (discrétisation) ; une `:duration` plus longue l'évite.
+
+**Points anguleux, plis et catastrophes.** En analyse, un *point anguleux*
+est un point où une fonction continue a une dérivée à gauche et une dérivée à
+droite différentes. Ce sont les points de rupture d'une ligne polygonale (les
+*breakpoints* des BPF de PWGL ou d'OpenMusic), qu'il y ait ou non changement
+de sens. Le terme ne suppose pas, comme « sommet » ou « col », un maximum ou un
+minimum : `:minmax` et `:minflexmax` donnent les plis où la dérivée change de
+signe ou s'annule ; `:angles` donne aussi ceux où elle change sans changer de
+signe.
+
+La morphologie mathématique (Matheron, Serra) décrit une fonction par ses
+extrema régionaux, ses plateaux, ses crêtes et ses vallées, non par sa
+dérivée : elle ne nomme pas ces points. René Thom (*Stabilité structurelle et
+morphogénèse*, 1972) travaille sur des fonctions lisses : ce qu'il nomme, ce
+sont les *points critiques*, où la dérivée s'annule, et les catastrophes
+élémentaires (pli, fronce, queue d'aronde, papillon, ombilics) qui naissent des
+points critiques dégénérés. Un point anguleux n'existe pas pour une fonction
+lisse, et il n'est pas structurellement stable : un lissage l'efface. Les
+points anguleux d'une suite de mesures relèvent donc souvent de sa
+représentation (arrondi, interpolation linéaire, rééchantillonnage) plutôt que
+de la forme du phénomène mesuré, ce qui les rend utiles pour l'étudier. Avec
+`:out :resampled`, les droites entre les points anguleux redonnent la suite
+elle-même quand `thres` vaut 0 ; avec un seuil, une approximation polygonale,
+sa caricature par segments.
 
 `:out` définit la forme du résultat :
 
@@ -862,6 +952,10 @@ Une autre valeur de `:out` donne une erreur.
 ;=> nil                                                              ; moins de 6 positions
 (exsample '(0 6 3 3.2 3 3.2 3 6 0) :minflexmax 1 :out :signature)    ; un minimum plat
 ;=> ((1 1 6) (2 -1 3) (7 1 6))
+(exsample '(0 1 2 4 6 7 8 6 4) :angles 0 :out :signature)  ; pentes 1 1 2 2 1 1 -2 -2
+;=> ((2 -1 2) (4 1 6) (6 1 8))
+(exsample '(0 1 2 4 6 7 8 6 4) :angles 2 :out :signature)  ; la pente change de 3 au maximum
+;=> ((6 1 8))
 ```
 
 Références :
@@ -871,6 +965,11 @@ Références :
   suis*, 2004.
 - Fink & Gandhi, « Important extrema in time series », *Conference on
   Systems, Man and Cybernetics*, 2007.
+- Matheron, *Random Sets and Integral Geometry*, New York, Wiley, 1975.
+- Serra, *Image Analysis and Mathematical Morphology*, Londres, Academic
+  Press, 1982.
+- Thom, *Stabilité structurelle et morphogénèse*, Reading, W. A. Benjamin,
+  1972.
 - Hetland, « A survey of recent methods for efficient retrieval of similar
   time sequences », in *Data Mining in Time Series Databases*, Series in
   Machine Perception and Artificial Intelligence, vol. 57, 2004.
@@ -1023,7 +1122,7 @@ répétitions ; ils ne sont pas listés comme motifs à part entière.
 ;=> (((0 0) (4 0) (8 0)) ((60 62 64)))
 ```
 
-#### `class-num (data classes mode &key iter dist)`
+#### `class-num (data classes mode &key iter dist sort)`
 
 Classification de données numériques, c'est-à-dire représentées dans un
 espace dont chaque dimension est ordonnée numériquement, comme un espace
@@ -1061,6 +1160,35 @@ même nombre de coordonnées (sinon, c'est une erreur). Modes (`:centroids` ou
   logarithmiquement vers l'aigu, une fonction comme
   `(lambda (x) (expt x 0.5))` compense l'échelle. Cette méthode est
   déterministe : `:iter` ne s'y applique pas.
+
+`classes` peut aussi être la liste des centres initiaux des classes (des
+nombres, ou des listes de coordonnées comme les points), même approximatifs :
+les nuées dynamiques partent alors de ces centres, quel que soit le mode, et
+le résultat est déterministe. Le nombre de centres distincts fixe le nombre de
+classes : des centres égaux (comparés avec `equalp`, si bien que `55` et `55.0`
+sont égaux) ne comptent qu'une fois. `:iter` ne s'applique pas, ni `:dist` avec
+`:1d-centroids` (il n'y a plus de coupures à placer) : les donner est une
+erreur, de même que des centres d'une autre sorte que les points. Les extrema
+d'une courbe (`exsample`) sont par exemple un bon départ pour la quantifier
+(voir l'exemple [Quantification](exemples/quantification.md)).
+
+```lisp
+(class-num '(0 1 2 10 11 12 20 21 22) '(3 9 18) :centroids)
+;=> ((0 0 0 1 1 1 2 2 2) (1.0 11.0 21.0) 3)
+```
+
+Les classes sont numérotées par ordre de première apparition dans `data` : la
+classe 0 est celle du premier point. Avec des nombres, `:sort t` les numérote
+par centre croissant (la classe 0 est la plus basse) et range les centres dans
+cet ordre, ce qui est commode pour une quantification. `:sort t` avec des
+points en plusieurs dimensions, ou avec `:iter`, est une erreur.
+
+```lisp
+(class-num '(10 11 0 1 20 21) 3 :1d-centroids)
+;=> ((0 0 1 1 2 2) (10.5 0.5 20.5) 3)
+(class-num '(10 11 0 1 20 21) 3 :1d-centroids :sort t)
+;=> ((1 1 0 0 2 2) (0.5 10.5 20.5) 3)
+```
 
 La classification peut aussi être détournée pour *quantifier* un flux
 continu : le flux est alors quantifié non pas sur des valeurs fixées a priori,
@@ -1697,6 +1825,44 @@ ligne du SVG y est coupée).
 0                8
 ```
 
+#### `seq>abc (seq &key out title rhythm unit)`
+
+Écrit une suite de notes en [notation ABC](https://abcnotation.com/), un
+format texte que lisent de nombreux logiciels (abcm2ps, EasyABC, MuseScore
+avec un greffon…), pour la voir en partition ou l'écouter. `seq` est une
+liste de notes MIDI (60 est le do central) ; une note non entière est arrondie
+au demi-ton, une liste de notes est un accord, et un `nil` est un silence. Les
+notes ou les accords égaux consécutifs n'en forment qu'un. Les altérations sont des dièses, avec des bécarres là où il le
+faut (en ABC, une altération vaut jusqu'à la fin de la mesure, ici du morceau).
+Il n'y a pas de métrique (`M:none`), donc pas de barre de mesure.
+
+- `:out` : `nil` (par défaut) renvoie le texte ABC ; `t` l'affiche dans le
+  listener ; un flux (stream) le reçoit ; un chemin (chaîne ou pathname)
+  l'écrit dans ce fichier et renvoie son nom ;
+- `:title` : le titre du morceau (`T:`, « refrains » par défaut) ;
+- `:rhythm` : `nil` (par défaut), sans rythme : chaque note sans durée ; `t`,
+  chaque note dure son nombre de positions divisé par `:unit` (1 par défaut),
+  en doubles croches (`L:1/16`).
+
+Une valeur qui n'est ni un nombre, ni une liste de nombres, ni `nil` est une
+erreur.
+
+```lisp
+(seq>abc '(60 62 64 64 nil 66 65 72 48))
+;=> "X:1
+;    T:refrains
+;    M:none
+;    L:1/4
+;    K:C
+;    C D E z ^F =F c C,
+;    "
+(seq>abc '(60 60 60 60 62 nil nil) :rhythm t)   ; ... C4 D z2
+(seq>abc '((60 64) (64 60) 62))                 ; ... [CE] D
+```
+
+Une suite quantifiée (par `class-num`) devient ainsi une mélodie : voir
+l'exemple [Quantification](exemples/quantification.md).
+
 #### `graph>dot (graph &key out dis scale shape legend overlap invert)`
 
 Trace un graphe non orienté au format **dot**.
@@ -1849,7 +2015,8 @@ rougequeue noir).
 - Leroi-Gourhan, André, *Le geste et la parole*, Paris, Albin Michel, t. 1,
   1964 ; t. 2, 1965.
 - Thom, René, *Stabilité structurelle et morphogénèse : essai d'une théorie
-  générale des modèles*, 2e éd., Paris, InterÉditions, 1977.
+  générale des modèles*, 2e éd., Paris, InterÉditions, 1977 (points
+  critiques et catastrophes, `exsample :angles`).
 
 ### Algorithmes
 
@@ -1868,16 +2035,20 @@ rougequeue noir).
 - Lance, G. N. & Williams, W. T., « A general theory of classificatory
   sorting strategies. 1. Hierarchical systems », *The Computer Journal*
   9(4), 1967, p. 373–380 (`graph-dendrogram`).
+- Matheron, Georges, *Random Sets and Integral Geometry*, New York, Wiley,
+  1975 (morphologie mathématique).
 - Perng, Parker & Leung, « Representing time series by landmarks »,
   *Conference on Information and Knowledge Management*, 1999
   (`exsample :landmarks`).
+- Serra, Jean, *Image Analysis and Mathematical Morphology*, Londres,
+  Academic Press, 1982 (morphologie mathématique).
 - Ward, Joe H., « Hierarchical grouping to optimize an objective
   function », *Journal of the American Statistical Association* 58(301),
   1963, p. 236–244 (`graph-dendrogram :linkage :ward`).
 
 ## Liste des fonctions
 
-La liste des 53 fonctions exportées, avec leurs arguments et leur docstring, est
+La liste des 55 fonctions exportées, avec leurs arguments et leur docstring, est
 dans
 [refrains-fonctions.fr.md](refrains-fonctions.fr.md).
 

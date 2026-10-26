@@ -65,6 +65,114 @@ A value returned by <func> is repeated for the block; a list replaces the block 
     (refrains::window-apply seq func window
                                   (if (integerp step) step (max 1 (round (* step window)))))))
 
+(defun quantize-part (values levels mode thres)
+  "The quantization of VALUES (numbers): (classes centres), the classes numbered by increasing centre.
+MODE :1d-centroids or :centroids, the dynamic clouds on the values (class-num); a method of exsample,
+class-num on the salient points of the values, then each value at the nearest centre (fixed centres)."
+  (if (null (rest (remove-duplicates values :test #'=)))
+      (list (make-list (length values) :initial-element 0) (list (first values)))
+      (if (member mode '(:1d-centroids :centroids))
+          (subseq (class-num values levels mode :sort t) 0 2)
+          (let* ((points (exsample values mode thres :out :values))
+                 (centres (if (rest (remove-duplicates points :test #'=))
+                              (second (class-num points levels :1d-centroids :sort t))
+                              (list (first points)))))
+            (list (mapcar (lambda (x)
+                            (position (reduce (lambda (a b) (if (<= (abs (- x a)) (abs (- x b))) a b)) centres)
+                                      centres))
+                          values)
+                  centres)))))
+
+(defun quantize-windows (n window step)
+  "The windows (start end) over N positions: of WINDOW positions (all if nil), by STEP, the last one
+ending at the last position."
+  (if (or (null window) (>= window n))
+      (list (list 0 (1- n)))
+      (let ((starts (loop for s from 0 to (- n window) by step collect s)))
+        (unless (= (car (last starts)) (- n window))
+          (setf starts (append starts (list (- n window)))))
+        (mapcar (lambda (s) (list s (+ s window -1))) starts))))
+
+(defun quantize (seq levels &key (mode :1d-centroids) thres window (step 1/2) segments)
+  "SEQ quantized (see filt-quantize). Returns the quantized values, the classes, and the parts
+(start end centres), one by window or segment."
+  (let* ((v (coerce seq 'vector))
+         (n (length v))
+         (values (make-array n :initial-element nil))
+         (classes (make-array n :initial-element nil))
+         (parts nil)
+         (domains ; the segments: the runs of numbers between NILs, or all the positions
+           (if segments
+               (let ((runs nil) (start nil))
+                 (dotimes (i n)
+                   (cond ((and (aref v i) (null start)) (setf start i))
+                         ((and (null (aref v i)) start) (push (list start (1- i)) runs) (setf start nil))))
+                 (when start (push (list start (1- n)) runs))
+                 (nreverse runs))
+               (when (some #'identity v) (list (list 0 (1- n)))))))
+    (dolist (d domains)
+      (destructuring-bind (d-start d-end) d
+        (let* ((len (1+ (- d-end d-start)))
+               (size (cond ((null window) nil)
+                           ((integerp window) window)
+                           (t (max 1 (round (* window len))))))
+               (pace (when size (max 1 (if (integerp step) step (round (* step size))))))
+               (windows (mapcar (lambda (w) (mapcar (lambda (x) (+ x d-start)) w))
+                                (quantize-windows len size pace)))
+               (results (mapcar (lambda (w)
+                                  (let ((positions (loop for i from (first w) to (second w)
+                                                         when (aref v i) collect i)))
+                                    (cons positions
+                                          (when positions
+                                            (quantize-part (mapcar (lambda (i) (aref v i)) positions)
+                                                           levels mode thres)))))
+                                windows)))
+          (loop for w in windows for r in results
+                when (rest r) do (push (list (first w) (second w) (third r)) parts))
+          ;; each value is quantized in the window whose centre is the nearest
+          (loop for i from d-start to d-end
+                when (aref v i)
+                  do (let* ((k (position (reduce #'min windows :key (lambda (w) (abs (- i (/ (+ (first w) (second w)) 2)))))
+                                         windows :key (lambda (w) (abs (- i (/ (+ (first w) (second w)) 2))))))
+                            (r (nth k results))
+                            (c (nth (position i (first r)) (second r))))
+                       (setf (aref classes i) c
+                             (aref values i) (nth c (third r))))))))
+    (values (coerce values 'list) (coerce classes 'list) (nreverse parts))))
+
+(defgeneric filt-quantize (seq levels &key mode thres window step segments out)
+  (:documentation "FILT-QUANTIZE: quantizes the sequence of numbers <seq> (a NIL being a missing value, kept): each value is replaced by
+the centre of its class. <levels> is the number of levels, or the list of their initial centres (see class-num).
+:mode : :1d-centroids (by default) or :centroids, the dynamic clouds of class-num on the values, where each value counts (the
+time spent); or a method of exsample (:minmax, :minflexmax, :major-extrema, :landmarks, :angles), class-num on the salient
+points given by this method, with the threshold :thres (0 by default), then each value at the nearest centre, the centres
+being fixed: with :minmax, each turn of the sequence (a minimum or a maximum) counts once, whatever its duration.
+:window : NIL (by default), the whole sequence (as class-num); an integer, a sliding window of this number of positions; a
+float or a ratio, a part of the length (1/4: a quarter). :step : an integer, a number of positions; a float or a ratio, a part
+of the window (1/2 by default). Each value is quantized in the window whose centre is the nearest.
+:segments : T, each run of numbers between NILs is quantized apart (the parts of :window are then parts of the run).
+:out : :values (by default), the quantized sequence; :classes, the level of each value (numbered by increasing centre in its
+window or segment); :all, three values: the quantized sequence, the levels, and the list of (start end centres) of each window
+or segment."))
+
+(defmethod filt-quantize ((seq list) levels &key (mode :1d-centroids) thres window (step 1/2) segments (out :values))
+  (unless (member mode '(:1d-centroids :centroids :minmax :minflexmax :major-extrema :landmarks :angles))
+    (error "filt-quantize: unknown mode ~S, use :1d-centroids, :centroids or a method of exsample." mode))
+  (when (and thres (member mode '(:1d-centroids :centroids)))
+    (error "filt-quantize: :thres applies only to the methods of exsample."))
+  (unless (every (lambda (x) (or (null x) (realp x))) seq)
+    (error "filt-quantize: the values must be numbers, or NIL."))
+  (unless (or (null window) (and (realp window) (plusp window)))
+    (error "filt-quantize: the window must be a positive number, not ~S." window))
+  (unless (and (realp step) (plusp step))
+    (error "filt-quantize: the step must be a positive number, not ~S." step))
+  (multiple-value-bind (values classes parts)
+      (refrains::quantize seq levels :mode mode :thres (or thres 0) :window window :step step :segments segments)
+    (ecase out
+      (:values values)
+      (:classes classes)
+      (:all (values values classes parts)))))
+
 (defgeneric filt-mean (seq window &optional step)
   (:documentation "Values replaced by their respective  windowed mean values."))
 

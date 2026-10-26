@@ -23,7 +23,7 @@
 ;;;; signature.lisp
 ;;;;
 ;;;; Signatures of numeric sequences: major extrema, local extrema, landmarks,
-;;;; plateaus and inflexions, and their output (exsample).
+;;;; plateaus and inflexions, angular points, and their output (exsample).
 
 (in-package :refrains)
 
@@ -215,6 +215,17 @@ extremum is a flat extremum and gives no inflexion. Returns (position type value
 
 ;; the signature of seq and its output (exsample)
 
+(defun angles (seq thres)
+  "The angular points of seq: the inner positions where the slope on the left (from the previous value)
+and the slope on the right (to the next value) differ, by at least thres (by more than 0 when thres is
+0). Returns them as (position type value), type -1 where the slope increases (the curve bends upwards,
+as at a minimum) and 1 where it decreases (it bends downwards, as at a maximum)."
+  (let ((v (coerce seq 'vector)))
+    (loop for i from 1 below (1- (length v))
+          for change = (- (- (aref v (1+ i)) (aref v i)) (- (aref v i) (aref v (1- i))))
+          when (and (/= change 0) (>= (abs change) thres))
+            collect (list i (if (plusp change) -1 1) (aref v i)))))
+
 (defun droite (a b)
   (if (= (cadr a) (cadr b))
       (list 0 (cadr a))
@@ -222,26 +233,27 @@ extremum is a flat extremum and gives no inflexion. Returns (position type value
       (list pente (- (cadr a) (* pente (car a)))))))
 
 (defun signature (seq method thres &key diff duration out)
-  "The signature of seq by method (:minmax, :minflexmax, :major-extrema or :landmarks), with the
+  "The signature of seq by method (:minmax, :minflexmax, :major-extrema, :landmarks or :angles), with the
 threshold thres, the difference diff (:major-extrema and :landmarks) and the duration (:minflexmax and
 :landmarks), given according to out: :signature (the points (position type value)), or with the first
 and last values of seq, :values, :positions, :all ((position value)) or :resampled."
-  (unless (member method '(:minmax :minflexmax :major-extrema :landmarks))
-    (error "exsample: unknown method ~S, use :minmax, :minflexmax, :major-extrema or :landmarks." method))
+  (unless (member method '(:minmax :minflexmax :major-extrema :landmarks :angles))
+    (error "exsample: unknown method ~S, use :minmax, :minflexmax, :major-extrema, :landmarks or :angles." method))
   (unless (member out '(:signature :values :positions :all :resampled))
     (error "exsample: unknown output ~S, use :values, :positions, :all, :resampled or :signature." out))
   (unless (and (realp thres) (>= thres 0))
     (error "exsample: the threshold must be a non-negative number, not ~S." thres))
-  (when (and diff (member method '(:minmax :minflexmax)))
+  (when (and diff (member method '(:minmax :minflexmax :angles)))
     (error "exsample: :diff is not used by ~S." method))
-  (when (and duration (member method '(:minmax :major-extrema)))
+  (when (and duration (member method '(:minmax :major-extrema :angles)))
     (error "exsample: :duration is not used by ~S." method))
   (let ((points (when seq
                   (ecase method
                     (:minmax (major-extrema seq thres))
                     (:minflexmax (minflexmax seq thres duration))
                     (:major-extrema (major-extrema seq thres (difference-function diff)))
-                    (:landmarks (landmarks seq thres duration (difference-function diff)))))))
+                    (:landmarks (landmarks seq thres duration (difference-function diff)))
+                    (:angles (angles seq thres))))))
     (if (or (eq out :signature) (null seq))
         points
         (let* ((v (coerce seq 'vector))

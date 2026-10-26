@@ -230,3 +230,19 @@
   (dotimes (k 200)
     (let ((s (loop repeat (random 30) collect (random 4))))
       (is (equal (refrains::major-extrema s 0) (refrains::local-extrema s))))))
+
+(test exsample-angles
+  ;; the angular points: where the slope changes, whatever its sign
+  (let ((s '(0 1 2 4 6 7 8 6 4)))   ; slopes 1 1 2 2 1 1 -2 -2
+    (is (equal '((2 -1 2) (4 1 6) (6 1 8)) (exsample s :angles 0 :out :signature)))
+    (is (equal '(0 2 4 6 8) (exsample s :angles 0 :out :positions)))
+    ;; with a threshold: only the changes of slope of at least thres (here the maximum, change -3)
+    (is (equal '((6 1 8)) (exsample s :angles 2 :out :signature)))
+    ;; the straight lines between the angular points are the sequence itself
+    (is (equal s (exsample s :angles 0 :out :resampled))))
+  ;; a straight line has no angular point
+  (is (null (exsample '(1 3 5 7) :angles 0 :out :signature)))
+  ;; a minimum and a plateau
+  (is (equal '((1 -1 0) (2 1 1)) (exsample '(2 0 1 1 1) :angles 0 :out :signature)))
+  (signals error (exsample '(0 1 0) :angles 0 :diff :relative))
+  (signals error (exsample '(0 1 0) :angles 0 :duration 3)))

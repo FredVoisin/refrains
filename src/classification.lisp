@@ -193,6 +193,29 @@ The second argument <dist> is the distance function (#'dist-euclid by default).
 (defmethod n-class ((data list) (n t) &optional (iter nil) (dist nil))
   (if data (dynclouds data n iter dist) nil))
 
+(defun centres-class (data centres &optional dist)
+  "The dynamic clouds on data (numbers, or lists of coordinates) from the initial centres (of the same kind).
+Returns (classes centres iterations), the classes numbered by order of first appearance."
+  (cond ((null centres)
+         (error "class-num: the list of initial centres is empty."))
+        ((and (every #'realp data) (every #'realp centres))
+         (multiple-value-bind (r c i)
+             (nuees (mapcar #'(lambda (x) (list x 0)) data) (mapcar #'(lambda (x) (list x 0)) centres) dist)
+           (list r (mapcar #'car c) i)))
+        ((and (every #'listp data) (every #'listp centres)
+              (apply #'= (mapcar #'length (append data centres))))
+         (multiple-value-bind (r c i) (nuees data centres dist)
+           (list r c i)))
+        (t (error "class-num: the initial centres must be of the same kind as the points of data."))))
+
+(defun sort-classes (result)
+  "RESULT of class-num (classes centres iterations), with the classes numbered by increasing centre."
+  (destructuring-bind (classes centres &rest more) result
+    (let ((order (sort (loop for i below (length centres) collect i) #'< :key (lambda (i) (nth i centres)))))
+      (list* (mapcar (lambda (c) (position c order)) classes)
+             (mapcar (lambda (i) (nth i centres)) order)
+             more))))
+
 (defgeneric 1d-class (data n &optional fct)
   (:documentation "quantifies data by partitioning dx."))
 

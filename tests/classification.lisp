@@ -46,6 +46,38 @@
                                  (k l m n o p) (k l m n o q))
                                3 :edit-norm))))))
 
+(test class-num-sort
+  ;; :sort t numbers the classes by increasing centre, class 0 the lowest
+  (let ((data '(10 11 0 1 20 21)))
+    (is (equal '(1 1 0 0 2 2) (first (class-num data 3 :1d-centroids :sort t))))
+    (is (equal '(0.5 10.5 20.5) (second (class-num data 3 :1d-centroids :sort t))))
+    ;; by default, by order of first appearance
+    (is (equal '(0 0 1 1 2 2) (first (class-num data 3 :1d-centroids))))
+    ;; :centroids from initial centres (deterministic)
+    (is (equal '(1 1 0 0 2 2) (first (class-num data '(12 2 18) :centroids :sort t)))))
+  (signals error (class-num '((0 0) (1 1)) 2 :centroids :sort t))
+  (signals error (class-num '(0 1 5 6) 2 :centroids :sort t :iter 4)))
+
+(test class-num-centres
+  ;; initial centres, approximate: the dynamic clouds from them, deterministic
+  (let ((data '(0 1 2 10 11 12 20 21 22)))
+    (is (equal '((0 0 0 1 1 1 2 2 2) (1.0 11.0 21.0))
+               (subseq (class-num data '(3 9 18) :centroids) 0 2)))
+    ;; the same with :1d-centroids
+    (is (equal (subseq (class-num data '(3 9 18) :centroids) 0 2)
+               (subseq (class-num data '(3 9 18) :1d-centroids) 0 2)))
+    ;; equal centres count once (55 and 55.0)
+    (is (= 2 (length (second (class-num '(50 55 60 90 95) '(55 55.0 92) :centroids)))))
+    ;; with :sort
+    (is (equal '(2 2 2 1 1 1 0 0 0) (first (class-num (reverse data) '(3 9 18) :centroids :sort t)))))
+  ;; points in two dimensions
+  (is (equal '(0 0 1 1) (first (class-num '((0 0) (0 1) (10 10) (10 11)) '((1 1) (9 9)) :centroids))))
+  (signals error (class-num '(0 1 2) '(0 2) :centroids :iter 3))
+  (signals error (class-num '(0 1 2) '(0 2) :1d-centroids :dist #'identity))
+  (signals error (class-num '(0 1 2) '((0 0)) :centroids))
+  (signals error (class-num '(0 1 2) '() :centroids))
+  (signals error (class-num '(0 1 2) 2.5 :centroids)))
+
 (test class-num-nil-mode
   ;; (case mode (nil ...)) never matched: mode nil returned nil
   (let ((*random-state* (seeded-random-state)))

@@ -37,7 +37,9 @@ Argument <method> defines the algorithm to compute the signature:
 :major-extrema, important extrema (Fink & Gandhi, Conference on Systems, Man and Cybernetics, 2007):
  a minimum (maximum) such that the sequence rises (falls) by at least thres on both sides;
 :landmarks, first-order landmarks smoothed by MDPP(D, P) (Perng, Parker & Leung, Conference on Information
- and Knowledge Management, 1999): pairs of close landmarks whose difference is below thres are removed.
+ and Knowledge Management, 1999): pairs of close landmarks whose difference is below thres are removed;
+:angles, the angular points: the positions where the slope on the left and the slope on the right differ by at least
+ thres (by more than 0 if thres is 0), whatever their signs (thres is then a difference of slopes).
 Keyword :diff, with :major-extrema and :landmarks, the difference between two values: :absolute (|a - b|, default),
 :relative (2 |a - b| / (|a| + |b|), as in Perng et al.) or a function (a b).
 Keyword :duration, a number of positions: with :minflexmax, the minimal duration of a plateau (nil, 0, 1 and 2 mean 2);
@@ -45,8 +47,8 @@ with :landmarks, D (only landmarks closer than D positions may be removed; nil: 
 A keyword not used by the method is an error.
 Keyword :out defines the output: :values (default, or nil), :positions, :all (position value) or :resampled
 (the straight lines between the points, at every position), all with the first and last values of <seq>;
-or :signature, the points (position type value), type -1 for a minimum, 1 for a maximum and 0 for an inflexion,
-without the first and last values."))
+or :signature, the points (position type value), type -1 for a minimum, 1 for a maximum and 0 for an inflexion
+(with :angles, -1 where the slope increases and 1 where it decreases), without the first and last values."))
 
 (defmethod exsample ((seq list) (method symbol) (thres t) &key (diff nil) (duration nil) (out nil))
   ;; nil: the defaults (thres nil: no threshold, as 0)
@@ -109,21 +111,46 @@ Optional argument <key> defines a function to be applyed to each consecutive ele
 (defmethod motif-group ((seq t) (test function) &optional (key nil))
   (adj-group seq test key))
 
-(defgeneric class-num (data classes mode  &key iter dist)
+(defgeneric class-num (data classes mode  &key iter dist sort)
   (:documentation "CLASS-NUM: classifies the points <data> into <classes> classes, in a space of n dimensions (n integer > 0):
 each point is a number (one dimension) or the list of its coordinates.
+Argument <classes> is the number of classes, or the list of their initial centres (numbers, or lists of coordinates),
+approximate ones being possible: the dynamic clouds start from them (equal centres count once), whatever <mode>,
+without :iter (deterministic).
 Argument <mode> defines the algorithm used for partitioning the points:
 :centroids, dynamic clouds algorithm (in French: nuees dynamiques, after Diday), from random initial centres;
 :1d-centroids, the same algorithm on numbers (one dimension), from initial centres taken between the largest
 differences of the sorted data (deterministic).
 Keyword argument :iter to set the number of runs of the algorithm (with :centroids);
-:dist to set the distance or metric to be used (by default: euclidean distance)."))
+:dist to set the distance or metric to be used (by default: euclidean distance);
+:sort, with numbers, t to number the classes by increasing centre (class 0 the lowest), nil (default) by order of
+first appearance in <data>."))
 
-(defmethod class-num ((data t) (classes integer) (mode symbol) &key (iter nil) (dist nil))
-  (setf classes (max 2 classes))   ; at least 2 classes
+(defmethod class-num ((data t) (classes t) (mode symbol) &key (iter nil) (dist nil) (sort nil))
+  (when (and sort (or iter (notevery #'realp data)))
+    (error "class-num: :sort needs numbers as data, and no :iter."))
+  ;; without :sort, all the values (with an integer :iter, the partition and its frequency)
+  (if sort
+      (refrains::sort-classes (class-num-unsorted data classes mode iter dist))
+      (class-num-unsorted data classes mode iter dist)))
+
+(defun class-num-unsorted (data classes mode iter dist)
+  "class-num, the classes numbered by order of first appearance in data."
   ;; modes recognized by name (:centroids, 'centroids from any package); an unknown mode was nil
   (let ((name (if mode (string-upcase (string mode)) "CENTROIDS")))
-    (cond ((string= name "CENTROIDS")
+    (unless (member name '("CENTROIDS" "1D-CENTROIDS") :test #'string=)
+      (error "class-num: unknown mode ~S, use :centroids (or nil) or :1d-centroids." mode))
+    (cond ((listp classes)
+           ;; initial centres, the same equal ones once: the dynamic clouds from them
+           (when iter
+             (error "class-num: :iter does not apply when the initial centres are given."))
+           (when (and dist (string= name "1D-CENTROIDS"))
+             (error "class-num: :dist does not apply to :1d-centroids when the initial centres are given."))
+           (refrains::centres-class data (remove-duplicates classes :test #'equalp :from-end t) dist))
+          ((not (integerp classes))
+           (error "class-num: classes must be a number of classes or a list of initial centres, not ~S." classes))
+          ((string= name "CENTROIDS")
+           (setf classes (max 2 classes))   ; at least 2 classes
            (let ((numbers (every #'numberp data)))
              (unless (or numbers
                          (and (every #'listp data)
@@ -135,9 +162,8 @@ Keyword argument :iter to set the number of runs of the algorithm (with :centroi
                    (list (first r) (mapcar #'car (second r)) (third r)))
                  ;; all the values (with an integer iter: the partition and its frequency)
                  (refrains::n-class data classes iter dist))))
-          ((string= name "1D-CENTROIDS")
-           (refrains::1d-class data classes (if dist dist #'identity)))
-          (t (error "class-num: unknown mode ~S, use :centroids (or nil) or :1d-centroids." mode)))))
+          (t
+           (refrains::1d-class data (max 2 classes) (if dist dist #'identity))))))
 
 (defgeneric class-sym (data classes mode &key sub ins del uncom excluded mst)
   (:documentation "CLASS-SYM: classify a set of segments or sequences into different classes according to their editing distance to each other and

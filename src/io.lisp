@@ -337,4 +337,56 @@ LABELS, the bottom, the top and the times of the window are written. Returns the
         (format svg "</svg>~%"))
       (namestring file))))
 
+;;; ABC : a sequence of notes written in the ABC music notation
+
+(defun abc-pitch (midi)
+  "The MIDI note MIDI as a letter and an octave mark in ABC (60, middle C, is C), with :sharp or nil."
+  (multiple-value-bind (octave class) (floor midi 12)
+    (let* ((names #("C" "C" "D" "D" "E" "F" "F" "G" "G" "A" "A" "B"))
+           (sharp (member class '(1 3 6 8 10)))
+           (octave (- octave 1))      ; 60 is in the octave 4
+           (letter (aref names class)))
+      (values (if (>= octave 5)
+                  (concatenate 'string (string-downcase letter) (make-string (- octave 5) :initial-element #\'))
+                  (concatenate 'string letter (make-string (- 4 octave) :initial-element #\,)))
+              (and sharp :sharp)))))
+
+(defun abc-notes (seq &key rhythm (unit 1))
+  "The notes of SEQ (MIDI notes, lists of MIDI notes for chords, NIL a rest) in ABC: consecutive equal
+notes or chords (rounded to the semitone) make one, with a length of their number of positions divided
+by UNIT when RHYTHM. The accidentals are written where needed, as they last until the end of the bar
+(here, of the tune)."
+  (let ((runs nil) (sharps (make-hash-table :test #'equal)))
+    (flet ((note (n)
+             (multiple-value-bind (name sharp) (abc-pitch n)
+               (cond (sharp (setf (gethash name sharps) t)
+                            (concatenate 'string "^" name))
+                     ((gethash name sharps) (remhash name sharps)
+                      (concatenate 'string "=" name))
+                     (t name)))))
+      (dolist (x seq)
+        (unless (or (null x) (realp x) (and (consp x) (every #'realp x)))
+          (error "seq>abc: ~S is neither a note (a number), nor a chord (a list of numbers), nor a rest (NIL)." x))
+        ;; a chord: its notes rounded, sorted, once each; a chord of one note is that note
+        (let ((n (cond ((realp x) (round x))
+                       ((consp x) (let ((c (sort (remove-duplicates (mapcar #'round x)) #'<)))
+                                    (if (rest c) c (first c)))))))
+          (if (and runs (equal n (car (first runs))))
+              (incf (cdr (first runs)))
+              (push (cons n 1) runs))))
+      (loop for (n . count) in (nreverse runs)
+            collect (let ((length (if rhythm (max 1 (round count unit)) 1)))
+                      (concatenate 'string
+                                   (cond ((null n) "z")
+                                         ((consp n) (format nil "[~{~A~}]" (mapcar #'note n)))
+                                         (t (note n)))
+                                   (if (= length 1) "" (princ-to-string length))))))))
+
+(defun abc-text (seq &key title rhythm (unit 1) (per-line 16))
+  "SEQ as an ABC tune: header, then the notes, PER-LINE by line."
+  (with-output-to-string (s)
+    (format s "X:1~%T:~A~%M:none~%L:~A~%K:C~%" (or title "refrains") (if rhythm "1/16" "1/4"))
+    (loop for notes on (abc-notes seq :rhythm rhythm :unit unit) by (lambda (l) (nthcdr per-line l))
+          do (format s "~{~A~^ ~}~%" (subseq notes 0 (min per-line (length notes)))))))
+
 ;;; eof

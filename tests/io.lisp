@@ -222,3 +222,28 @@
       (is (equal "svg" (pathname-type name)))
       (ignore-errors (delete-file name)))))
 
+(test seq>abc
+  (let ((abc (seq>abc '(60 62 64 64 nil 66 65 72 48))))
+    (is (search "X:1" abc))
+    (is (search "M:none" abc))
+    (is (search "K:C" abc))
+    ;; equal notes once, a rest, a sharp, then a natural, octaves above and below
+    (is (search (format nil "C D E z ^F =F c C,~%") abc)))
+  ;; octaves, and accidentals by octave
+  (is (search (format nil "c' c'' C,, C,,, ^C ^c ^C =C ^C~%") (seq>abc '(84 96 36 24 61 73 61 60 61))))
+  ;; not integers: rounded to the semitone
+  (is (search "C D" (seq>abc '(60.2 61.8))))
+  ;; with rhythm: the number of positions, divided by :unit
+  (is (search "C4 D z2" (seq>abc '(60 60 60 60 62 nil nil) :rhythm t)))
+  (is (search "C2 D" (seq>abc '(60 60 60 60 62 62) :rhythm t :unit 2)))
+  (is (search "T:essai" (seq>abc '(60) :title "essai")))
+  ;; into a stream, or a file
+  (is (search "C" (with-output-to-string (s) (seq>abc '(60) :out s))))
+  (uiop:with-temporary-file (:pathname tmp :type "abc" :keep nil)
+    (is (string= (namestring tmp) (seq>abc '(60 62) :out tmp)))
+    (is (search "C D" (uiop:read-file-string tmp))))
+  ;; chords: lists of notes, sorted, once each; equal consecutive chords make one
+  (is (search "[CE] [CE^F] C z" (seq>abc '((64 60) (60 64) (60 64 66) (60 60) nil))))
+  (is (search "[CE]3 D" (seq>abc '((60 64) (60 64) (64 60) 62) :rhythm t)))
+  (signals error (seq>abc '((60 a))))
+  (signals error (seq>abc '(60 a))))

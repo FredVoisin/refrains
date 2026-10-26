@@ -77,6 +77,27 @@ NIL draws the plot alone."))
                       :width (or width 72) :height (or height 16) :labels labels
                       :stream (if (streamp out) out *standard-output*))))
 
+(defgeneric seq>abc (seq &key out title rhythm unit)
+  (:documentation "SEQ>ABC: writes the sequence of notes <seq> in the ABC music notation: <seq> is a list of MIDI notes (60 is
+middle C; a number which is not an integer is rounded to the semitone), a list of MIDI notes being a chord and a NIL a rest.
+Consecutive equal notes or chords make one. The accidentals are sharps, with naturals where needed.
+:out : NIL (by default) returns the ABC text; T prints it in the listener; a stream, writes it into it; a string or a
+pathname, writes it in this file and returns its name.
+:title : the title of the tune (T:, \"refrains\" by default).
+:rhythm : NIL (by default), no rhythm: each note without length; T, each note lasts its number of positions divided by
+:unit (1 by default), in sixteenths (L:1/16).
+There is no meter (M:none), so no bar."))
+
+(defmethod seq>abc ((seq list) &key out title rhythm (unit 1))
+  (let ((text (abc-text seq :title title :rhythm rhythm :unit unit)))
+    (cond ((null out) text)
+          ((or (stringp out) (pathnamep out))
+           (with-open-file (s out :direction :output :if-exists :supersede :if-does-not-exist :create)
+             (write-string text s))
+           (namestring (pathname out)))
+          (t (write-string text (if (streamp out) out *standard-output*))
+             text))))
+
 (defgeneric write-list (list file &optional mode)
   (:documentation "WRITE-LIST: write list to a file using following optional argument <mode> format:
 :flat (by default) : each element of list is written in a new line, sub-lists without parentheses (as read by read-text)

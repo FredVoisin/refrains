@@ -178,3 +178,38 @@
   (is (equal '(1 2 3) (filt-extrema '(1 2 3) 1)))
   (is (null (filt-extrema '() 3)))
   (signals error (filt-extrema '(1 2 3) 3 :median)))
+
+(test filt-quantize
+  (let ((s '(0 1 2 10 11 12 20 21 22)))
+    ;; without window: class-num, each value replaced by the centre of its class
+    (is (equal '(1.0 1.0 1.0 11.0 11.0 11.0 21.0 21.0 21.0) (filt-quantize s 3)))
+    (is (equal '(0 0 0 1 1 1 2 2 2) (filt-quantize s 3 :out :classes)))
+    ;; the same as class-num :sort t
+    (is (equal (first (class-num s 3 :1d-centroids :sort t)) (filt-quantize s 3 :out :classes)))
+    ;; NIL: a missing value, kept
+    (is (equal '(0.5 0.5 nil 10.5 10.5) (filt-quantize '(0 1 nil 10 11) 2))))
+  ;; by the turns (:minmax): each extremum counts once, the brief peak (60) has its level;
+  ;; by the time spent (:1d-centroids), it is absorbed
+  (let* ((up (loop for i from 0 to 50 collect i))
+         (down (reverse up))
+         (peak (append (loop for i from 51 to 60 collect i) (loop for i from 59 downto 51 collect i)))
+         (s (append up down up peak down up down)))
+    (is (< (reduce #'max (filt-quantize s 3)) 50))
+    (is (equal '(0.0 50.0 60.0) (sort (remove-duplicates (filt-quantize s 3 :mode :minmax)) #'<))))
+  ;; segments: each run between NILs quantized apart, in its own register
+  (multiple-value-bind (v classes parts) (filt-quantize '(0 1 10 11 nil 100 101 110 111) 2 :segments t :out :all)
+    (is (equal '(0.5 0.5 10.5 10.5 nil 100.5 100.5 110.5 110.5) v))
+    (is (equal '(0 0 1 1 nil 0 0 1 1) classes))
+    (is (equal '((0 3 (0.5 10.5)) (5 8 (100.5 110.5))) parts)))
+  ;; sliding windows: an integer size, or a part of the length; each value in the nearest window
+  (let ((s (loop for i below 40 collect (if (< i 20) (mod i 2) (+ 100 (mod i 2))))))
+    (is (equal (filt-quantize s 2 :window 20 :step 20) (filt-quantize s 2 :window 1/2 :step 1.0)))
+    (is (= 4 (length (remove-duplicates (filt-quantize s 2 :window 20 :step 20))))))
+  (multiple-value-bind (v c parts) (filt-quantize (loop for i below 10 collect i) 2 :window 4 :out :all)
+    (declare (ignore v c))
+    ;; windows of 4 by 2, the last one ending at the end
+    (is (equal '((0 3) (2 5) (4 7) (6 9)) (mapcar (lambda (p) (subseq p 0 2)) parts))))
+  (signals error (filt-quantize '(0 1 2) 2 :mode :foo))
+  (signals error (filt-quantize '(0 1 2) 2 :thres 1))
+  (signals error (filt-quantize '(0 a 2) 2))
+  (signals error (filt-quantize '(0 1 2) 2 :window -1)))

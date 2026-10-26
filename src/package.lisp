@@ -45,7 +45,7 @@
    ;; 1. transcription
    #:transcode #:num>base #:num>alpha #:alpha>num #:list>sym #:str>sym
    #:filt-median #:filt-extrema #:filt-mean #:filt-lowpass
-   #:filt-repeat #:filt-noise #:filt-function
+   #:filt-repeat #:filt-noise #:filt-function #:filt-quantize
    #:graph-span #:graph-dendrogram #:graph>matrix
    #:morph-seq
    ;; 2. classification
@@ -60,6 +60,6 @@
    #:histogram #:entropy #:self-info #:inner-dynamic
    #:graph-length
    ;; 4. read/write
-   #:read-text #:write-list #:display-list #:seq>plot #:graph>dot #:dendrogram>dot
+   #:read-text #:write-list #:display-list #:seq>plot #:seq>abc #:graph>dot #:dendrogram>dot
    ;; documentation
    #:help #:doc))

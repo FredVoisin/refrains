@@ -30,7 +30,7 @@
                 ;; encodage
                 #:transcode #:alpha>num #:num>alpha #:num>base #:concaten #:list>sym
                 #:str>sym #:separate #:split-string #:morph-seq
-                #:filt-median #:filt-extrema #:filt-repeat #:filt-lowpass #:filt-mean #:filt-function #:filt-noise #:exsample
+                #:filt-median #:filt-extrema #:filt-repeat #:filt-lowpass #:filt-mean #:filt-function #:filt-quantize #:filt-noise #:exsample
                 ;; distances
                 #:dist-euclid #:dist-euclidean #:dist-cityblock #:dist-hamming
                 #:dist-edit #:dist-multi-edit #:dist-structure #:dist-graph
@@ -43,7 +43,7 @@
                 #:graph-span #:graph-dendrogram #:graph-path #:graph-length #:graph-degree #:graph-nodes
                 #:graph-leaves #:graph>dot #:graph-part #:dendrogram>dot
                 ;; io
-                #:read-text #:write-list #:seq>plot #:date-string
+                #:read-text #:write-list #:seq>plot #:seq>abc #:date-string
                 #:help #:doc))
 
 (in-package :refrains/tests)

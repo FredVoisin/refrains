@@ -26,6 +26,32 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `histogram`, topology of the maps, segmentation of the song with
   `dist-hamming`).
 
+- `filt-quantize (seq levels &key mode thres window step segments out)`
+  quantizes a sequence of numbers on its own centres of attraction
+  (`class-num`): each value is replaced by the centre of its class. By the
+  time spent (`:1d-centroids`, by default), or by the salient points of a
+  method of `exsample` (`:minmax`: each turn counts once, fixed centres); on
+  the whole sequence, on a sliding window (`:window`, a number of positions
+  or a part of the length), or on each run between `nil`s (`:segments t`).
+- `seq>abc (seq &key out title rhythm unit)` writes a sequence of MIDI notes
+  (rounded to the semitone; a list of notes is a chord, `nil` a rest) in the
+  ABC music notation, without rhythm by default, or with lengths in
+  sixteenths (`:rhythm t`); `:out` as for `seq>plot`, but `nil` returns the
+  text.
+- `class-num` takes, instead of a number of classes, the list of their
+  initial centres, even approximate ones: the dynamic clouds start from them,
+  whatever the mode, deterministically (without `:iter`); equal centres
+  (`equalp`) count once. The extrema given by `exsample` are, for example, a
+  good start to quantize a curve.
+- `class-num` takes `:sort`: with numbers, `t` numbers the classes by
+  increasing centre (class 0 the lowest), and gives the centres in this
+  order; `nil` (by default) keeps the order of first appearance.
+- `exsample` takes the method `:angles`: the angular points, where the slope
+  on the left and the slope on the right differ by at least `thres` (by more
+  than 0 when `thres` is 0), whatever their signs: the breakpoints of a
+  polygonal line (as in the BPF of PWGL), which `:minmax` and `:minflexmax`
+  do not give when the slope changes without changing its sign. Type -1
+  where the slope increases, 1 where it decreases.
 - `seq>plot` draws a sequence of events `(time value ...)`, or a list of
   numbers (each at its rank, a `nil` being a missing value), with characters
   to see its shape in the listener or in a terminal, or in an SVG image,
