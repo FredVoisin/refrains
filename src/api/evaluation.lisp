@@ -193,12 +193,14 @@ in the order of graph-nodes."))
   (graph-distance graph v1 v2))
 
 (defmethod dist-graph ((v1 t) (v2 list) (graph list))
-  (mapcar #'(lambda (x) (dist-graph v1 x graph)) v2))
+  ;; one search from v1 gives the distances to all the nodes (there was one search for each node)
+  (let ((dist (shortest-paths (graph-neighbours graph) v1)))
+    (mapcar #'(lambda (x) (values (gethash x dist))) v2)))
 
 (defmethod dist-graph ((v1 t) (v2 null) (graph list))
   ;; the distances to all the nodes, in the order of all-vertices (graph-nodes), 0 to v1 itself
   ;; (it gave the number of nodes of the paths to the other nodes)
-  (mapcar #'(lambda (x) (dist-graph v1 x graph)) (all-vertices graph)))
+  (dist-graph v1 (all-vertices graph) graph))
 
 (defgeneric histogram (data &key test thes)
   (:documentation "HISTOGRAM: histogram of data, as a list of (element count): sorted by increasing value for numbers,
@@ -329,10 +331,16 @@ A list of nodes gives the list of their degrees, nil the degrees of all the node
   (mapcar #'(lambda (v) (paths-to-leaves v graph)) to))
 
 (defmethod graph-path ((from list) (to list) (graph list))
-  (mapcar #'(lambda (s)
-              (remove-duplicates (mapcar #'(lambda (e)
-                                             (find-path graph s e)) to)
-                                 :test #'equal))  from))
+  ;; one search from each node of from (there was one search for each pair)
+  (let ((neighbours (graph-neighbours graph)))
+    (mapcar #'(lambda (s)
+                (multiple-value-bind (dist pred) (shortest-paths neighbours s)
+                  (remove-duplicates (mapcar #'(lambda (e)
+                                                 (when (nth-value 1 (gethash e dist))
+                                                   (path-to pred s e)))
+                                             to)
+                                     :test #'equal)))
+            from)))
 
 (defmethod graph-path ((from string) (to string) (graph list))
   (find-path graph from to))
