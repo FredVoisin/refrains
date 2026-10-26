@@ -96,47 +96,60 @@ There are fewer than n classes only if data has fewer than n distinct points."))
 ;(nuees '((0) (.1) (.11)  (1) (1.1)  (.9) (1.9)  (-2) (-2.1)) 3)
 
 (defun fill-empty-classes (r data centres dist)
-  "Gives each empty class of r the point farthest from its centre, taken from a class with several points."
+  "Gives each empty class of r (a vector of classes) the point farthest from its centre, taken from a class
+with several points; data is a vector of points, centres a list."
   (dotimes (k (length centres) r)
-    (unless (member k r)
-      (let ((far nil) (dmax -1))
-        (loop for i from 0 for c in r for p in data
-              do (when (> (count c r) 1)
-                   (let ((d (funcall dist (nth c centres) p)))
+    (unless (find k r)
+      (let ((far nil) (dmax -1)
+            ;; the size of each class, before this one is filled
+            (sizes (make-array (length centres) :initial-element 0)))
+        (loop for c across r do (incf (aref sizes c)))
+        (loop for i from 0 for c across r
+              do (when (> (aref sizes c) 1)
+                   (let ((d (funcall dist (nth c centres) (aref data i))))
                      (when (> d dmax) (setf dmax d far i)))))
         (when far
-          (setf (nth far r) k
-                (nth k centres) (copy-list (nth far data))))))))
+          (setf (aref r far) k
+                (nth k centres) (copy-list (aref data far))))))))
 
 (defmethod nuees ((data list) (n list) &optional (dist #'dist-euclid))
-  (let* ((l (length data))
+  ;; data and the classes as vectors: (nth i data) and (nth j r) made each iteration quadratic
+  (let* ((v (coerce data 'vector))
+         (l (length v))
          (centres (copy-tree n))
-         (r (make-list l))
-         (fill (<= (length centres) (length (remove-duplicates data :test #'equalp))))
+         (k (length centres))
+         (r (make-array l :initial-element nil))
+         (fill (<= k (length (remove-duplicates data :test #'equalp))))
          (iter 0)
-         (nc (make-list (length centres)))
-         (z 0)
-         tmp nr)
+         (nc (make-list k))
+         tmp)
     (when (not dist) (setf dist #'dist-euclid))
+    ;; no data: no class, after one iteration (as when the classes were a list)
+    (when (zerop l) (return-from nuees (values nil nc 1)))
+    ;; until the classes are those of the iteration before (tmp: the last two partitions)
     (loop until (or (if tmp (equalp (car tmp) (cadr tmp)) nil)
                     (>= iter 1000))
           do (incf iter)
-             (setf tmp (list (copy-tree r) (car tmp)))
-             (loop for i from 0 to (1- l) do ; attribution des classes selon centre
-               (let ((d (mapcar #'(lambda (c) (when c (funcall dist c (nth i data)))) centres)))
-                 (let ((m (reduce #'min (remove nil d))))
-                   (setf (nth i r) (position-if #'(lambda (x) (and x (= x m))) d)))))
-             (when fill (fill-empty-classes r data centres dist))
-             (dolist (i (remove-duplicates r))  ; mise a jour des centres de gravite de chaque classe
-               (let ((elts (loop for j from 0 to (1- l)
-                                 when (= i (nth j r))
-                                   collect (nth j data))))
-                 (when elts (setf (nth i centres) (isobarycentre elts))))))
-    (setf nr (normalize-class r #'=)) ; output
-    (loop until (or (not (member nil nc)) (= z l)) do
-      (setf (nth (nth z nr) nc) (nth (nth z r) centres))
-      (incf z))
-    (values nr nc iter)))
+             (setf tmp (list (copy-seq r) (car tmp)))
+             (dotimes (i l)                   ; attribution des classes selon centre
+               (let* ((p (aref v i))
+                      (d (mapcar #'(lambda (c) (when c (funcall dist c p))) centres))
+                      (m (reduce #'min (remove nil d))))
+                 (setf (aref r i) (position-if #'(lambda (x) (and x (= x m))) d))))
+             (when fill (fill-empty-classes r v centres dist))
+             ;; mise a jour des centres de gravite de chaque classe, the points in their order
+             (let ((members (make-array k :initial-element nil)))
+               (loop for i from (1- l) downto 0
+                     do (push (aref v i) (aref members (aref r i))))
+               (dotimes (c k)
+                 (when (aref members c)
+                   (setf (nth c centres) (isobarycentre (aref members c)))))))
+    (let* ((rl (coerce r 'list))
+           (nr (normalize-class rl #'=)))  ; output
+      (loop for a in nr for b in rl
+            until (not (member nil nc))
+            do (setf (nth a nc) (nth b centres)))
+      (values nr nc iter))))
 
 (defgeneric dynclouds (data n &optional iter dist)
   (:documentation "Classification of data into N classes using the 'dynamic clouds' algorithm.

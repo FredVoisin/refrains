@@ -86,11 +86,9 @@ If a and b are lists with not same size (i.e points with not same dimensions),
   (semi-matrix #'city-block a))
 
 (defun hamming-distance (v1 v2 &optional (test #'eq))
+  "The number of positions where the sequences v1 and v2, of the same length, differ."
   (assert (= (length v1) (length v2)))
-  (let ((d 0))
-    (dotimes (i (length v1) d)
-      (when (not (funcall test (nth i v1) (nth i v2)))
-        (incf d)))))
+  (loop for x in v1 for y in v2 count (not (funcall test x y))))
 
 (defgeneric hamming-dist (v1 v2 &optional norm test)
   (:documentation "Hamming distance."))
@@ -100,10 +98,7 @@ If a and b are lists with not same size (i.e points with not same dimensions),
     (if norm (float (/ d (length v1))) d)))
 
 (defmethod hamming-dist ((v1 list) (v2 null) &optional (norm t) (test #'eq))
-  (let ((r (list)))
-    (dotimes (i (1- (length v1)) (nreverse r))
-      (dotimes (j (- (length v1) i 1))
-        (push (list i (+ 1 j i) (hamming-dist (nth i v1) (nth (+ 1 j i) v1) norm test)) r)))))
+  (semi-matrix #'(lambda (x y) (hamming-dist x y norm test)) v1))
 
 ;; 2. 'Editing distance' (Distance d'edition)
 ;; I have red a paper on genomic analysis on ADN using, as I remember, also used by a unix text commande.
