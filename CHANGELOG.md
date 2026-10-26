@@ -10,8 +10,28 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
 
 ## [Unreleased]
 
+### Changed
+
+- **`entropy` takes keywords**: `(entropy data &key mode window step test)`
+  instead of `(entropy data &optional mode samples test)`. `samples`, the
+  number of windows, is replaced by `:window` and `:step`, described as for
+  the filters: `(entropy d 'shannon-2 4)` is now `(entropy d :window 1/4)`,
+  and a smaller `:step` gives sliding windows.
+- **One description of the windows** for all the functions with windows
+  (`filt-median`, `filt-extrema`, `filt-mean`, `filt-function`,
+  `filt-quantize`, `entropy`): `window`, an integer (positions) or a ratio
+  or a float in ]0, 1] (a part of the length); `step`, an integer
+  (positions) or a ratio or a float in ]0, 1] (a part of the window).
+  `filt-median` and `filt-extrema` accept a part of the length; another
+  value is an error everywhere (`filt-median` rounded `3.0` to 3, and
+  `filt-function` took `2.5` as 2.5 times the length).
+
 ### Added
 
+- `entropy` mode `conditional`: the conditional entropy H(x(t+1) | x(t)),
+  in base 2, 0 for a periodic sequence. The mode `cond-sh` is documented
+  for what it computes: the entropy of the pairs of successive elements
+  divided by 2.
 - Distances between sets, exported in the family `dist-`: `dist-set`, with
   `:measure` `jaccard` (by default), `sorensen` or `mountford` (1 - their
   similarity), and `dist-jaccard-bin` for binary vectors of presence,
@@ -56,6 +76,10 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `edit-dist-ldl2` into `multi-edit-dist`.
 - `windowed-e-shannon` and `windowed-entropie-cond`, identical but for the
   measure applied to each window, are merged into `windowed`.
+- `windowed`, `shannon-entropy` and `entropie-conditionnelle`: `entropy`
+  calls the measures directly; `quantize-windows` becomes `window-bounds`,
+  next to `window-size` and `window-step`, shared by all the functions with
+  windows.
 
 ## [0.2.1] - 2026-10-24
 

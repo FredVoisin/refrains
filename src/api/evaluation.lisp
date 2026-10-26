@@ -210,25 +210,37 @@ thes: thesaurus or list of symbols to be considered."))
 (defmethod histogram ((data t) &key (test #'equalp) (thes nil))
   (refrains::histogramme data :test test :thes thes))
 
-(defgeneric entropy (data &optional mode samples test)
-  (:documentation "ENTROPY: entropy of the set or sequence <data>, according to <mode> (a symbol of any package, a keyword or a string):
+(defgeneric entropy (data &key mode window step test)
+  (:documentation "ENTROPY: entropy of the set or sequence <data>, according to :mode (a symbol of any package, a keyword or a string):
 shannon-2 (or nil, default): Shannon entropy in base 2;
 shannon-n: Shannon entropy in base n, the number of distinct elements (from 0 to 1);
 shannon-e: Shannon entropy with the natural logarithm;
-cond-sh: conditional entropy (experimental).
-<samples>: number of consecutive windows of <data>, giving the list of their entropies.
-<test>: identity of the elements (equalp by default)."))
+conditional: conditional entropy H(x(t+1) | x(t)) in base 2, the uncertainty on an element knowing the previous one
+(0 for a periodic sequence);
+cond-sh: the entropy of the pairs of successive elements divided by 2, in base n (experimental).
+:window: an integer, a number of positions, or a ratio or a float in ]0, 1], a part of the length of <data>:
+the list of the entropies of the windows; :step: an integer, a number of positions, or a ratio or a float in ]0, 1],
+a part of the window (1.0 by default: windows end to end). The last window ends at the last position.
+:test: identity of the elements (equalp by default)."))
 
-(defmethod entropy ((data t) &optional (mode nil) (samples nil) (test #'equalp))
+(defmethod entropy ((data t) &key (mode nil) (window nil) (step 1.0) (test #'equalp))
   ;; modes are recognized by their names: 'shannon-2 from any package, :shannon-2 or "shannon-2"
-  ;; (they were compared with eq to the symbols of refrains)
-  (let* ((name (if mode (string-upcase (string mode)) "SHANNON-2"))
-         (r (cond ((string= name "SHANNON-2") (shannon-entropy data 2 samples test))
-                  ((string= name "SHANNON-E") (shannon-entropy data (exp 1) samples test))
-                  ((string= name "SHANNON-N") (shannon-entropy data nil samples test))
-                  ((string= name "COND-SH") (entropie-conditionnelle data nil samples test))
-                  (t (error "entropy: unknown mode ~S, use shannon-2, shannon-n, shannon-e or cond-sh." mode)))))
-    (if (listp r) (mapcar #'float r) (float r))))
+  (let ((name (if mode (string-upcase (string mode)) "SHANNON-2")))
+    ;; the measure and its base (nil: the number of distinct elements)
+    (multiple-value-bind (fn base)
+        (cond ((string= name "SHANNON-2") (values #'refrains::e-shannon 2))
+              ((string= name "SHANNON-E") (values #'refrains::e-shannon (exp 1)))
+              ((string= name "SHANNON-N") (values #'refrains::e-shannon nil))
+              ((string= name "CONDITIONAL") (values #'refrains::conditional-entropy 2))
+              ((string= name "COND-SH") (values #'refrains::kind-of-entropie-conditionnelle nil))
+              (t (error "entropy: unknown mode ~S, use shannon-2, shannon-n, shannon-e, conditional or cond-sh." mode)))
+      (let* ((n (length data))
+             (size (refrains::window-size window n "entropy"))
+             (pace (refrains::window-step step (max 1 (or size 1)) "entropy")))
+        (if size
+            (mapcar #'(lambda (w) (float (funcall fn (subseq data (first w) (1+ (second w))) base test)))
+                    (refrains::window-bounds n size pace))
+            (float (funcall fn data base test)))))))
 
 (defgeneric self-info (data elt &optional test)
   (:documentation "SELF-INFO: self-information of the element <elt>: -log2 of its frequency in <data>, nil if the element

@@ -57,28 +57,50 @@
   ;; modes were compared with eq to the symbols of refrains: from another package,
   ;; 'shannon-2 or :shannon-2 printed "unknown mode" and returned nil
   (let ((*package* (find-package :cl-user)))
-    (is (approx= 2 (entropy '(a b c d) (intern "SHANNON-2" :cl-user)))))
-  (is (approx= 2 (entropy '(a b c d) :shannon-2)))
-  (is (approx= 0.9463947 (entropy '(a b a c) "shannon-n")))
-  (is (approx= (log 2) (entropy '(a b) :shannon-e)))
-  (is (approx= 0.5141604 (entropy '(a b a b a b) :cond-sh)))
-  ;; samples: the number of windows for cond-sh too (it was the length of the windows: 25 here)
+    (is (approx= 2 (entropy '(a b c d) :mode (intern "SHANNON-2" :cl-user)))))
+  (is (approx= 2 (entropy '(a b c d) :mode :shannon-2)))
+  (is (approx= 0.9463947 (entropy '(a b a c) :mode "shannon-n")))
+  (is (approx= (log 2) (entropy '(a b) :mode :shannon-e)))
+  (is (approx= 0.5141604 (entropy '(a b a b a b) :mode :cond-sh)))
+  ;; windows: the same for all the modes (cond-sh took a number of windows as their length)
   (let ((d (loop for i below 100 collect (mod (* i i) 7))))
-    (is (= 4 (length (entropy d :shannon-2 4))))
-    (is (= 4 (length (entropy d :cond-sh 4))))
-    (is (approx= (entropy (subseq d 25 50) :cond-sh) (second (entropy d :cond-sh 4)))))
+    (is (= 4 (length (entropy d :window 1/4))))
+    (is (= 4 (length (entropy d :mode :cond-sh :window 1/4))))
+    (is (= 4 (length (entropy d :mode :cond-sh :window 25))))
+    (is (approx= (entropy (subseq d 25 50) :mode :cond-sh) (second (entropy d :mode :cond-sh :window 1/4)))))
+  ;; sliding windows: a step smaller than the window
+  (is (equal '(1.0 1.0 1.0 1.0 0.0 0.0 0.0) (entropy '(a b a b a a a a) :window 2 :step 1)))
+  (let ((e (entropy '(a b a b a a a a) :window 4 :step 1/2)))   ; abab abaa aaaa
+    (is (= 3 (length e)))
+    (is (every #'approx= '(1.0 0.8112781 0.0) e)))
+  (signals error (entropy '(a b c) :window 3.0))
+  (signals error (entropy '(a b c) :window 2 :step 0))
   ;; cond-sh with a test stricter than equalp: the distinct symbols were taken with equalp, an error
-  (is (approx= 0.72877127 (entropy '(1 1.0 2 1 2) :cond-sh nil #'equalp)))
-  (is (realp (entropy '(1 1.0 2 1 2) :cond-sh nil #'eql)))
-  (is (realp (entropy '("a" "A" "b") :cond-sh nil #'equal)))
+  (is (approx= 0.72877127 (entropy '(1 1.0 2 1 2) :mode :cond-sh :test #'equalp)))
+  (is (realp (entropy '(1 1.0 2 1 2) :mode :cond-sh :test #'eql)))
+  (is (realp (entropy '("a" "A" "b") :mode :cond-sh :test #'equal)))
   ;; the default mode printed a message at each call
   (is (equal "" (with-output-to-string (*standard-output*) (entropy '(a b a b)))))
   ;; an unknown mode printed a message and returned nil
-  (signals error (entropy '(a b c) :foo))
+  (signals error (entropy '(a b c) :mode :foo))
   ;; always floats (0 and lists mixing 0 and 0.0)
-  (is (eql 0.0 (entropy '() :shannon-2)))
-  (is (every #'floatp (entropy '(a b) :shannon-2 5)))
-  (is (equal '(1.0 1.0 0.0 0.0) (entropy '(a b a b a a a a) :shannon-2 4))))
+  (is (eql 0.0 (entropy '() :mode :shannon-2)))
+  (is (every #'floatp (entropy '(a b) :window 1/5)))
+  (is (equal '(1.0 1.0 0.0 0.0) (entropy '(a b a b a a a a) :window 1/4))))
+
+(test entropy-conditional
+  ;; H(x(t+1) | x(t)): 0 when each element determines the next one
+  (is (approx= 0 (entropy '(a b a b a b) :mode :conditional)))
+  (is (approx= 0 (entropy (loop repeat 20 append '(a b c)) :mode :conditional)))
+  ;; (a a b b): H(pairs aa ab bb) - H(a a b) = log2 3 - 0.918
+  (is (approx= 2/3 (entropy '(a a b b) :mode :conditional)))
+  (is (approx= 0 (entropy '() :mode :conditional)))
+  (is (approx= 0 (entropy '(a) :mode :conditional)))
+  ;; random successions: near the entropy of the elements
+  (let ((*random-state* (seeded-random-state 5)))
+    (let ((d (loop repeat 4000 collect (if (zerop (random 2)) 'a 'b))))
+      (is (< 0.98 (entropy d :mode :conditional) 1.0))))
+  (is (= 2 (length (entropy '(a b a b a a a a) :mode :conditional :window 1/2)))))
 
 (test self-info-any-element
   ;; an absent element, or empty data, divided by zero: nil (the information is infinite)

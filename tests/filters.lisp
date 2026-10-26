@@ -60,7 +60,10 @@
   ;; same length, short lists filtered too, real window
   (is (equal '(5 5 5 5 5) (filt-median '(5 1 5 5 5) 3)))
   (is (equal '(2 2 3) (filt-median '(2 1 3) 3)))
-  (is (equal '(1 1 1 1 1 1 1) (filt-median '(1 9 1 1 1 9 1) 3.0)))
+  (is (equal '(1 1 1 1 1 1 1) (filt-median '(1 9 1 1 1 9 1) 3/7)))
+  ;; the window as for all the functions with windows: an integer, or a part of the length in ]0, 1]
+  (signals error (filt-median '(1 9 1 1 1 9 1) 3.0))
+  (signals error (filt-median '(1 9 1 1 1 9 1) -1))
   (is (equal '(4 2 7) (filt-median '(4 2 7) 1)))
   (is (null (filt-median '() 3))))
 
@@ -95,7 +98,9 @@
     ;; a float wind above 0.5 failed, a ratio was ignored, a large step failed
     (is (equal '(1 3 5 7 8 8 8 8) (filt-function '(1 2 3 4 5 6 7 8) #'mx 0.75)))
     (is (equal '(1 3 4 5 6 7 8 8) (filt-function '(1 2 3 4 5 6 7 8) #'mx 1/4)))
-    (is (equal '(4 4 4 4 4 8 8 8) (filt-function '(1 2 3 4 5 6 7 8) #'mx 2 5))))
+    (is (equal '(4 4 4 4 4 8 8 8) (filt-function '(1 2 3 4 5 6 7 8) #'mx 2 5)))
+    (signals error (filt-function '(1 2 3 4) #'mx 2.5))
+    (signals error (filt-function '(1 2 3 4) #'mx 2 0)))
   ;; overlapping windows returning lists used to lengthen the result
   (is (equal '(1 2 3 4 5 6 7 8) (filt-function '(1 2 3 4 5 6 7 8) #'identity 3)))
   (is (equal '(1 2 3 4 5 6 7 8) (filt-function '(1 2 3 4 5 6 7 8) #'reverse 3 1)))
@@ -177,7 +182,9 @@
   (is (equal '(5 5 5 5 5 1 1 1 5 5) (filt-extrema '(5 5 0 5 5 1 1 1 5 5) 3 :close)))
   (is (equal '(1 2 3) (filt-extrema '(1 2 3) 1)))
   (is (null (filt-extrema '() 3)))
-  (signals error (filt-extrema '(1 2 3) 3 :median)))
+  (signals error (filt-extrema '(1 2 3) 3 :median))
+  (is (equal (filt-extrema '(1 5 2 8 3 3 9 1 0 4) 3) (filt-extrema '(1 5 2 8 3 3 9 1 0 4) 0.3)))
+  (signals error (filt-extrema '(1 2 3) 1.5)))
 
 (test filt-quantize
   (let ((s '(0 1 2 10 11 12 20 21 22)))

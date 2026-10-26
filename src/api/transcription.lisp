@@ -56,14 +56,14 @@ as a list of rows: rows and columns in the order of graph-nodes, the distance of
 
 (defgeneric filt-function (seq func window &optional step)
   (:documentation "Apply function <func> to sequence <seq> thru a sliding window of length <window> by (optional) step <step> (1 by default).
-Window size may be an integer (samples) or a fraction of the length of seq; step size may be an integer (samples) or a fraction of the window.
+<window>: an integer, a number of positions, or a ratio or a float in ]0, 1], a part of the length of <seq>;
+<step>: an integer, a number of positions, or a ratio or a float in ]0, 1], a part of the window.
 With step 1 the window is centred on each value; with a larger step it is centred on each block of step values.
 A value returned by <func> is repeated for the block; a list replaces the block (step = window), or gives the values of the block's positions."))
 
 (defmethod filt-function ((seq list) (func function) (window real) &optional (step 1))
-  (let ((window (if (integerp window) window (max 1 (round (* window (length seq)))))))
-    (refrains::window-apply seq func window
-                                  (if (integerp step) step (max 1 (round (* step window)))))))
+  (let ((window (refrains::window-size window (length seq) "filt-function")))
+    (refrains::window-apply seq func window (refrains::window-step step (max 1 window) "filt-function"))))
 
 (defun quantize-part (values levels mode thres)
   "The quantization of VALUES (numbers): (classes centres), the classes numbered by increasing centre.
@@ -82,16 +82,6 @@ class-num on the salient points of the values, then each value at the nearest ce
                                       centres))
                           values)
                   centres)))))
-
-(defun quantize-windows (n window step)
-  "The windows (start end) over N positions: of WINDOW positions (all if nil), by STEP, the last one
-ending at the last position."
-  (if (or (null window) (>= window n))
-      (list (list 0 (1- n)))
-      (let ((starts (loop for s from 0 to (- n window) by step collect s)))
-        (unless (= (car (last starts)) (- n window))
-          (setf starts (append starts (list (- n window)))))
-        (mapcar (lambda (s) (list s (+ s window -1))) starts))))
 
 (defun quantize (seq levels &key (mode :1d-centroids) thres window (step 1/2) segments)
   "SEQ quantized (see filt-quantize). Returns the quantized values, the classes, and the parts
@@ -113,12 +103,10 @@ ending at the last position."
     (dolist (d domains)
       (destructuring-bind (d-start d-end) d
         (let* ((len (1+ (- d-end d-start)))
-               (size (cond ((null window) nil)
-                           ((integerp window) window)
-                           (t (max 1 (round (* window len))))))
-               (pace (when size (max 1 (if (integerp step) step (round (* step size))))))
+               (size (window-size window len "filt-quantize"))
+               (pace (when size (window-step step (max 1 size) "filt-quantize")))
                (windows (mapcar (lambda (w) (mapcar (lambda (x) (+ x d-start)) w))
-                                (quantize-windows len size pace)))
+                                (window-bounds len size pace)))
                (results (mapcar (lambda (w)
                                   (let ((positions (loop for i from (first w) to (second w)
                                                          when (aref v i) collect i)))
@@ -162,10 +150,8 @@ or segment."))
     (error "filt-quantize: :thres applies only to the methods of exsample."))
   (unless (every (lambda (x) (or (null x) (realp x))) seq)
     (error "filt-quantize: the values must be numbers, or NIL."))
-  (unless (or (null window) (and (realp window) (plusp window)))
-    (error "filt-quantize: the window must be a positive number, not ~S." window))
-  (unless (and (realp step) (plusp step))
-    (error "filt-quantize: the step must be a positive number, not ~S." step))
+  ;; the window and the step are checked as in all the functions with windows
+  (refrains::window-step step (max 1 (or (refrains::window-size window (length seq) "filt-quantize") 1)) "filt-quantize")
   (multiple-value-bind (values classes parts)
       (refrains::quantize seq levels :mode mode :thres (or thres 0) :window window :step step :segments segments)
     (ecase out
@@ -174,7 +160,9 @@ or segment."))
       (:all (values values classes parts)))))
 
 (defgeneric filt-mean (seq window &optional step)
-  (:documentation "Values replaced by their respective  windowed mean values."))
+  (:documentation "FILT-MEAN: the mean over a sliding window of <window> values, centred on each value of <seq> with <step> 1
+(by default), or on each block of <step> values whose values it replaces. <window> and <step> as for filt-function:
+an integer, a number of positions; a ratio or a float in ]0, 1], a part of the length (window) or of the window (step)."))
 
 (defmethod filt-mean ((seq list) (window real) &optional (step 1))
   (filt-function seq #'refrains::mean window step))
@@ -185,20 +173,22 @@ or segment."))
 (defgeneric filt-median (seq window)
   (:documentation "FILT-MEDIAN: median filter over a window of <window> values centred on each value of <seq>
 (an even window is enlarged to the next odd size, so that the result is made of values of <seq>);
+<window>: an integer, a number of positions, or a ratio or a float in ]0, 1], a part of the length of <seq>;
 the first and last values are repeated at the edges. The result has the same length as <seq>."))
 
 (defmethod filt-median ((seq t) (window number))
-  (refrains::median-filter seq window))
+  (refrains::median-filter seq (refrains::window-size window (length seq) "filt-median")))
 
 (defgeneric filt-extrema (seq window &optional mode)
   (:documentation "FILT-EXTREMA: maximum (<mode> :max, by default) or minimum (:min) over a window of <window> values
 centred on each value of <seq>, the contrary of the median filter: the peaks (or the hollows) are widened.
 :open (minimum then maximum) removes the peaks narrower than the window, :close (maximum then minimum) fills
 the hollows narrower than the window, keeping the other values in place. An even window is enlarged to the
-next odd size; the first and last values are repeated at the edges. The result has the same length as <seq>."))
+next odd size; the first and last values are repeated at the edges. The result has the same length as <seq>.
+<window>: an integer, a number of positions, or a ratio or a float in ]0, 1], a part of the length of <seq>."))
 
 (defmethod filt-extrema ((seq t) (window number) &optional (mode :max))
-  (refrains::extrema-filter seq window mode))
+  (refrains::extrema-filter seq (refrains::window-size window (length seq) "filt-extrema") mode))
 
 (defgeneric filt-lowpass (seq alpha &optional gamma)
   (:documentation "FILT-LOWPASS: exponential smoothing of <seq>: each value moves by the fraction <alpha> (0 to 1) towards

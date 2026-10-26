@@ -370,6 +370,24 @@ symboles.
 
 ### 1.2 Filtrer
 
+**Les fenêtres.** Toutes les fonctions qui travaillent sur des fenêtres
+(`filt-median`, `filt-extrema`, `filt-mean`, `filt-function`, `filt-quantize`,
+et `entropy` en 3.3) les décrivent de la même façon :
+
+- `window` : un entier, un nombre de positions ; ou une fraction ou un
+  flottant entre 0 (exclu) et 1, une part de la longueur de la suite (`1/4` :
+  un quart ; au moins une position) ;
+- `step`, le pas entre deux fenêtres : un entier, un nombre de positions ; ou
+  une fraction ou un flottant entre 0 (exclu) et 1, une part de la fenêtre
+  (`1/2` : des fenêtres qui se chevauchent de moitié ; `1.0` : des fenêtres
+  bout à bout).
+
+Toute autre valeur est une erreur : `3.0` n'est ni un entier ni une part de la
+longueur. Les filtres donnent une valeur par élément de la suite, la fenêtre
+étant centrée sur chaque élément ou sur chaque bloc de `step` éléments ;
+`filt-quantize` et `entropy` donnent un résultat par fenêtre, la dernière
+fenêtre finissant à la dernière position.
+
 #### `filt-median (seq window)`
 
 Médiane glissante sur `window` valeurs centrées sur chaque valeur : supprime
@@ -379,10 +397,12 @@ toujours la valeur du milieu et que le résultat ne contienne que des valeurs
 de `seq` : une fenêtre paire est portée à la taille impaire suivante (4 donne
 5). Aux bords, la première et la dernière valeur sont répétées (un pic sur la
 toute première ou la toute dernière valeur est donc conservé). Le résultat a
-la même longueur que `seq`.
+la même longueur que `seq`. `window` est un nombre de positions ou une part de
+la longueur (voir les fenêtres, ci-dessus).
 
 ```lisp
 (filt-median '(1 9 1 1 1 9 1) 3)          ;=> (1 1 1 1 1 1 1)
+(filt-median '(1 9 1 1 1 9 1) 3/7)        ;=> (1 1 1 1 1 1 1)   ; 3/7 de 7 : 3
 (filt-median '(0 0 9 9 0 0 0) 3)          ;=> (0 0 9 9 0 0 0)
 (filt-median '(0 0 0 9 9 0 0 0 0) 5)      ;=> (0 0 0 0 0 0 0 0 0)
 (filt-median '(9 0 0 0) 3)                ;=> (9 0 0 0)
@@ -400,9 +420,10 @@ en place le reste du profil :
 - `:open` (ouverture : minimum puis maximum) supprime les pics étroits ;
 - `:close` (fermeture : maximum puis minimum) comble les creux étroits.
 
-Comme pour `filt-median`, une fenêtre paire est portée à la taille impaire
-suivante, la première et la dernière valeur sont répétées aux bords, et le
-résultat a la même longueur que `seq`.
+Comme pour `filt-median`, `window` est un nombre de positions ou une part de
+la longueur, une fenêtre paire est portée à la taille impaire suivante, la
+première et la dernière valeur sont répétées aux bords, et le résultat a la
+même longueur que `seq`.
 
 ```lisp
 (filt-extrema '(1 5 2 8 3 3 9 1 0 4) 3)        ;=> (5 5 8 8 8 9 9 9 4 4)
@@ -413,8 +434,8 @@ résultat a la même longueur que `seq`.
 
 #### `filt-mean (seq window &optional step)`
 
-Moyenne glissante sur `window` valeurs (un entier, ou un flottant exprimant une
-fraction de la longueur de `seq`).
+Moyenne glissante sur `window` valeurs : un nombre de positions ou une part de
+la longueur de `seq` (voir les fenêtres, au début de la section).
 
 - Avec `step` 1 (par défaut), la fenêtre est centrée sur chaque valeur : une
   fenêtre paire est portée à la taille impaire suivante et, aux bords, la
@@ -422,8 +443,8 @@ fraction de la longueur de `seq`).
   donc conservées et les rampes restent inchangées.
 - Avec un `step` plus grand, la moyenne d'une fenêtre de `window` valeurs
   centrée sur chaque bloc de `step` valeurs est répétée pour tout le bloc ;
-  avec `step` = `window`, chaque bloc est remplacé par sa moyenne. Un `step`
-  flottant est une fraction de `window`.
+  avec `step` = `window` (ou `1.0`), chaque bloc est remplacé par sa moyenne.
+  Un `step` fractionnaire est une part de `window`.
 
 Le résultat a la même longueur que `seq`.
 
@@ -512,9 +533,10 @@ erreur ; `seq` elle-même n'est pas modifiée.
 #### `filt-function (seq func window &optional step)`
 
 Applique la fonction `func` à une fenêtre glissante de `window` valeurs, par pas
-de `step` (1 par défaut). `window` est un entier (nombre de valeurs) ou une
-fraction de la longueur de `seq` ; `step` est un entier ou une fraction de
-`window`. Les fenêtres sont placées comme pour `filt-mean` :
+de `step` (1 par défaut). `window` est un nombre de positions ou une part de la
+longueur de `seq`, `step` un nombre de positions ou une part de `window` (voir
+les fenêtres, au début de la section). Les fenêtres sont placées comme pour
+`filt-mean` :
 
 - avec `step` 1, la fenêtre est centrée sur chaque valeur (une fenêtre paire
   est portée à la taille impaire suivante) et se réduit symétriquement aux
@@ -583,8 +605,8 @@ points saillants. Un `nil` est une valeur absente : il reste `nil`.
   liste des `(début fin centres)` de chaque fenêtre ou segment.
 
 Un autre mode, `:thres` avec les nuées dynamiques, une valeur qui n'est ni un
-nombre ni `nil`, ou une fenêtre ou un pas qui n'est pas un nombre positif sont
-des erreurs.
+nombre ni `nil`, ou une fenêtre ou un pas qui ne suivent pas la description
+des fenêtres (au début de la section) sont des erreurs.
 
 ```lisp
 (filt-quantize '(0 1 2 10 11 12 20 21 22) 3)
@@ -1644,46 +1666,65 @@ leur ordre de première apparition (dans `data`, ou dans `:thes`).
 (histogram '("The" "cat" "the"))     ;=> (("The" 2) ("cat" 1))
 ```
 
-#### `entropy (data &optional mode samples test)`
+#### `entropy (data &key mode window step test)`
 
 Estimation de l'entropie d'un ensemble de données ou d'une séquence.
 
-`mode` (un symbole de n'importe quel paquet, un mot-clé ou une chaîne, comme
+`:mode` (un symbole de n'importe quel paquet, un mot-clé ou une chaîne, comme
 `'shannon-2`, `:shannon-2` ou `"shannon-2"` ; un autre mode est une erreur) :
 
-- `nil` ou `'shannon-2` (par défaut) : entropie de Shannon en base 2 ;
-- `'shannon-n` : entropie de Shannon en base n, pour n symboles distincts ;
-- `'shannon-e` : logarithme népérien ;
-- `'cond-sh` : entropie conditionnelle (expérimental).
+- `nil` ou `shannon-2` (par défaut) : entropie de Shannon en base 2 ;
+- `shannon-n` : entropie de Shannon en base n, pour n symboles distincts ;
+- `shannon-e` : logarithme népérien ;
+- `conditional` : entropie conditionnelle H(xₜ₊₁ | xₜ), en base 2 ;
+- `cond-sh` : entropie des paires de symboles successifs divisée par 2, en
+  base n (expérimental).
 
 L'entropie de Shannon d'une suite aléatoire de deux symboles tend vers 1.0.
 Elle vaut 1 quand les symboles sont exactement — et globalement —
 équiprobables, et 0 quand un seul symbole est répété, aucune information
 n'étant présente. En codage binaire, elle s'exprime en information par bit.
 Avec plus de deux symboles distincts, l'information peut s'exprimer par bit
-(`'shannon-2`, maximum log₂ N) ou être normalisée en base N, le nombre de
-symboles distincts (`'shannon-n`, maximum 1). Tout ensemble ou toute suite de
+(`shannon-2`, maximum log₂ N) ou être normalisée en base N, le nombre de
+symboles distincts (`shannon-n`, maximum 1). Tout ensemble ou toute suite de
 symboles peut être mesuré, y compris des listes de symboles.
 
 L'entropie de Shannon repose sur la probabilité globale de chaque symbole et
-ne tient pas compte de leur disposition. L'**entropie conditionnelle**
-(`'cond-sh`) considère les probabilités des successions de symboles, en leur
-appliquant le principe de l'entropie de Shannon. Pour des suites aléatoires
-courtes, elle est nécessairement inférieure à l'entropie globale ; l'écart se
-réduit à mesure que les suites s'allongent. Pour des suites faites de
-répétitions, l'écart se creuse.
+ne tient pas compte de leur disposition. Les deux autres modes regardent les
+**successions** de symboles :
 
-`samples` suit l'évolution de l'entropie le long de la séquence : la séquence
-est coupée en `samples` fenêtres, et l'entropie de chacune est renvoyée.
-`test` est l'identité des éléments (`#'equalp` par défaut). Le résultat est
-toujours un flottant (ou une liste de flottants).
+- `conditional` est l'entropie conditionnelle au sens de la théorie de
+  l'information : l'incertitude sur un symbole quand on connaît le précédent,
+  H(paires) − H(premiers éléments des paires). Elle vaut 0 quand chaque
+  symbole détermine le suivant (une suite périodique, comme `abab…` ou
+  `abcabc…`), et rejoint l'entropie de Shannon quand les successions sont
+  aléatoires.
+- `cond-sh` est l'entropie des paires de symboles successifs, divisée par 2
+  (un logarithme en base n² au lieu de n) : une entropie par symbole calculée
+  sur des blocs de deux. Elle voit aussi l'ordre, mais ne descend pas sous 0,5
+  environ pour une suite périodique, et ses probabilités sont divisées par la
+  longueur de la suite plutôt que par le nombre de paires, ce qui l'écarte un
+  peu de l'entropie des paires sur des suites courtes.
+
+`:window` et `:step` suivent l'évolution de l'entropie le long de la
+séquence : l'entropie de chaque fenêtre est renvoyée, dans une liste. Ils se
+décrivent comme pour les filtres (voir les fenêtres, en 1.2) ; par défaut,
+`:step` vaut `1.0`, des fenêtres bout à bout, et un `:step` plus petit donne
+des fenêtres glissantes qui se chevauchent. `:test` est l'identité des
+éléments (`#'equalp` par défaut). Le résultat est toujours un flottant (ou
+une liste de flottants).
 
 ```lisp
-(entropy '(a a a a) 'shannon-2)              ;=> 0.0
-(entropy '(a b a b) 'shannon-2)              ;=> 1.0
-(entropy '(a b c d) 'shannon-2)              ;=> 2.0
-(entropy '(a b a c) 'shannon-n)              ;=> 0.9463947
-(entropy '(a b a b a a a a) 'shannon-2 4)    ;=> (1.0 1.0 0.0 0.0)
+(entropy '(a a a a))                           ;=> 0.0
+(entropy '(a b a b))                           ;=> 1.0
+(entropy '(a b c d))                           ;=> 2.0
+(entropy '(a b a c) :mode :shannon-n)          ;=> 0.9463947
+(entropy '(a b a b a b) :mode :conditional)    ;=> 0.0
+(entropy '(a a b b) :mode :conditional)        ;=> 0.66666675
+(entropy '(a b a b a b) :mode :cond-sh)        ;=> 0.5141604
+(entropy '(a b a b a a a a) :window 1/4)       ;=> (1.0 1.0 0.0 0.0)
+(entropy '(a b a b a a a a) :window 4 :step 1/2)
+;=> (1.0 0.8112781 0.0)   ; abab, abaa, aaaa
 ```
 
 #### `self-info (data elt &optional test)`

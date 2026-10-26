@@ -211,6 +211,35 @@ of list (half of it by default)."
 
 ;(randswap '(1 2 3 4 5 6 7 8 9 0) 10)
 
+(defun window-size (window n caller)
+  "The length in positions of WINDOW over N positions: an integer, a number of positions (0 or 1: no window);
+a ratio or a float between 0 (excluded) and 1, a part of N (at least 1 position); nil stays nil (the whole).
+Another value is an error of CALLER."
+  (cond ((null window) nil)
+        ((and (integerp window) (>= window 0)) window)
+        ((and (realp window) (< 0 window) (<= window 1)) (max 1 (round (* window n))))
+        (t (error "~A: the window must be an integer (positions) or a part of the length (a ratio or a float in ]0, 1]), not ~S."
+                  caller window))))
+
+(defun window-step (step size caller)
+  "The step in positions between windows of SIZE positions: a positive integer, a number of positions;
+a ratio or a float between 0 (excluded) and 1, a part of the window (1.0: windows end to end).
+Another value is an error of CALLER."
+  (cond ((and (integerp step) (plusp step)) step)
+        ((and (realp step) (< 0 step) (<= step 1)) (max 1 (round (* step size))))
+        (t (error "~A: the step must be a positive integer (positions) or a part of the window (a ratio or a float in ]0, 1]), not ~S."
+                  caller step))))
+
+(defun window-bounds (n size step)
+  "The windows (start end) over N positions: of SIZE positions (all if nil), every STEP positions,
+the last one ending at the last position."
+  (if (or (null size) (>= size n))
+      (list (list 0 (1- n)))
+      (let ((starts (loop for s from 0 to (- n size) by step collect s)))
+        (unless (= (car (last starts)) (- n size))
+          (setf starts (append starts (list (- n size)))))
+        (mapcar (lambda (s) (list s (+ s size -1))) starts))))
+
 (defun list-display (tree &optional res (n 0))
   (cond ((null tree) (if res (list-display (car res) (cdr res) (1- n)) (values)))
 	((listp tree) (list-display (car tree) (cons (cdr tree) res) (1+ n)))

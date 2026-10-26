@@ -58,21 +58,6 @@ Shannon entropy value may be between 0 and (log n base)."
       (push (/ (length (remove-if-not #'(lambda (x) (funcall test x ci)) data)) n)
             p))))
 
-(defun windowed (fn data n base test)
-  "The list of (fn window base test) for n consecutive windows of data, of (nearly) equal lengths."
-  (let* ((l (length data))
-         (w (/ l n)))
-    (loop for i from 0 below n
-          collect (funcall fn (subseq data (floor (* i w)) (min (floor (* (1+ i) w)) l))
-                           base test))))
-
-(defun shannon-entropy (data &optional (base nil) (samples nil) (test #'equalp))
-  "Returns the entropy value of the data according to Shannon definition."
-  (assert (or (integerp samples) (null samples)))
-  (if (not samples)
-      (e-shannon data base test)
-      (windowed #'e-shannon data samples base test)))
-
 (defun kind-of-entropie-conditionnelle (data &optional (base 2) (test #'equalp))
   "Kind of conditionnal entropy based on a hack of shannon entropy by me. Experimental."
   (let* ((p nil) (len (length data))
@@ -92,14 +77,32 @@ Shannon entropy value may be between 0 and (log n base)."
 
 ;(kind-of-entropie-conditionnelle (loop for i from  0 to 1000 collect (random 2)) nil)
 
-(defgeneric entropie-conditionnelle (data &optional base samples test)
-  (:documentation "Kinf of conditionnal entropy based on Shannon entropy (hack)."))
+(defun distinct-counts (items test)
+  "The number of occurrences of each distinct element of items (by test)."
+  (let ((distinct nil))
+    (dolist (x items (mapcar #'cdr distinct))
+      (let ((d (assoc x distinct :test test)))
+        (if d (incf (cdr d)) (push (cons x 1) distinct))))))
 
-(defmethod entropie-conditionnelle ((data list) &optional (base nil) (samples nil) (test #'equalp))
-  ;; samples: the number of windows, as for shannon-entropy (it was the length of the windows)
-  (if samples
-      (windowed #'kind-of-entropie-conditionnelle data samples base test)
-      (kind-of-entropie-conditionnelle data base test)))
+(defun counts-entropy (counts base)
+  "The Shannon entropy, in base base, of the distribution given by the counts."
+  (let ((n (reduce #'+ counts)))
+    (- (reduce #'+ (mapcar #'(lambda (c) (let ((p (/ c n))) (* p (log p base)))) counts)))))
+
+(defun conditional-entropy (data &optional (base 2) (test #'equalp))
+  "The conditional entropy H(x(t+1) | x(t)) of the sequence data: the uncertainty on an element knowing the
+previous one, H(pairs) - H(first elements of the pairs), over the pairs of successive elements.
+0 when each element determines the next one (a periodic sequence), up to the entropy of the elements
+when the successions are random."
+  (let ((pairs (loop for tail on (coerce data 'list)
+                     while (cdr tail)
+                     collect (list (first tail) (second tail)))))
+    (if (null pairs)
+        0
+        (- (counts-entropy (distinct-counts pairs #'(lambda (p q) (and (funcall test (first p) (first q))
+                                                                       (funcall test (second p) (second q)))))
+                           base)
+           (counts-entropy (distinct-counts (mapcar #'first pairs) test) base)))))
 
 (defgeneric self-information (data elt &optional test)
   (:documentation "Amount of information of each element <elt> in data: -log2 of its frequency, nil if

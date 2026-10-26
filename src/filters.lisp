@@ -170,9 +170,6 @@ At the edges, the first and last values are repeated. The result has the same le
       (copy-list seq)
       (median-simple seq (if (evenp window) (1+ window) window))))
 
-(defmethod median-filter ((seq list) (window real))
-  (median-filter seq (round window)))
-
 (defun exponential-smoothing (data alpha)
   "s(t) = s(t-1) + alpha (x(t) - s(t-1)), s(0) = x(0)."
   (when data
@@ -222,9 +219,6 @@ At the edges, the first and last values are repeated. The result has the same le
           (:open (extrema-simple (extrema-simple seq w #'min) w #'max))
           (:close (extrema-simple (extrema-simple seq w #'max) w #'min))
           (t (error "filt-extrema: unknown mode ~S, use :max, :min, :open or :close." mode))))))
-
-(defmethod extrema-filter ((seq list) (window real) &optional (mode :max))
-  (extrema-filter seq (round window) mode))
 
 (defun nocons= (seq &optional (test #'=))
   "Reechantillonne seq en y interpolant lineairement les valeurs consecutives egales :
