@@ -40,10 +40,9 @@ Option :mark-test defines the test function for searching the marks (equalp by d
 Option :seg-test defines the test function for comparing the different segments."))
 
 (defmethod mark-list ((seq t) (mark t) &key (mark-test #'equalp) (seg-test #'equalp))
-  (when (and (symbolp mark-test) (not (boundp mark-test)))
-    (setf mark-test (eval `(function ,mark-test))))
-  (when (and (symbolp seg-test) (not (boundp seg-test)))
-    (setf seg-test (eval `(function ,seg-test))))
+  ;; a test may be given by its name
+  (when (symbolp mark-test) (setf mark-test (coerce mark-test 'function)))
+  (when (symbolp seg-test) (setf seg-test (coerce seg-test 'function)))
   (mark-pos seq mark mark-test seg-test))
 
 (defgeneric motif-position (motif seq &key diss l-var sub ins del uncom test)

@@ -65,3 +65,13 @@
   ;; one value per element; the documented example
   (is (equal '(34 24 25 125 17 145 10 154) (inner-dynamic '(a b a c a d a e))))
   (is (null (inner-dynamic '()))))
+
+(test mark-list-with-rests
+  ;; nil (a rest) stopped the search for marks: the segments after it were lost
+  (is (equal '(((a b nil) (0)) ((a c nil) (3)) ((a b) (6)))
+             (mark-list '(a b nil a c nil a b) 'a)))
+  ;; without mark, nil is a mark like the others: mark-list called itself forever
+  (is (= 3 (length (mark-list '(a nil b) nil))))
+  ;; a test given by its name
+  (is (equal (mark-list '(a b a c) 'a) (mark-list '(a b a c) 'a :mark-test 'equalp :seg-test 'equalp))))
+

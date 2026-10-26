@@ -66,6 +66,9 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `((1 2 3 z) (2 3 1 z))` had no leaf. The degrees of the nodes are now
   counted once for all (`node-degrees`), by `graph-leaves` and
   `graph-degree`.
+- `mark-list` stopped at the first nil (a rest) of the sequence: the
+  segments after it were lost, `(mark-list '(a b nil a c) 'a)` found only
+  `(a b)`. Without mark (nil), it looped forever on a sequence with nil.
 
 ### Removed
 

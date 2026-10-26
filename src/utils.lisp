@@ -129,22 +129,13 @@ If x is a graph or tree (a list of lists), change only the third element of each
 
 ;(flat '(YOU (WALRUS (HURT THE) ONE ((YOU) LOVE))))
 
-(defun dx (seq &key key)
-    (let (r (n-1 (pop seq)))
-      (loop while seq
-	 do (let ((n (pop seq)))
-	      (if (not key)
-		  (push (- n n-1) r)
-		  (progn
-		    (push (copy-tree n) r)
-		    (eval `(setf (,key (car (quote ,r)))
-			   (- (,key (quote ,n))
-			      (,key (quote ,n-1)))))))
-	      (setf n-1 n)))
-      (nreverse r)))
+(defun dx (seq)
+  "The differences between the successive numbers of seq."
+  (loop for tail on seq
+        while (cdr tail)
+        collect (- (second tail) (first tail))))
 
 ; (dx '(1 2 3 3 5 6 5 3  8 9))
-; (dx '((1 2) (3 3) (5 6) (5 3) (8 9)) :key 'cadr)
 
 (defun derivee (seq)
   "The signs of the successive differences of the numbers of seq: 1 when the next value is greater,

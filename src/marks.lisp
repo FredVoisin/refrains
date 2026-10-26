@@ -200,7 +200,8 @@ test: condition of identity for marks, for instance (lambda (x y) (< x y)) (defa
   (cons (list (list e) (list c)) m))
 
 (defun mark (seq test ident if ifnot &optional (c 0) (m nil)) ; may be optimized...
-  (if (car seq)
+  ;; to the end of seq: (car seq) stopped at the first nil (a rest), losing the following segments
+  (if seq
       (let ((e (pop seq)))
 	(if m
 	    (if (funcall test e) ; if e from seq is a mark...
@@ -232,10 +233,14 @@ test: condition of identity for marks, for instance (lambda (x y) (< x y)) (defa
 |#
 
 (defun mark-r (seq mark test ident grouptest) ;; fusionner  test+ident ????
-  (if mark
-      (posgroup (eval `(mark ',seq (lambda (x) (funcall ,test x ',mark)) ,ident #'doif #'doifnot))
-		grouptest  nil)
-      (mapcar (lambda (x) (mark-r seq x test ident grouptest)) (remove-duplicates seq :test test))))
+  (flet ((segments (m)
+           (posgroup (mark seq #'(lambda (x) (funcall test x m)) ident #'doif #'doifnot)
+                     grouptest nil)))
+    ;; without mark, each distinct element is a mark, nil included (a rest): mark-r called itself
+    ;; with it, and took it for no mark, forever
+    (if mark
+        (segments mark)
+        (mapcar #'segments (remove-duplicates seq :test test)))))
 
 (defgeneric mark-pos (seq mark &optional test ident) ;;;;;;;test2! > fusionner test+ident = test1?
   (:documentation "For each 'mark', returns all subseq starting with the mark consed to its positions in seq.
