@@ -233,7 +233,8 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
        graph-degree, graph-path
 ;;  3.2 COMPARE : distances and dissimilarities
        dist-euclidean, dist-cityblock, dist-hamming, dist-edit,
-       dist-multi-edit, dist-structure, dist-graph
+       dist-multi-edit, dist-structure, dist-graph, dist-set,
+       dist-jaccard-bin
 ;;  3.3 QUANTIFY : self information, diversity
        histogram, entropy, self-info, inner-dynamic, graph-length
 ;;; 4. READ/WRITE files
@@ -1433,6 +1434,68 @@ in the order of `graph-nodes`.
 (dist-graph 'a nil '((a b 1) (b c 2) (b d 1)))      ;=> (0 1 3 2), for (A B C D)
 ```
 
+#### `dist-set (a b &key measure test key)`
+
+Distance between **sets**: the order and the repetitions of the elements are
+ignored, only the elements present count (for instance the pitches of a
+chord, or the vocabulary of two melodies). It is 0 for the same elements (two
+empty sets too) and 1 for sets with no common element. To compare sequences
+taking their order into account, see `dist-edit` and `dist-structure`.
+
+- `:measure` (a symbol of any package, a keyword or a string):
+  - `jaccard` (or `nil`, by default): Jaccard distance,
+    1 − |a ∩ b| / |a ∪ b|, the proportion of the elements that are not
+    common among all the elements of the two sets;
+  - `sorensen`: Sørensen-Dice distance, 1 − 2 |a ∩ b| / (|a| + |b|). It
+    counts the common elements twice, and so stays lower than or equal to
+    the Jaccard distance;
+  - `mountford`: Mountford distance, 1 / (1 + M), with Mountford's index
+    M = 2j / (2|a||b| − (|a| + |b|) j), where j = |a ∩ b|. The index M is
+    infinite for two identical sets, hence this normalization from 0 to 1;
+- `:test`: identity of the elements (`#'equalp` by default);
+- `:key`: the part of the elements compared (`#'identity` by default).
+
+As for the other distances, `b` set to `nil` gives the semi-matrix of the
+distances between all the sets of `a`.
+
+```lisp
+(dist-set '(c e g) '(e g b))                      ;=> 0.5
+(dist-set '(c c e g c) '(g e c))                  ;=> 0.0   ; order and repetitions ignored
+(dist-set '(c e g) '(e g b) :measure :sorensen)   ;=> 0.3333333
+(dist-set '(c e g) '(e g b) :measure :mountford)  ;=> 0.6
+(dist-set '((c e g) (e g b) (d f a)) nil)
+;=> ((0 1 0.5) (0 2 1.0) (1 2 1.0))
+```
+
+#### `dist-jaccard-bin (a b &key test key)`
+
+Jaccard distance between two binary vectors of the same length, which tell
+the presence or absence of something at each position (for instance the 12
+pitch classes of a chord): among the positions present in `a` or in `b`, the
+proportion of those present in only one of them. The positions absent from
+both do not count.
+
+`:test` is here a predicate telling if a value is present; by default, any
+value other than `nil` and 0 (1 or `t`: present; 0 or `nil`: absent).
+
+```lisp
+;; C-E-G and E-G-B as pitch classes (C = 0)
+(dist-jaccard-bin '(1 0 0 0 1 0 0 1 0 0 0 0)
+                  '(0 0 0 0 1 0 0 1 0 0 0 1))   ;=> 0.5
+```
+
+**Reference.** Paul Jaccard proposed his coefficient to compare the flora of
+different areas of the Alps: the proportion of the species common to two
+areas among all the species present in one or the other (Paul Jaccard,
+"Étude comparative de la distribution florale dans une portion des Alpes et
+du Jura", *Bulletin de la Société vaudoise des sciences naturelles*, 37,
+1901, pp. 547-579). Numerical taxonomy made it the standard measure for
+binary data of presence and absence, next to the *simple matching
+coefficient*, which also counts the positions absent from both (Peter H. A.
+Sneath and Robert R. Sokal, *Numerical Taxonomy*, San Francisco, W. H.
+Freeman, 1973). Not counting these positions is precisely the point: two
+chords are not alike because neither of them contains F♯.
+
 ### 3.3 Quantify: information, diversity
 
 #### `histogram (data &key test thes)`
@@ -1928,7 +1991,7 @@ fundamental frequency, sonogram of the black redstart).
 
 ## List of functions
 
-The list of the 56 exported functions, with their arguments and docstrings, is
+The list of the 58 exported functions, with their arguments and docstrings, is
 in [refrains-functions.md](refrains-functions.md).
 
 Two minimum spanning trees link these functions by their names and by their

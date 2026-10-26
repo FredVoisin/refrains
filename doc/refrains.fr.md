@@ -1608,7 +1608,7 @@ toute valeur autre que `nil` et 0 (1 ou `t` : présent ; 0 ou `nil` : absent).
 ```lisp
 ;; do-mi-sol et mi-sol-si en classes de hauteurs (do = 0)
 (dist-jaccard-bin '(1 0 0 0 1 0 0 1 0 0 0 0)
-                     '(0 0 0 0 1 0 0 1 0 0 0 1))   ;=> 0.5
+                  '(0 0 0 0 1 0 0 1 0 0 0 1))   ;=> 0.5
 ```
 
 **Référence.** Paul Jaccard a proposé son coefficient pour comparer la flore
