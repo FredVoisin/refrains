@@ -12,7 +12,7 @@ and PWGL (Mikael Laurson, Sibelius Academy).
 - The files of the documentation are presented in [doc/README.md](doc/README.md).
 - Documentation: [English](doc/refrains.md),
   [français](doc/refrains.fr.md) (reference version).
-- The 53 exported functions, with their arguments and docstrings:
+- The 56 exported functions, with their arguments and docstrings:
   [English](doc/refrains-functions.md),
   [français](doc/refrains-fonctions.fr.md).
 - Examples of use: [English](doc/examples.md),

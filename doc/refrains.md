@@ -215,7 +215,7 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
        transcode, num>base, num>alpha, alpha>num, list>sym, str>sym
 ;;  1.2 FILTER
        filt-median, filt-extrema, filt-mean, filt-lowpass, filt-repeat, filt-noise,
-       filt-function
+       filt-function, filt-quantize
 ;;  1.3 DELINEATE : trace graphs
        graph-span, graph-dendrogram, graph>matrix
 ;;  1.4 INTERPOLATE
@@ -237,7 +237,8 @@ also the [README](../README.md#if-the-system-refrains-is-not-found).
 ;;  3.3 QUANTIFY : self information, diversity
        histogram, entropy, self-info, inner-dynamic, graph-length
 ;;; 4. READ/WRITE files
-       read-text, write-list, display-list, seq>plot, seq>ly, graph>dot, dendrogram>dot
+       read-text, write-list, display-list, seq>plot, seq>abc, seq>ly, graph>dot,
+       dendrogram>dot
 ```
 
 In the REPL, `(doc)` lists the documented functions and `(doc 'dist-edit)`
@@ -486,6 +487,62 @@ replace whole blocks.
 (filt-function '(1 2 3 4 5 6 7 8) #'reverse 3 3)
 ;=> (3 2 1 6 5 4 8 7)
 ```
+
+#### `filt-quantize (seq levels &key mode thres window step segments out)`
+
+Quantizes a sequence of numbers: each value is replaced by the centre of its
+class. The levels are not fixed in advance: they are the centres of
+attraction of the sequence, found by `class-num` (see
+[2.3](#23-differentiate)). On the whole sequence, `filt-quantize` amounts to
+`class-num` (with `:sort t`), each value being replaced by its centre; it
+adds windows, segments, and a quantization by the salient points. A `nil` is
+a missing value: it stays `nil`.
+
+- `levels`: the number of levels, or the list of their initial centres (see
+  `class-num`).
+- `:mode`: what counts in the quantization:
+  - `:1d-centroids` (by default) or `:centroids`: the dynamic clouds of
+    `class-num` on all the values. Each value counts, so the time spent: the
+    levels go where the sequence lingers, and a brief passage, such as a
+    peak, is absorbed by the next level;
+  - a method of `exsample` (`:minmax`, `:minflexmax`, `:major-extrema`,
+    `:landmarks`, `:angles`), with its threshold `:thres` (0 by default):
+    `class-num` classifies only the salient points given by this method,
+    then each value is brought to the nearest centre, the centres staying
+    fixed. With `:minmax`, each turn of the sequence (a minimum or a maximum)
+    counts once, whatever its duration: a brief peak has its level.
+- `:window`: `nil` (by default), the whole sequence; an integer, a sliding
+  window of this number of positions; a float or a ratio, a part of the
+  length (`1/4`: a quarter). `:step`: an integer, a number of positions; a
+  float or a ratio, a part of the window (`1/2` by default); as for
+  `filt-function`. The last window ends at the last position. When the
+  windows overlap, each value is quantized in the window whose centre is the
+  nearest. The levels thus follow the register of the moment.
+- `:segments`: `t`, each run of numbers between two `nil`s is quantized
+  apart, in its own register (with `:window`, the part of the length is that
+  of the segment). Putting `nil`s in the pauses of a melody, for example,
+  quantizes it phrase by phrase.
+- `:out`: `:values` (by default), the quantized sequence; `:classes`, the
+  level of each value, numbered by increasing centre in its window or
+  segment; `:all`, three values: the quantized sequence, the levels, and the
+  list of `(start end centres)` of each window or segment.
+
+Another mode, `:thres` with the dynamic clouds, a value that is neither a
+number nor `nil`, or a window or a step that is not a positive number are
+errors.
+
+```lisp
+(filt-quantize '(0 1 2 10 11 12 20 21 22) 3)
+;=> (1.0 1.0 1.0 11.0 11.0 11.0 21.0 21.0 21.0)
+(filt-quantize '(0 1 10 11 nil 100 101 110 111) 2 :segments t)
+;=> (0.5 0.5 10.5 10.5 NIL 100.5 100.5 110.5 110.5)
+;; a rise and a fall repeated (from 0 to 50), with a brief peak at 60:
+;; by the time spent, the peak is absorbed; by the turns, it has its level
+(filt-quantize s 3)                 ; levels 8.5 26.5 45.137615
+(filt-quantize s 3 :mode :minmax)   ; levels 0.0 50.0 60.0
+```
+
+See the example [Quantizing an F0: *Hìndèhú*](examples/hindehu.md).
 
 ### 1.3 Delineate: graphs
 
@@ -956,7 +1013,7 @@ they are not listed as motifs of their own.
 ;=> (((0 0) (4 0) (8 0)) ((60 62 64)))
 ```
 
-#### `class-num (data classes mode &key iter dist)`
+#### `class-num (data classes mode &key iter dist sort)`
 
 Classification of numerical data, i.e. data represented in a space where each
 dimension is numerically ordered, such as a Euclidean space. In one
@@ -993,6 +1050,34 @@ error). Modes (`:centroids` or `'centroids`; another mode is an error):
   logarithmically as they rise, a function such as
   `(lambda (x) (expt x 0.5))` compensates the scale. This method is
   deterministic: `:iter` does not apply to it.
+
+`classes` may also be the list of the initial centres of the classes
+(numbers, or lists of coordinates as the points), even approximate ones: the
+dynamic clouds then start from these centres, whatever the mode, and the
+result is deterministic. The number of distinct centres sets the number of
+classes: equal centres (compared with `equalp`, so that `55` and `55.0` are
+equal) count once. `:iter` does not apply, nor `:dist` with `:1d-centroids`
+(there are no more cuts to place): giving them is an error, as are centres
+of another kind than the points. The extrema of a curve (`exsample`) are,
+for example, a good start to quantize it.
+
+```lisp
+(class-num '(0 1 2 10 11 12 20 21 22) '(3 9 18) :centroids)
+;=> ((0 0 0 1 1 1 2 2 2) (1.0 11.0 21.0) 3)
+```
+
+The classes are numbered by order of first appearance in `data`: class 0 is
+that of the first point. With numbers, `:sort t` numbers them by increasing
+centre (class 0 is the lowest) and gives the centres in this order, which is
+handy for a quantization. `:sort t` with points in several dimensions, or
+with `:iter`, is an error.
+
+```lisp
+(class-num '(10 11 0 1 20 21) 3 :1d-centroids)
+;=> ((0 0 1 1 2 2) (10.5 0.5 20.5) 3)
+(class-num '(10 11 0 1 20 21) 3 :1d-centroids :sort t)
+;=> ((1 1 0 0 2 2) (0.5 10.5 20.5) 3)
+```
 
 Classification can also be diverted to *quantize* a continuous flow: the
 flow is then quantized not on values fixed a priori but on centres of
@@ -1605,6 +1690,44 @@ there).
 0                8
 ```
 
+#### `seq>abc (seq &key out title rhythm unit)`
+
+Writes a sequence of notes in the [ABC notation](https://abcnotation.com/), a
+text format read by many programs (abcm2ps, EasyABC, MuseScore with a
+plugin…), to see it as a score or to listen to it. `seq` is a list of MIDI
+notes (60 is middle C); a note that is not an integer is rounded to the
+semitone, a list of notes is a chord, and a `nil` is a rest. Consecutive
+equal notes or chords make one. The accidentals are sharps, with naturals
+where needed (in ABC, an accidental lasts until the end of the bar, here of
+the tune). There is no meter (`M:none`), so no bar line.
+
+- `:out`: `nil` (by default) returns the ABC text; `t` prints it in the
+  listener; a stream receives it; a path (string or pathname) writes it in
+  this file and returns its name;
+- `:title`: the title of the tune (`T:`, "refrains" by default);
+- `:rhythm`: `nil` (by default), no rhythm: each note without length; `t`,
+  each note lasts its number of positions divided by `:unit` (1 by default),
+  in sixteenths (`L:1/16`).
+
+A value that is neither a number, nor a list of numbers, nor `nil` is an
+error.
+
+```lisp
+(seq>abc '(60 62 64 64 nil 66 65 72 48))
+;=> "X:1
+;    T:refrains
+;    M:none
+;    L:1/4
+;    K:C
+;    C D E z ^F =F c C,
+;    "
+(seq>abc '(60 60 60 60 62 nil nil) :rhythm t)   ; ... C4 D z2
+(seq>abc '((60 64) (64 60) 62))                 ; ... [CE] D
+```
+
+A quantized sequence (by `class-num` or `filt-quantize`) thus becomes a
+melody: see the example [Quantizing an F0: *Hìndèhú*](examples/hindehu.md).
+
 #### `seq>ly (seq &key out title rhythm unit)`
 
 Writes a sequence of notes for [LilyPond](https://lilypond.org/), to the
@@ -1805,7 +1928,7 @@ fundamental frequency, sonogram of the black redstart).
 
 ## List of functions
 
-The list of the 53 exported functions, with their arguments and docstrings, is
+The list of the 56 exported functions, with their arguments and docstrings, is
 in [refrains-functions.md](refrains-functions.md).
 
 Two minimum spanning trees link these functions by their names and by their

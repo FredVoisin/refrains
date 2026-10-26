@@ -597,7 +597,7 @@ des erreurs.
 (filt-quantize s 3 :mode :minmax)   ; niveaux 0.0 50.0 60.0
 ```
 
-Voir l'exemple [Quantification](exemples/quantification.md).
+Voir l'exemple [Quantifier une F0 : *Hìndèhú*](exemples/hindehu.md).
 
 ### 1.3 Délinéer : graphes
 
@@ -1171,8 +1171,7 @@ classes : des centres égaux (comparés avec `equalp`, si bien que `55` et `55.0
 sont égaux) ne comptent qu'une fois. `:iter` ne s'applique pas, ni `:dist` avec
 `:1d-centroids` (il n'y a plus de coupures à placer) : les donner est une
 erreur, de même que des centres d'une autre sorte que les points. Les extrema
-d'une courbe (`exsample`) sont par exemple un bon départ pour la quantifier
-(voir l'exemple [Quantification](exemples/quantification.md)).
+d'une courbe (`exsample`) sont par exemple un bon départ pour la quantifier.
 
 ```lisp
 (class-num '(0 1 2 10 11 12 20 21 22) '(3 9 18) :centroids)
@@ -1559,6 +1558,7 @@ nœuds, dans l'ordre de `graph-nodes`.
 (dist-graph 'a '(c d) '((a b 1) (b c 2) (b d 1)))   ;=> (3 2)
 (dist-graph 'a nil '((a b 1) (b c 2) (b d 1)))      ;=> (0 1 3 2), pour (A B C D)
 ```
+
 #### Distances entre ensembles
 
 Les quatre fonctions suivantes comparent des **ensembles** : l'ordre et les
@@ -1634,7 +1634,6 @@ deux ensembles identiques, d'où cette normalisation de 0 à 1.
 ```lisp
 (dist-mountford '(do mi sol) '(mi sol si))   ;=> 0.6
 ```
-
 
 ### 3.3 Quantifier : information, diversité
 
@@ -1910,8 +1909,9 @@ format texte que lisent de nombreux logiciels (abcm2ps, EasyABC, MuseScore
 avec un greffon…), pour la voir en partition ou l'écouter. `seq` est une
 liste de notes MIDI (60 est le do central) ; une note non entière est arrondie
 au demi-ton, une liste de notes est un accord, et un `nil` est un silence. Les
-notes ou les accords égaux consécutifs n'en forment qu'un. Les altérations sont des dièses, avec des bécarres là où il le
-faut (en ABC, une altération vaut jusqu'à la fin de la mesure, ici du morceau).
+notes ou les accords égaux consécutifs n'en forment qu'un. Les altérations sont
+des dièses, avec des bécarres là où il le faut (en ABC, une altération vaut
+jusqu'à la fin de la mesure, ici du morceau).
 Il n'y a pas de métrique (`M:none`), donc pas de barre de mesure.
 
 - `:out` : `nil` (par défaut) renvoie le texte ABC ; `t` l'affiche dans le
@@ -1938,8 +1938,8 @@ erreur.
 (seq>abc '((60 64) (64 60) 62))                 ; ... [CE] D
 ```
 
-Une suite quantifiée (par `class-num`) devient ainsi une mélodie : voir
-l'exemple [Quantification](exemples/quantification.md).
+Une suite quantifiée (par `class-num` ou `filt-quantize`) devient ainsi une
+mélodie : voir l'exemple [Quantifier une F0 : *Hìndèhú*](exemples/hindehu.md).
 
 #### `seq>ly (seq &key out title rhythm unit)`
 
