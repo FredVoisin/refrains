@@ -45,15 +45,6 @@
             (progn (push (cons c (incf marker)) set)
                    (push marker r)))))))
 
-(defun norm-class (classes)
-  "Reordonne les classes de class-1.
-L'ordre de la classe etant le numero de sa premiere occurence dans la liste des classes.
-Se connecte typiquement apres class-1 ou meta-class1.
-IN : string or list (of symbols or lists or strings)."
-  (if (or (stringp classes) (not (listp (car classes))))
-      (normalize-class classes)
-      (mapcar #'(lambda (x) (normalize-class x)) classes)))
-
 (defun random-dot (data)
   "A random point in the space defined by data, a list of points (lists of coordinates): each coordinate
 is drawn uniformly between the minimum and the maximum of this coordinate in data."
@@ -254,10 +245,6 @@ Returns (classes centres iterations), the classes numbered by order of first app
 
 ;;;
 ;;; classification par partitionnement de graphe
-
-(defun sym-isocentre (data)
-  "To make simple, the centre of a list of words is the list of words with no duplicates ;)"
-  (remove-duplicates (mapcar #'append data) :test #'equalp))
 
 (defun s-class (data n &optional (norm nil) (change 1) (insert 1) (delete 1) (inex 1) (mst nil)) ; (dist #'e-dist 1 1 .5)
   "Classification of symbolic data into n classes according to their ressemblance:

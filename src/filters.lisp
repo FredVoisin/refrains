@@ -142,14 +142,6 @@ step values. See window-block for the values given by the result of func."
 ;  (let ((l (length data)))
 ;    ))
 
-(defun resample-binary (data n)
-  (let ((l (length data))
-        (r (list)))
-    (if (= n l)
-        data  (let ((k (/ l n)))
-		(dotimes (a n (nreverse r))
-		  (push (nth (min (round (* a k)) (1- l)) data) r))))))
-
 (defun median-simple (list w)
   "Sliding median over w values centred on each value of list, w odd: the median is always a value of list.
 At the edges, the first and last values are repeated. The result has the same length as list."

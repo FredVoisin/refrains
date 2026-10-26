@@ -58,7 +58,6 @@ By default test is #'eq."))
 		   a))))
 |#
 
-
 (defgeneric alphatonum (char) ;;; should be renamed 2asciicode !
   (:documentation ""))
 
@@ -108,11 +107,6 @@ Different modes can be selected with the optional argument mode."))
 ;(alpha>num '(a b c d e f g h) :midi)
 ;(alpha>num '(A (b (c)) d e ((((f)))) g h) :midi)
 
-(defun string-to-list (string)
-  (let ((lstring nil))
-    (dotimes (n (length string) (nreverse lstring))
-      (push (elt string n) lstring))))
-
 (defun string2code (string)
   (let ((c '()))
     (dotimes (n (length string) (reverse c))
@@ -157,20 +151,6 @@ Different modes can be selected with the optional argument mode."))
 	((every #'stringp list)
 	 (apply #'concatenate 'string list))
 	(t (concalpha list nil))))
-
-
-
-(defgeneric ascii2string (ascii)
-  (:documentation "Converts ascii code to caracters into a string."))
-
-(defmethod ascii2string ((ascii integer))
-  (princ-to-string (code-char ascii)))
-
-(defmethod ascii2string ((ascii list))
-  (concaten (mapcar #'ascii2string ascii)))
-
-(defun code2string (code)
-  (ascii2string code))
 
 (defun numtochar26 (n &optional r)
   (if (> n 25)
@@ -299,27 +279,14 @@ Empty words are removed: an empty or blank string gives nil."
 (defmethod alphanump ((datum list) &optional (exceptions nil) (8bits nil))
   (every (lambda (d) (alphanump d exceptions 8bits)) datum))
 
-
 ;;;;;;;;;;;;;;;;
 ;;; numeric
-
-(defun % (x base)
-  (floor (/ x base)))
 
 (defun dec2base (x &optional base)
   ; converti x exprime en decimal en base, ou en toute lettre sinon 
   (if base
       (safe-read-from-string (format nil (concatenate 'string "\~" (format nil "~S" base) "r") x))
       (safe-read-from-string (format nil "~r" x))))
-
-(defun bin2dec (v)
-  (let ((l (length v))
-	(x 0))
-    (dotimes (z l)
-      (setf x (+ x
-		 (* (nth z v)
-		    (expt 2 (- l z 1))))))
-    (values x)))
 
 (defgeneric num-base (x base)
   (:documentation "Encodes integer number <x> considered as represented into decimal notation into its representation into base <base> (by default : base 2)"))

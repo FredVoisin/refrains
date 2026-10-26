@@ -44,9 +44,6 @@ first appearance (in data, or in thes)."
 ;;;
 ;; info theory
 
-(defparameter *e* 2.7182818284590452353602874) ; (/ 848456353 312129649) = (exp 1)
-
-#-Lispworks
 (defun e-shannon (data &optional (base nil) (test #'equalp))
   "Returns the shannon entropy value of data.
 Shannon entropy value may be between 0 and (log n base)."
@@ -57,22 +54,7 @@ Shannon entropy value may be between 0 and (log n base)."
 		base (if (eql base 'e)
 			 (exp 1)
 			 (max 2 (length cl))))))
-    (dolist (ci cl (- 0 (apply #'+ (mapcar #'(lambda (x) (* x (log! x b))) p))))
-      (push (/ (length (remove-if-not #'(lambda (x) (funcall test x ci)) data)) n)
-            p))))
-
-#+Lispworks
-(defun e-shannon (data &optional (base nil) (test #'equalp))
-  "Returns the shannon entropy value of data.
-Shannon entropy value may be between 0 and (log n base)."
-  (let* ((cl (remove-duplicates data :test test))
-	 (n (length data))
-	 (p nil)
-	 (b (if (numberp base)
-		base (if (eql base 'e)
-			 (exp 1)
-			 (max 2 (length cl))))))
-    (dolist (ci cl (- 0 (sum-loop(mapcar #'(lambda (x) (* x (log! x b))) p))))
+    (dolist (ci cl (- 0 (reduce #'+ (mapcar #'(lambda (x) (* x (log! x b))) p))))
       (push (/ (length (remove-if-not #'(lambda (x) (funcall test x ci)) data)) n)
             p))))
 
@@ -92,7 +74,6 @@ Shannon entropy value may be between 0 and (log n base)."
       (e-shannon data base test)
       (windowed-e-shannon data samples base test)))
 
-#-Lispworks
 (defun kind-of-entropie-conditionnelle (data &optional (base 2) (test #'equalp))
   "Kind of conditionnal entropy based on a hack of shannon entropy by me. Experimental."
   (let* ((p nil) (len (length data))
@@ -105,24 +86,7 @@ Shannon entropy value may be between 0 and (log n base)."
       (let ((k (assoc (nth d data) r :test test))
 	    (l (nth (1+ d) data)))
 	(incf (cadr (assoc l (cdr k) :test test)) )))
-    (dolist (i r (- 0 (apply #'+ (mapcar #'(lambda (x) (* x (log! x (* b b)))) p)))) ; sqr log to scale
-      (dolist (j (cdr i))
-	(push (/ (cadr j) len) p))))) ; P(i)
-
-#+Lispworks
-(defun kind-of-entropie-conditionnelle (data &optional (base 2) (test #'equalp))
-  "Kind of conditionnal entropy based on a hack of shannon entropy by me. Experimental."
-  (let* ((p nil) (len (length data))
-	 (s (remove-duplicates data :test #'equalp)) ;test))
-	 (n (length s))
-	 (b (if (numberp base)
-		base (if (eql base 'e) (exp 1) (max 2 n))))
-	 (r (mapcar (lambda (x) (cons x (mapcar (lambda (y) (list y 0)) s))) s)))
-    (dotimes (d (1- (length data))) ;build table of P(a if b)
-      (let ((k (assoc (nth d data) r :test test))
-	    (l (nth (1+ d) data)))
-	(incf (cadr (assoc l (cdr k) :test test)) )))
-    (dolist (i r (- 0 (sum-loop (mapcar #'(lambda (x) (* x (log! x (* b b)))) p)))) ; sqr log to scale
+    (dolist (i r (- 0 (reduce #'+ (mapcar #'(lambda (x) (* x (log! x (* b b)))) p)))) ; sqr log to scale
       (dolist (j (cdr i))
 	(push (/ (cadr j) len) p))))) ; P(i)
 
@@ -144,7 +108,6 @@ Shannon entropy value may be between 0 and (log n base)."
   (if samples
       (windowed-entropie-cond data (floor (/ (length data) samples)) base test)
       (kind-of-entropie-conditionnelle data base test)))
-
 
 (defgeneric self-information (data elt &optional test)
   (:documentation "Amount of information of each element <elt> in data: -log2 of its frequency, nil if

@@ -30,30 +30,6 @@
 
 ;(defconstant whitechars '#(#\Space #\Tab #\Return #\Newline))
 
-(defun file-list (dir &optional extension)
-  "attention: extension en  minuscules !"
-  (when (not (equalp "/" (elt dir (1- (length dir)))))
-    (setf dir (concatenate 'string dir "/")))
-  (let ((d (directory (if extension
-			  (concatenate 'string (directory-namestring dir) "*."
-				       (if (stringp extension) extension (format nil "~(~@S~)" extension)))
-			  (concatenate 'string (directory-namestring dir) "*.*")))))
-    (mapcar #'namestring d)))
-
-; (print  (file-list "/home/fred/lisp/midi/"))
-; (print (file-list "/home/fred/lisp/midi" 'lisp))
-
-(defun file-list-rec (paths &optional files)
-  (if (null paths)
-      files
-    (multiple-value-bind (newfiles newpaths)
-	(file-list (pop paths))
-      (file-list-rec
-       (append newpaths paths)
-       (append newfiles files) ))))
-
-; (print (file-list-rec '("/home/fred/lisp/")))
-
 (defun read-text-lines (file)
   "The lines of the text file, as strings."
   ;; read-line until the end of the file: file-position counts bytes, not characters
@@ -170,7 +146,6 @@ not letters or digits, but c ..."
                  (format out-stream "~&~S" l))
              (format out-stream "~&~G" (2flatstring l "")))))))
   (format nil "~&~G" file))
-
 
 ;;; read/write Max/MSP coll format
 

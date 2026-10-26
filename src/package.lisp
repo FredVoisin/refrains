@@ -24,7 +24,7 @@
 ;;;;
 ;;;; The OMPW package (PWGL/OpenMusic bindings, see fv-morphologie) is used
 ;;;; only when it is already loaded, so the system also loads in a plain
-;;;; LispWorks image.
+;;;; Common Lisp image.
 
 ;;;; Lisp tools to analyse sequences of symbols or signs wich represent music,
 ;;;; for PWGL and OpenMusic (and Lisp).

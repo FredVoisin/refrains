@@ -37,37 +37,6 @@
 ; 1. minimum spanning tree (in french: arbre de longueur minimum ou arbre de recouvrement)
 ; using Prim's algorithm
 
-(defun remove-ifnot-1 (set)
-  (remove-if #'(lambda (s) (not (= 1 (length s)))) set))
-
-(defun remove-ifonly-1 (set)
-  (remove-if #'(lambda (s) (= 1 (length s))) set))
-
-(defun extremites (points tree)
-  (mapcar #'car
-	  (remove-ifnot-1
-	   (mapcar #'(lambda (a) (remove 'nil a))
-		   (mapcar #'(lambda (point)
-                               (mapcar #'(lambda (x)
-                                           (when (not (equalp 'nil (member point x))) x))
-                                       tree))
-			   points)))))
-
-(defun tronc (extrem noeuds)
-  (dolist (e extrem (remove-duplicates (flat-1 noeuds) :test 'equalp))
-    (dotimes (n (length noeuds))
-      (setf (nth n noeuds) (remove-if #'(lambda (x) (equalp e x)) (nth n noeuds))))))
-
-(defun commun (list)
-  "Presuppose qu'il y a au moins un elt commun a toutes les sous-listes de list."
-  (car (remove-if #'numberp (intersection (car list) (cadr list)))))
-
-(defun noeuds (points tree)
-  (remove-ifonly-1
-   (mapcar #'(lambda (a) (remove 'nil a))
-	   (mapcar #'(lambda (point) (mapcar #'(lambda (x) (when (not (equalp 'nil (member point x))) x)) tree))
-		   points))))
-
 (defun spanning-tree (graph &optional verbose)
   "Minimum spanning tree of graph, a list of edges (vertex-a vertex-b distance), by Kruskal's algorithm:
 the edges are taken by increasing distance (in their order in graph for equal distances), and kept if
@@ -272,12 +241,6 @@ In a tree there is only one path; in other graphs, Dijkstra's algorithm gives th
       (push (list k (remove-if-not #'(lambda (x) (member k x :test #'equal)) e)) r))
     (mapcar #'car (remove-if #'(lambda (x) (< (length (cadr x)) min-degree)) r))))
 
-(defgeneric tree-nodes (tree &optional min-deg)
-   (:documentation "List of nodes in a tree."))
-
-(defmethod tree-nodes ((tree list) &optional (min-deg 2))
-  (nodes tree min-deg))
-
 (defun leaves (tree)
   "The leaves of tree (the nodes of degree 1), sorted as by all-vertices (graph-nodes)."
   (let ((e (mapcar #'butlast tree)))
@@ -306,7 +269,6 @@ In a tree there is only one path; in other graphs, Dijkstra's algorithm gives th
   (mapcar #'(lambda (x) (tree-dist vertex1 x tree)) (all-vertices tree)))
 
 ;;Strahler number to do
-
 
 ;; graphs - suite
 

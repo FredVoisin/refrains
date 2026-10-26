@@ -26,32 +26,6 @@
 
 (in-package :refrains)
 
-(defun generic-function-p (self)
-  "T if self is a class of <standard-generic-function>."
-  (or (eq (class-name
-           (class-of self))
-          'standard-generic-function)
-      (eq (class-name
-       (class-of self))
-      'compiled-function)))
-
-(defun find-functions (&optional (package (find-package 'refrains)))
-  "Give the list of generic functions in <package>."
-  (when (symbolp package) (setf package (find-package package)))
-  (let
-    ((func '()))
-    (do-symbols (sym package)
-      (when (eq package (symbol-package sym))
-        (let ((value (when (fboundp sym) (symbol-function sym))))
-          (when (and value
-		     (or ;(compiled-function-p value)
-			 ;(function-p value)
-			 (generic-function-p value)))
-            (push sym func)))))
-    (sort func #'string-lessp)))
-
-;(print (find-functions))
-
 (defparameter *refrains-menu*
   '(;; 1. transcription
     transcode num>base num>alpha alpha>num list>sym str>sym
@@ -72,7 +46,6 @@
     ;; documentation
     help doc)
   "The refrains functions, in the order of the documentation (all the exported functions).")
-
 
 (defun fv-function (name)
   "The refrains symbol named name (a symbol of any package, a keyword or a string), or nil."

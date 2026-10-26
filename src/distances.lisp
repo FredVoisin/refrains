@@ -83,32 +83,6 @@ If a and b are lists with not same size (i.e points with not same dimensions),
       (loop for j from (1+ i) to (1- (length a)) do
 	 (push (list i j (city-block (nth i a) (nth j a))) r)))))
 
-(defgeneric close-p (a b thresh &optional dist)
-  (:documentation "Tests if a and b are close according to their distance."))
-
-(defmethod close-p ((a list) (b list) (thresh number) &optional (dist #'dist-euclid))
-  (let ((d (funcall dist a b)))
-    (when d (<= d thresh))))
-
-(defmethod close-p ((a number) (b number) (thresh number) &optional (dist #'dist-euclid))
-  (let ((d (funcall dist a b)))
-    (when d (<= d thresh))))
-
-(defmethod close-p ((a null) (b null) (thresh number) &optional (dist #'dist-euclid))
-  (declare (ignore dist))
-  nil)
-
-(defmethod close-p ((a t) (b null) (thresh number) &optional (dist #'dist-euclid))
-  (declare (ignore dist))
-  nil)
-
-(defmethod close-p ((a null) (b t) (thresh number) &optional (dist #'dist-euclid))
-  (declare (ignore dist))
-  nil)
-
-; (close-p '(1.1 1.9) '(1 2) .5)
-
-
 (defun hamming-distance (v1 v2 &optional (test #'eq))
   (assert (= (length v1) (length v2)))
   (let ((d 0))
@@ -323,23 +297,7 @@ By symbolic dimensions, I consider a structured list of 'arbitrary' symbols desc
         (push (list i (+ i j 1) (multi-edit-dist (nth i seq1) (nth (+ i j 1) seq1) wgth
                                                  :change change :insert insert :delete delete :inex inex :test test)) r)))))
 
-(defgeneric commun-elt (set1 set2 &key test key)
-  (:documentation "Returns common elements to both set1 and set2, nil if not."))
-
-(defmethod commun-elt ((set1 list) (set2 list) &key test key)
-  (when (not test) (setf test #'equalp))
-  (when (not key) (setf key #'identity))
-  (intersection set1 set2 :test test :key key))
-
-(defmethod commun-elt ((set1 list) (set2 null) &key test key)
- (when (not test) (setf test #'equalp))
- (when (not key) (setf key #'identity))
- (let ((r nil) (l (length set1)))
-  (dotimes (i l (nreverse r))
-   (dotimes (j (- l i 1))
-    (push (list i (+ i j 1) (intersection (nth i set1) (nth (+ i j 1) set1) :test test :key key)) r)))))
-
-(defgeneric intersectioon-card (a b &key key test)
+(defgeneric intersection-card (a b &key key test)
  (:documentation "Cardinal de l'intersection des ensembles a et b, ou de tous les éléments de a si b est vide."))
 
 (defmethod intersection-card ((a list) (b list) &key (key #'identity) (test #'equalp))

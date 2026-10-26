@@ -86,7 +86,6 @@
   (let ((lengths (remove-if #'zerop (mapcar #'third graph))))
     (* (if lengths (reduce #'min lengths) 1) k)))
 
-#-Lispworks
 (defun graph2dot (graph dis mode shape out &optional (legend t) (overlap t) (invert nil))
   (let* ((k (if (numberp mode) mode (if mode 1 0.2)))
          (min (graph-min-length graph k))
@@ -126,42 +125,6 @@
           (t (2dot graph min dis shape1 shape2 out legend :name out :overlap overlap :invert invert))))
   (format nil "~G" out))
 
-#+Lispworks
-(defun graph2dot (graph dis mode shape out &optional (legend t) (overlap t) (invert nil))
-  (let* ((k (if (numberp mode) mode (if mode 1 0.2)))
-         (min (graph-min-length graph k))
-         shape1 shape2
-         (neato "/usr/local/bin/neato"))
-    (when (not out) (setf out t))
-    (if (not shape) (setf shape1 "ellipse" shape2 "ellipse")
-      (if (stringp shape) (setf shape1 shape shape2 shape)
-        (setf shape1 (car shape) shape2 (cadr shape))))
-    (cond ((or (pathnamep out) (stringp out))
-           (let* ((file (pathname-name out))
-                  (dir (pathname-directory out))
-                  (type (pathname-type out))
-                  (dot (make-pathname :directory dir
-                                      :name file
-                                      :type "dot")))
-             (with-open-file (stream dot
-                                     :direction :output
-                                     :if-exists :supersede
-                                     :if-does-not-exist :create)
-               (2dot graph min dis shape1 shape2 stream legend :name out :overlap overlap :invert invert))
-             (when (not (equalp type "dot"))
-               (system::run-shell-command
-                (list neato (format nil "-T~(~S~)" (if type (safe-read-from-string type) (safe-read-from-string "gif"))))
-                :input dot
-                :output (namestring (make-pathname :directory dir
-                                           :name file
-                                           :type (if type type "gif")))
-                :wait t 
-                :if-input-does-not-exist :error
-                :if-output-exists :supersede
-                ))))
-          (t (2dot graph min dis shape1 shape2 out legend :name out :overlap overlap :invert invert)))
-    (format nil "~G" out)))
-
 ;(graph2dot '((a b 1) (a c 2) (a d 3) (b k 8) (b j 0)) 0 .1 nil t)
 ;(graph2dot '((8 10 0) (1 8 1.5) (7 9 0) (7 11 1) (1 4 0) (1 11 1) (2 11 2) (2 6 0) (2 5 0) (2 3 0) (0 2 1)) 0 1 nil t)
 ;(graph2dot '((8 10 0) (1 8 1.5) (7 9 0) (7 11 1) (1 4 0) (1 11 1) (2 11 2) (2 6 0) (2 5 0) (2 3 0) (0 2 1)) 0 nil nil t)
@@ -169,27 +132,6 @@
 ;(graph2dot '((8 10 0) (1 8 1.5) (7 9 0) (7 11 1) (1 4 0) (1 11 1) (2 11 2) (2 6 0) (2 5 0) (2 3 0) (0 2 1)) 0 .25 "plaintext" t)
 ;(graph2dot '((8 10 0) (1 8 1.5) (7 9 0) (7 11 1) (1 4 0) (1 11 1) (2 11 2) (2 6 0) (2 5 0) (2 3 0) (0 2 1)) 0 1 '("point" "plaintext") t)
 ;(graph2dot '((8 10 0) (1 8 1.5) (7 9 0) (7 11 1) (1 4 0) (1 11 1) (2 11 2) (2 6 0) (2 5 0) (2 3 0) (0 2 1)) 0 1 "plaintext" "/Users/fred/g.gif")
-
-(defgeneric graphtodot (graph dis min out &key shape legend)
-  (:documentation "Converts a graph (list of edges) into an undirected graph into dot langage to be processed using neato program.
-Arguments are:
-graph : the graph
-dis : amount of distortion allowed for distances fir drawing the graph (from 0.0 for minimum distorsion to 1.0 maximum distorsion)
-min : scaling factor for the mininum distance
-shape : string or list of strings to define node's shape, using 'neato' definitions
-out :
-if NIL or T, print out in listener;
-if a string, it defines the pathname of the output. Type of file define output.
-"))
-
-(defmethod graphtodot  ((graph list) (dis null) (min null) (out t) &key shape legend)
-  (graph2dot graph 0 nil shape out legend))
-
-(defmethod graphtodot  ((graph list) (dis number) (min symbol)  (out t) &key shape legend)
-  (graph2dot graph dis T shape out legend))
-
-(defmethod graphtodot  ((graph list) (dis number) (min number)  (out t) &key shape legend)
-  (graph2dot graph dis min shape out legend))
 
 ;;; dendrograms to dot format, drawn by neato at fixed positions (neato -n2)
 
@@ -284,11 +226,8 @@ the leaves on the left, one by line, each fusion at the abscissa of its distance
                (let* ((fmt (string-downcase (or type "png")))
                       (image (namestring (make-pathname :type fmt :defaults (pathname out)))))
                  (handler-case
-                     #-Lispworks
                      (shell-command (list "neato" "-n2" (format nil "-T~A" fmt) "-o" image dot)
                                     :error-output :interactive)
-                     #+Lispworks
-                     (shell-command (format nil "/usr/local/bin/neato -n2 -T~A -o ~S ~S" fmt image dot))
                    (error (c)
                      (error "dendrogram>dot: the dot file ~A is written, but neato (Graphviz) could not make the ~A file: ~A"
                             dot fmt c)))))))

@@ -199,63 +199,6 @@ result without computing distances."
 ;(print (find-self '(t x a  b c y  t a e  b c k  r t x  a t x  a b c  i y t  a e c  e i b  c k r) :length))
 ;(print (find-self '(t x a  b c y  t a e  b c k  r t x  a t x  a b c  i y t  a e c  e i b  c k r) :freq))
 
-(defun insert-no-overlap (seq i &optional (test #'(lambda (x) (> x 0))))
-  "i liste (min max). Les bornes - car et cadr - ne se recouvrent pas. Test par defaut : (lambda (x) (> x 0)) "
-  (let ((diffmin (mapcar #'(lambda (x) (- (car i) (cadr x))) seq))
-        (diffmax (mapcar #'(lambda (x) (- (car x) (cadr i))) seq))
-        a b)
-    (when (not test) (setf test #'(lambda (x) (> x 0))))
-    (if (and (setf a (position-if test diffmin :from-end t))
-             (setf b (position-if test diffmax :from-end nil)))
-        (append (subseq seq 0 (1+ a)) (list i) (subseq seq b))
-      (if a
-          (if (= a (1- (length seq)))
-              (append seq (list i))
-            seq)
-        (append (list i) seq)))))
-
-;(insert-range '((0 10) (20 25) (30 32)) '(27 29))
-;(insert-range '((0 10) (20 25) (30 32)) '(11 19))
-;(insert-range '((0 10) (20 25) (30 32)) '(25 30))
-;(insert-range '((0 10) (20 25) (30 32)) '(25 30) #'(lambda (x) (>= x 0)))
-;(insert-range '((0 10) (20 25) (30 32)) '(33 39))
-;(insert-range '((0 10) (20 25) (30 32)) '(-8 -1))
-;(insert-range '((0 10) (20 25) (30 32)) '(0 5))
-;(insert-range '((0 10) (20 25) (30 32) (35 39)) '(30 33)) 
-;(insert-range '() '(0 9))
-
-(defun insert-all (seq i &optional test)
-  "i liste (min max).  Les bornes - car et cadr - peuvent se recouvrir."
-  (declare (ignore test))
-  (let ((s (sort (append seq (list i)) '< :key #'car)))
-    (sort s '< :key #'cadr)))
-
-;(insert-all '((0 10) (20 25) (30 32) (35 39)) '(31 36))
-;'((0 10) (20 25) (30 (31 32) (35 36) 39))
-
-;(cdr '(0 2 (0 4)))
-;(cdr '(10 (13 15) 19))
-
-(defun insert-tree (seq i &optional test)
-  ""
-  (let ((diffmin (mapcar #'(lambda (x) (- (car i) (cadr x))) seq))
-        (diffmax (mapcar #'(lambda (x) (- (car x) (cadr i))) seq))
-        a b)
-    (when (not test) (setf test #'(lambda (x) (> x 0))))
-    (if (and (setf a (position-if test diffmin :from-end t))
-             (setf b (position-if test diffmax :from-end nil)))
-        (append (subseq seq 0 (1+ a)) (list i) (subseq seq b))
-      (if a
-          (if (= a (1- (length seq)))
-              (append seq (list i))
-            seq)
-        (append (list i) seq)))))
-
-; (((T X A B C) (0 4) (16 20))
-; ((B C K R) (9 12) (29 32))
-; ((Y T A E) (5 8) (22 25))
-; ((T X A) (0 2) (13 15) (16 18)))
-
 (defgeneric rep-strct (seq &key diss l-var n criteria distance-fct test)
   (:documentation "Possibles structures of seq based of automatically found patterns (plist)."))
 

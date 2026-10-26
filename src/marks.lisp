@@ -199,8 +199,6 @@ test: condition of identity for marks, for instance (lambda (x y) (< x y)) (defa
 (defun doif (e c m)
   (cons (list (list e) (list c)) m))
 
-(defun not-forced (x y) (declare (ignore x y)) nil)
-
 (defun mark (seq test ident if ifnot &optional (c 0) (m nil)) ; may be optimized...
   (if (car seq)
       (let ((e (pop seq)))
@@ -286,24 +284,6 @@ Cf. also Baboni-Schilingi, Giacomo Platini."))
   (mapcar #'abs (dx (mapcar #'abs (cons 0 (new-old-analysis seq test))))))
 
 ; (mark-dynamic '(a b a c a d a e f g h a b a c a k a m n o))
-
-(defun cutifback (seq &key (test #'equalp))
-"Yet another trivial cut following more or less an established general idea of
-mark/contrast-analysis : cut when an old elt is back according to keyword test for sameless or 'identity'
-(cf. Fred)"
-  (let ((r '()) (old '()) tmp)
-   (loop while seq
-	do (let ((elt (pop seq)))
-	     (if (member elt old :test test)
-		 (progn
-		   (push (reverse tmp) r)
-		   (setf tmp (list elt)))
-		 (progn
-		   (push elt tmp)
-		   (push elt old)))))
-   (reverse r)))
-
-;(cutifback '(a b a c a d a e f g h a b a c a k a m n o))
 
 (defun subpos-p (posa posb)
   "Is posa sub-positions of posb ?"
