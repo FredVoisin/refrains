@@ -116,13 +116,6 @@ In a tree there is only one path; in other graphs, Dijkstra's algorithm gives th
       0
       (values (gethash end (shortest-paths (graph-neighbours tree) start)))))
 
-(defun tree-leaf-nodes (tree)
-  "The nodes of degree 1 of tree, a list of edges (node-a node-b distance)."
-  (remove-if-not #'(lambda (v)
-                     (= 1 (count-if #'(lambda (e) (or (equal v (first e)) (equal v (second e))))
-                                    tree)))
-                 (all-vertices tree)))
-
 (defun paths-from (start ends neighbours)
   "The shortest paths from start to each of ends reachable from it (one search from start)."
   (multiple-value-bind (dist pred) (shortest-paths neighbours start)
@@ -132,12 +125,12 @@ In a tree there is only one path; in other graphs, Dijkstra's algorithm gives th
 
 (defun paths-to-leaves (start tree)
   "The paths from start to each leaf of tree."
-  (paths-from start (remove start (tree-leaf-nodes tree) :test #'equal) (graph-neighbours tree)))
+  (paths-from start (remove start (leaves tree) :test #'equal) (graph-neighbours tree)))
 
 (defun all-paths (tree)
   "The paths between all the pairs of leaves of tree."
   (let ((nb (graph-neighbours tree)))
-    (loop for (l . others) on (tree-leaf-nodes tree)
+    (loop for (l . others) on (leaves tree)
           append (paths-from l others nb))))
 
 ;; a tree is a list of list of edges each defined by two vertices, such as: ( (a b) (b c) (b d) (c e)...) 
@@ -152,29 +145,26 @@ In a tree there is only one path; in other graphs, Dijkstra's algorithm gives th
           ((realp b) nil)
           (t (string-lessp (name a) (name b))))))
 
+(defun node-degrees (graph)
+  "Hash table (test equal) of the degree of each node of graph, a list of edges (node-a node-b ...):
+its number of edges (a loop (a a ...) counts once)."
+  (let ((deg (make-hash-table :test #'equal)))
+    (dolist (e graph deg)
+      (incf (gethash (first e) deg 0))
+      (unless (equal (first e) (second e))
+        (incf (gethash (second e) deg 0))))))
+
+(defun leaves (graph)
+  "The leaves of graph (the nodes of degree 1), sorted as by all-vertices (graph-nodes)."
+  (let ((deg (node-degrees graph)))
+    (remove-if-not #'(lambda (v) (= 1 (gethash v deg))) (all-vertices graph))))
+
 (defun all-vertices (tree)
   (let ((v (remove-duplicates (apply #'append (mapcar #'(lambda (x) (subseq x 0 2)) tree)) :test #'equal)))
     (sort v #'vertex<)))
 
 (defun min-total-length (tree)
   (apply #'+ (mapcar #'caddr tree)))
-
-(defun tree-degree (vertex tree)
-  (count-if #'(lambda (x) (or (equal vertex (first x)) (equal vertex (second x)))) tree))
-
-(defun nodes (tree &optional (min-degree 2))
-  (let* ((e  (mapcar #'butlast (remove-if #'(lambda (x) (zerop (caddr x))) tree)))  ;; remove if dist = 0
-         (v (remove-duplicates (apply #'append e) :test #'equal))
-         (r (list)))
-    (dolist (k v)
-      (push (list k (remove-if-not #'(lambda (x) (member k x :test #'equal)) e)) r))
-    (mapcar #'car (remove-if #'(lambda (x) (< (length (cadr x)) min-degree)) r))))
-
-(defun leaves (tree)
-  "The leaves of tree (the nodes of degree 1), sorted as by all-vertices (graph-nodes)."
-  (let ((e (mapcar #'butlast tree)))
-    (remove-if-not #'(lambda (k) (= 1 (count-if #'(lambda (x) (member k x :test #'equal)) e)))
-                   (all-vertices tree))))
 
 ;;Strahler number to do
 

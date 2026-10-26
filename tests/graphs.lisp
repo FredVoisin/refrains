@@ -227,3 +227,11 @@
       (is (< (abs (- (first tree) (sqrt (* 2 6/5 (expt (- 21/2 4/3) 2))))) 1e-4))))
   ;; Ward needs all the distances
   (signals error (graph-dendrogram '((a b 1) (b c 2)) :linkage :ward)))
+
+(test graph-leaves-edge-properties
+  ;; edges with properties after the distance: the distance was taken for a node
+  ;; (butlast kept it), so that no node had degree 1
+  (is (equal '(1 3) (graph-leaves '((1 2 3 z) (2 3 1 z)))))
+  (is (equal '(1 2 1) (graph-degree nil '((1 2 3 z) (2 3 1 z)))))
+  ;; a loop counts once
+  (is (= 2 (graph-degree 'a '((a a 1) (a b 2))))))

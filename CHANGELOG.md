@@ -61,6 +61,11 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   tree of all the forms was used for the forms not excluded), and a tree
   which did not match the data gave wrong classes without error. The tree
   is now checked, and the documentation tells how to build it.
+- `graph-leaves` (and the paths of `graph-path` from or to the leaves) took
+  the distance of an edge with properties, such as `(1 2 3 z)`, for a node:
+  `((1 2 3 z) (2 3 1 z))` had no leaf. The degrees of the nodes are now
+  counted once for all (`node-degrees`), by `graph-leaves` and
+  `graph-degree`.
 
 ### Removed
 

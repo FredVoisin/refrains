@@ -279,10 +279,12 @@ del messaggio, attivita' mnemonico-percettiva e risposta psichica', Prisma 01, E
 A list of nodes gives the list of their degrees, nil the degrees of all the nodes, in the order of graph-nodes."))
 
 (defmethod graph-degree ((node t) (graph list))
-  (tree-degree node graph))
+  (gethash node (node-degrees graph) 0))
 
 (defmethod graph-degree ((node list) (graph list))
-  (mapcar #'(lambda (x) (graph-degree x graph)) node))
+  ;; the degrees computed once for all the nodes
+  (let ((deg (node-degrees graph)))
+    (mapcar #'(lambda (x) (gethash x deg 0)) node)))
 
 (defmethod graph-degree ((node null) (graph list))
   (graph-degree (all-vertices graph) graph))
