@@ -62,6 +62,15 @@
   (is (approx= 0.9463947 (entropy '(a b a c) "shannon-n")))
   (is (approx= (log 2) (entropy '(a b) :shannon-e)))
   (is (approx= 0.5141604 (entropy '(a b a b a b) :cond-sh)))
+  ;; samples: the number of windows for cond-sh too (it was the length of the windows: 25 here)
+  (let ((d (loop for i below 100 collect (mod (* i i) 7))))
+    (is (= 4 (length (entropy d :shannon-2 4))))
+    (is (= 4 (length (entropy d :cond-sh 4))))
+    (is (approx= (entropy (subseq d 25 50) :cond-sh) (second (entropy d :cond-sh 4)))))
+  ;; cond-sh with a test stricter than equalp: the distinct symbols were taken with equalp, an error
+  (is (approx= 0.72877127 (entropy '(1 1.0 2 1 2) :cond-sh nil #'equalp)))
+  (is (realp (entropy '(1 1.0 2 1 2) :cond-sh nil #'eql)))
+  (is (realp (entropy '("a" "A" "b") :cond-sh nil #'equal)))
   ;; the default mode printed a message at each call
   (is (equal "" (with-output-to-string (*standard-output*) (entropy '(a b a b)))))
   ;; an unknown mode printed a message and returned nil

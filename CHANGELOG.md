@@ -27,6 +27,12 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `intersectioon-card`.
 - `dist-edit` and `edit-dist` looped forever on two empty sequences: nil is
   also a symbol, and the method for symbols called itself. They give 0.
+- `entropy` in mode `cond-sh` took `samples` as the length of the windows,
+  not as their number as documented and as the Shannon modes do:
+  `(entropy d :cond-sh 4)` gave 25 values for 100 elements, it gives 4.
+- `entropy` in mode `cond-sh` with a test stricter than `equalp` (`eql`,
+  `equal`) stopped on an error: the distinct symbols were taken with
+  `equalp`, and an element they did not contain was not found.
 
 ### Removed
 
@@ -48,6 +54,8 @@ refrains 0.0.1 starts from fv-morphologie 1.4.0, and the versions below it
   `edit-distance` (with `:inex`, 0 by default; its loop is compiled with
   and without `inex`, as fast as before), and `edit-dist-ldl1` and
   `edit-dist-ldl2` into `multi-edit-dist`.
+- `windowed-e-shannon` and `windowed-entropie-cond`, identical but for the
+  measure applied to each window, are merged into `windowed`.
 
 ## [0.2.1] - 2026-10-24
 

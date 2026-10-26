@@ -58,26 +58,26 @@ Shannon entropy value may be between 0 and (log n base)."
       (push (/ (length (remove-if-not #'(lambda (x) (funcall test x ci)) data)) n)
             p))))
 
-(defun windowed-e-shannon (data n &optional (base 2) (test #'equalp))
-  "Applique e-shannon sur fenetres de taille n echantillons"
-  (let* ((L (length data))
-	 (w (/ L n)) )
-    (loop for i from 0 to (1- n) ;(floor (/ L step)))
-       collect (let ((k (floor (* (1+ i) w))))
-		 (e-shannon (subseq data (floor (* i w)) (if (< k L) k L))
-			    base test)))))
+(defun windowed (fn data n base test)
+  "The list of (fn window base test) for n consecutive windows of data, of (nearly) equal lengths."
+  (let* ((l (length data))
+         (w (/ l n)))
+    (loop for i from 0 below n
+          collect (funcall fn (subseq data (floor (* i w)) (min (floor (* (1+ i) w)) l))
+                           base test))))
 
 (defun shannon-entropy (data &optional (base nil) (samples nil) (test #'equalp))
   "Returns the entropy value of the data according to Shannon definition."
   (assert (or (integerp samples) (null samples)))
   (if (not samples)
       (e-shannon data base test)
-      (windowed-e-shannon data samples base test)))
+      (windowed #'e-shannon data samples base test)))
 
 (defun kind-of-entropie-conditionnelle (data &optional (base 2) (test #'equalp))
   "Kind of conditionnal entropy based on a hack of shannon entropy by me. Experimental."
   (let* ((p nil) (len (length data))
-	 (s (remove-duplicates data :test #'equalp)) ;test))
+	 ;; the distinct symbols by test, as they are counted (equalp failed with a stricter test)
+	 (s (remove-duplicates data :test test))
 	 (n (length s))
 	 (b (if (numberp base)
 		base (if (eql base 'e) (exp 1) (max 2 n))))
@@ -92,21 +92,13 @@ Shannon entropy value may be between 0 and (log n base)."
 
 ;(kind-of-entropie-conditionnelle (loop for i from  0 to 1000 collect (random 2)) nil)
 
-(defun windowed-entropie-cond (data n &optional (base nil) (test #'equalp))
-  "Applique e-shannon sur fenetres de taille n echantillons."
-  (let* ((L (length data))
-	 (w (/ L n)) )
-    (loop for i from 0 to (1- n) ;(floor (/ L step)))
-       collect (let ((k (floor (* (1+ i) w))))
-		 (kind-of-entropie-conditionnelle (subseq data (floor (* i w)) (if (< k L) k L))
-						  base test)))))
-
 (defgeneric entropie-conditionnelle (data &optional base samples test)
   (:documentation "Kinf of conditionnal entropy based on Shannon entropy (hack)."))
 
 (defmethod entropie-conditionnelle ((data list) &optional (base nil) (samples nil) (test #'equalp))
+  ;; samples: the number of windows, as for shannon-entropy (it was the length of the windows)
   (if samples
-      (windowed-entropie-cond data (floor (/ (length data) samples)) base test)
+      (windowed #'kind-of-entropie-conditionnelle data samples base test)
       (kind-of-entropie-conditionnelle data base test)))
 
 (defgeneric self-information (data elt &optional test)
