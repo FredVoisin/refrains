@@ -2,7 +2,7 @@
 
 [Exemples](../exemples.md) · In English: [Delineations: rhizomatic representation of a text](../examples/delineations.md)
 
-F. Voisin, 2013.
+F. Voisin, octobre 2026 (2013). Script : [lisp/delineations.lisp](../lisp/delineations.lisp).
 
 *Analyse conservée avec ses données dans le dépôt [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) ; elle est réécrite ici en Common Lisp, et appliquée à* Alice's Adventures in Wonderland *de Lewis Carroll.*
 
