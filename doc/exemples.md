@@ -20,7 +20,7 @@ Exemples d'utilisation de refrains (un exemple, un fichier). La documentation de
 ## Textes
 
 - [Arbres de refrains](exemples/arbres-des-fonctions.md) : les fonctions de refrains reliées par leurs noms et par le vocabulaire de leur documentation, en arbres de recouvrement minimal et en dendrogrammes (en Common Lisp).
-- [Délinéations : représentation rhizomatique d'un texte](exemples/delineations.md) (F. Voisin, 2013) : l'arbre de recouvrement minimal des mots d'un texte, selon leur distance d'édition (`graph-span`, `graph>dot`).
+- [Délinéations : représentation rhizomatique d'un texte](exemples/delineations.md) (F. Voisin, 2013) : l'arbre de recouvrement minimal des mots d'un texte, selon leur distance d'édition, appliqué à *Alice au pays des merveilles* (`read-text`, `dist-edit`, `graph-span`, `graph-path`, `graph>dot`) (en Common Lisp).
 
 ## Réseaux de neurones
 
