@@ -23,9 +23,7 @@ Le sonagramme est calculé et affiché par [Sonic Visualiser](https://www.sonicv
 soit le calque courant, puis *File > Export Annotation Layer*. L'export des
 données d'un sonagramme existe depuis la version 4.1 de Sonic Visualiser.
 
-![La fenêtre d'export de Sonic Visualiser](../pictures/rougequeue-noir-sv-export.png)
-
-Les options choisies, et ce qu'elles donnent :
+Les options choisies dans la fenêtre d'export, et ce qu'elles donnent :
 
 - **Column separator : Comma ','** : les valeurs sont séparées par des
   virgules, d'où l'extension `.csv`. Un autre séparateur (tabulation) donnerait
