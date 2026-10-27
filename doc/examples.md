@@ -16,7 +16,7 @@ Examples of use of refrains, one per file. The documentation of each function is
 ## Texts
 
 - [Trees of refrains](examples/function-trees.md): the functions of refrains linked by their names and by the vocabulary of their documentation, as minimum spanning trees and dendrograms (in Common Lisp).
-- [Delineations: rhizomatic representation of a text](examples/delineations.md) (F. Voisin, 2013): the minimum spanning tree of the words of a text, by their edit distance (`graph-span`, `graph>dot`).
+- [Delineations: rhizomatic representation of a text](examples/delineations.md) (F. Voisin, October 2026 (2013)): the minimum spanning tree of the words of a text, by their edit distance, applied to *Alice's Adventures in Wonderland* (`read-text`, `dist-edit`, `graph-span`, `graph-path`, `graph>dot`) (in Common Lisp).
 
 ## Neural networks
 
