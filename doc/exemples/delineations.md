@@ -11,6 +11,12 @@ d'écriture : l'arbre de recouvrement minimal de leurs distances d'édition en
 donne une représentation *rhizomatique*, où les mots voisins s'écrivent de façon
 semblable, sans rien savoir de leur sens ni de leur place dans le texte.
 
+L'arbre d'un extrait de *Différence et répétition* de Gilles Deleuze, calculé
+par cette méthode, a été publié dans Frédéric Voisin, « De la brousse dans les
+synthés », dans Pascale Criton et Jean-Marc Chouvel (dir.), *Gilles Deleuze : la
+pensée-musique*, Paris, CDMC, 2015, p. 231–240 (HAL
+[hal-01611947](https://hal.science/hal-01611947v1)).
+
 ## La méthode
 
 1. Un texte (ASCII 7 bits) est lu dans une liste de mots avec `read-text`,
