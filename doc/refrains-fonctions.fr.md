@@ -93,13 +93,16 @@ A propos de terminologie : dans un souci de simplification et de cohérence, le 
 
 ## Arbres des fonctions
 
-Les 58 fonctions reliées par leurs ressemblances, avec refrains lui-même : trois
-arbres de recouvrement minimal (`graph-span`), dessinés avec `graph>dot` et
-neato. Plus une arête est courte, plus les deux fonctions sont proches. Le
-dendrogramme de chaque arbre (`graph-dendrogram`, lien simple) range ses
-fusions par distance croissante : les feuilles sont à gauche, et chaque fusion
+Différents arbres de recouvrement minimal des 58 fonctions selon leurs ressemblances, calculés avec refrains lui-même :
+trois arbres de recouvrement minimal (`graph-span`), dessinés avec `graph>dot` et
+neato. Le premier est l'arbre selon le nom des fonctions, le second selon leur documentation,
+et le troisième selon leur code lisp.
+
+Plus une arête est courte, plus les deux fonctions sont proches.
+N'est montré ici que le dendrogramme du troisième arbre (`graph-dendrogram`, lien simple)
+qui range ses fusions par distance croissante : les feuilles sont à gauche, et chaque fusion
 est placée à l'abscisse de sa distance (`dendrogram>dot`). Le fichier
-[refrains-trees.lisp](lisp/refrains-trees.lisp) recalcule les arbres et
+[refrains-trees.lisp](lisp/refrains-trees.lisp) recalcule  tous les arbres et
 redessine les images : `(load "doc/lisp/refrains-trees.lisp")`.
 
 **Par les noms** : distance d'édition normalisée entre les noms, lettre à
@@ -107,8 +110,6 @@ lettre (`dist-edit` avec `:norm t`). Les familles de noms (`filt-`, `graph-`,
 `dist-`, `mark-`, `motif-`) forment des branches.
 
 ![Arbre de recouvrement minimal des fonctions de refrains d'après leurs noms](pictures/refrains-names.png)
-
-![Dendrogramme des fonctions de refrains d'après leurs noms](pictures/refrains-names-dendrogram.png)
 
 **Par la documentation** : distance de Jaccard entre les vocabulaires des
 docstrings, découpées en mots avec `separate`. Les mots grammaticaux de
@@ -126,12 +127,6 @@ mots comptent, même très fréquents (*list*, *distance*, *element*…).
 Les groupes y viennent du vocabulaire, et non plus des noms.
 
 ![Arbre de recouvrement minimal des fonctions de refrains d'après leur documentation](pictures/refrains-docstrings.png)
-
-Dans le dendrogramme, les fonctions se regroupent surtout par familles
-(graphes, distances, information, filtres, marques et motifs, conversions),
-entre 0,4 et 0,9 : leurs docstrings partagent peu de mots.
-
-![Dendrogramme des fonctions de refrains d'après leur documentation](pictures/refrains-docstrings-dendrogram.png)
 
 **Par le code** : pour chaque fonction, l'expression complète de ce qu'elle
 fait, sa définition (toutes ses méthodes) et celles de toutes les fonctions de
