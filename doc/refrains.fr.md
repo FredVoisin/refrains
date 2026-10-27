@@ -1878,12 +1878,15 @@ instantanés, chacun devenant un « mot » à classer (`class-sym`, `class-num`)
 
 - **Une image** (un sonagramme exporté en image par Sonic Visualiser, une
   capture d'Audacity, un sonagramme publié) se convertit en texte avec
-  [jp2a](https://github.com/Talinx/jp2a) (`brew install jp2a`), avec une
-  palette sans espace, par exemple `jp2a --width=300 --height=45 --chars=x.
-  sonagramme.png > sonagramme.txt` ; le blanc et le noir de l'image deviennent
-  deux caractères. Chaque ligne du texte est alors une fréquence, et chaque
-  colonne un instant : `:columns t` donne les spectres. C'est la méthode de
-  l'exemple du [rougequeue noir](exemples/rougequeue-noir.md).
+  [jp2a](https://github.com/Talinx/jp2a) (`brew install jp2a` ou
+  `sudo port install jp2a` sur macOS, `sudo apt install jp2a` sur Debian et
+  Ubuntu), avec une palette sans espace, qui va du sombre au
+  clair : avec `jp2a --width=300 --height=45 --chars=.x sonagramme.png >
+  sonagramme.txt`, le noir de l'image devient `.` et le blanc `x`. Chaque
+  ligne du texte est alors une fréquence, et chaque colonne un instant :
+  `:columns t` donne les spectres. C'est la méthode de l'exemple du
+  [rougequeue noir](exemples/rougequeue-noir.md) : cette commande, sur son
+  image, redonne exactement son texte de 2011.
 
   ```lisp
   (read-text "sonagramme.txt" :mode :charcode :columns t)

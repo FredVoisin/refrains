@@ -44,6 +44,13 @@ et [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisin
 ## En Common Lisp
 
 Le texte de l'image ([data/rougequeue_noir.txt](../data/rougequeue_noir.txt))
+s'obtient avec jp2a 1.3.3, qui en redonne exactement le texte de 2011 :
+
+```sh
+jp2a --width=300 --height=45 --chars=.x doc/data/rougequeue_noir.jpg > doc/data/rougequeue_noir.txt
+```
+
+La palette va du sombre au clair : le noir devient `.`, le blanc `x`. Ce texte
 se lit avec `read-text` : en mode `:charcode`, chaque ligne devient la liste
 des codes de ses caractères, et `:columns t` en donne les colonnes, les
 spectres instantanés (300 « mots » de 45 codes, `x` et `.`). Les colonnes
