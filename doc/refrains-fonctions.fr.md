@@ -93,7 +93,7 @@ A propos de terminologie : dans un souci de simplification et de cohérence, le 
 
 ## Arbres des fonctions
 
-Les 53 fonctions reliées par leurs ressemblances, avec refrains lui-même : deux
+Les 58 fonctions reliées par leurs ressemblances, avec refrains lui-même : deux
 arbres de recouvrement minimal (`graph-span`), dessinés avec `graph>dot` et
 neato. Plus une arête est courte, plus les deux fonctions sont proches. Le
 dendrogramme de chaque arbre (`graph-dendrogram`, lien simple) range ses

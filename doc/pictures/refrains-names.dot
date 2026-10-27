@@ -1,5 +1,5 @@
 graph "refrains-names" {
-/* generated with refrains:graph>dot, 25 Oct 2026 13:40:23 */
+/* generated with refrains:graph>dot, 27 Oct 2026 1:38:28 */
  graph [overlap="false", sep="+4"];
  graph [bgcolor=black];
  node [shape="ellipse", font=Helvetica, fontsize=12, color=white, fontcolor=white];
@@ -11,13 +11,17 @@ graph "refrains-names" {
  "dist-structure" -- "mark-structure" [w=1, len=0.290000, label="0.29"];
  "mark-position" -- "motif-position" [w=1, len=0.290000, label="0.29"];
  "graph-part" -- "graph-span" [w=1, len=0.300000, label="0.3"];
+ "dist-edit" -- "dist-set" [w=1, len=0.330000, label="0.33"];
  "graph-degree" -- "graph-leaves" [w=1, len=0.330000, label="0.33"];
  "graph-leaves" -- "graph-length" [w=1, len=0.330000, label="0.33"];
  "graph-leaves" -- "graph-nodes" [w=1, len=0.330000, label="0.33"];
  "graph-length" -- "graph-path" [w=1, len=0.330000, label="0.33"];
  "filt-mean" -- "filt-repeat" [w=1, len=0.360000, label="0.36"];
+ "filt-function" -- "filt-quantize" [w=1, len=0.380000, label="0.38"];
+ "filt-noise" -- "filt-quantize" [w=1, len=0.380000, label="0.38"];
  "graph-degree" -- "graph-dendrogram" [w=1, len=0.380000, label="0.38"];
  "list>sym" -- "str>sym" [w=1, len=0.380000, label="0.38"];
+ "seq>ly" -- "seq>plot" [w=1, len=0.380000, label="0.38"];
  "dist-edit" -- "dist-multi-edit" [w=1, len=0.400000, label="0.4"];
  "dist-graph" -- "histogram" [w=1, len=0.400000, label="0.4"];
  "graph-part" -- "graph>dot" [w=1, len=0.400000, label="0.4"];
@@ -25,34 +29,35 @@ graph "refrains-names" {
  "filt-lowpass" -- "filt-noise" [w=1, len=0.420000, label="0.42"];
  "graph-part" -- "graph>matrix" [w=1, len=0.420000, label="0.42"];
  "motif-list" -- "motif-position" [w=1, len=0.430000, label="0.43"];
+ "seq>abc" -- "seq>ly" [w=1, len=0.430000, label="0.43"];
  "class-sym" -- "list>sym" [w=1, len=0.440000, label="0.44"];
  "dist-edit" -- "filt-median" [w=1, len=0.450000, label="0.45"];
  "filt-median" -- "filt-noise" [w=1, len=0.450000, label="0.45"];
  "motif-group" -- "motif-list" [w=1, len=0.450000, label="0.45"];
- "filt-function" -- "filt-median" [w=1, len=0.460000, label="0.46"];
  "dist-euclidean" -- "dist-multi-edit" [w=1, len=0.470000, label="0.47"];
  "motif-group" -- "motif-structure" [w=1, len=0.470000, label="0.47"];
  "dist-edit" -- "dist-graph" [w=1, len=0.500000, label="0.5"];
  "dist-edit" -- "dist-hamming" [w=1, len=0.500000, label="0.5"];
+ "dist-euclidean" -- "dist-jaccard-bin" [w=1, len=0.500000, label="0.5"];
+ "dist-set" -- "dist-structure" [w=1, len=0.500000, label="0.5"];
+ "dist-set" -- "list>sym" [w=1, len=0.500000, label="0.5"];
  "filt-extrema" -- "filt-mean" [w=1, len=0.500000, label="0.5"];
  "mark-list" -- "write-list" [w=1, len=0.500000, label="0.5"];
  "graph-nodes" -- "transcode" [w=1, len=0.550000, label="0.55"];
  "alpha>num" -- "class-num" [w=1, len=0.560000, label="0.56"];
- "histogram" -- "list>sym" [w=1, len=0.560000, label="0.56"];
  "num>alpha" -- "num>base" [w=1, len=0.560000, label="0.56"];
  "dendrogram>dot" -- "graph>dot" [w=1, len=0.570000, label="0.57"];
  "dist-cityblock" -- "dist-edit" [w=1, len=0.570000, label="0.57"];
- "dist-edit" -- "dist-structure" [w=1, len=0.570000, label="0.57"];
+ "seq>ly" -- "str>sym" [w=1, len=0.570000, label="0.57"];
  "display-list" -- "dist-edit" [w=1, len=0.580000, label="0.58"];
  "graph-span" -- "morph-seq" [w=1, len=0.600000, label="0.6"];
  "graph-dendrogram" -- "histogram" [w=1, len=0.620000, label="0.62"];
- "graph-length" -- "read-text" [w=1, len=0.670000, label="0.67"];
- "read-text" -- "separate" [w=1, len=0.670000, label="0.67"];
+ "separate" -- "seq>abc" [w=1, len=0.620000, label="0.62"];
+ "dist-set" -- "read-text" [w=1, len=0.670000, label="0.67"];
+ "help" -- "seq>ly" [w=1, len=0.670000, label="0.67"];
  "filt-function" -- "self-info" [w=1, len=0.690000, label="0.69"];
  "dist-graph" -- "entropy" [w=1, len=0.700000, label="0.7"];
  "dist-multi-edit" -- "exsample" [w=1, len=0.730000, label="0.73"];
- "display-list" -- "seq>plot" [w=1, len=0.750000, label="0.75"];
- "help" -- "seq>plot" [w=1, len=0.750000, label="0.75"];
  "num>base" -- "separate" [w=1, len=0.750000, label="0.75"];
  "class-num" -- "inner-dynamic" [w=1, len=0.770000, label="0.77"];
  "doc" -- "graph>dot" [w=1, len=0.780000, label="0.78"];

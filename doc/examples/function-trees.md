@@ -60,7 +60,7 @@ directory of the repository and writes its images in `doc/pictures/`:
 
 (defparameter *names* (mapcar #'string-downcase *functions*))
 
-(defun semi-matrix (objects distance)
+(defun matrice-des-fonctions (objects distance)
   "La semi-matrice ((nom-a nom-b distance) ...) des fonctions, d'après la distance
 entre leurs objets (noms ou vocabulaires), arrondie au centième."
   (loop for (a . others) on objects
@@ -73,7 +73,7 @@ entre leurs objets (noms ou vocabulaires), arrondie au centième."
 ;;; 1. Par les noms : distance d'édition normalisée entre les noms, lettre à lettre
 
 (defparameter *names-tree*
-  (graph-span (semi-matrix *names* (lambda (a b) (dist-edit a b :norm t)))))
+  (graph-span (matrice-des-fonctions *names* (lambda (a b) (dist-edit a b :norm t)))))
 
 ;;; 2. Par la documentation : distance de Jaccard entre les vocabulaires
 
@@ -158,7 +158,7 @@ les nombres et les symboles d'une lettre (a, b, x...)."
 
 (defparameter *docstrings-tree*
   (graph-span
-   (semi-matrix *termes*
+   (matrice-des-fonctions *termes*
                 ;; jaccard-dist : fonction interne de refrains, non exportée
                 (lambda (a b) (refrains::jaccard-dist a b :test #'string=)))))
 

@@ -100,7 +100,7 @@ Deleuze : la pensée-musique*, CDMC, 2015).*
 
 ## Function trees
 
-The 53 functions linked by their resemblances, with refrains itself: two
+The 58 functions linked by their resemblances, with refrains itself: two
 minimum spanning trees (`graph-span`), drawn with `graph>dot` and neato. The
 shorter an edge, the closer the two functions. The dendrogram of each tree
 (`graph-dendrogram`, single linkage) orders its fusions by increasing
