@@ -1,0 +1,31 @@
+graph "rougequeue-noir-arbre-brut-01" {
+/* generated with refrains:graph>dot, 27 Oct 2026 5:23:58 */
+ graph [overlap="false", sep="+4"];
+ node [shape="plaintext", font=Helvetica, fontsize=12, color=black, fontcolor=black];
+ edge [font=Helvetica,fontsize=10, color=black, labelfloat=true];
+ "bbhhhia" -- "bbhhhfa" [w=1, len=0.140000, label="0.14"];
+ "cbbdfaaedffff" -- "bbdfeaadffff" [w=1, len=0.230000, label="0.23"];
+ "ccc" -- "cckc" [w=1, len=0.250000, label="0.25"];
+ "gjhhia" -- "cjhhhia" [w=1, len=0.290000, label="0.29"];
+ "gjhhhi" -- "cjhhhia" [w=1, len=0.290000, label="0.29"];
+ "cjhhhia" -- "bbhhhia" [w=1, len=0.290000, label="0.29"];
+ "abhhha" -- "bbhhhia" [w=1, len=0.290000, label="0.29"];
+ "ghhhid" -- "gjhhia" [w=1, len=0.330000, label="0.33"];
+ "ccc" -- "acc" [w=1, len=0.330000, label="0.33"];
+ "ac" -- "acc" [w=1, len=0.330000, label="0.33"];
+ "jjihiaa" -- "abhihiaa" [w=1, len=0.380000, label="0.38"];
+ "abhhha" -- "abhihiaa" [w=1, len=0.380000, label="0.38"];
+ "ccccggccccc" -- "kcckgccc" [w=1, len=0.450000, label="0.45"];
+ "aa" -- "ac" [w=1, len=0.500000, label="0.5"];
+ "abcd" -- "ac" [w=1, len=0.500000, label="0.5"];
+ "c" -- "ac" [w=1, len=0.500000, label="0.5"];
+ "cckc" -- "kcckgccc" [w=1, len=0.500000, label="0.5"];
+ "cbbdaeaaeaaa" -- "cbbdfaaedffff" [w=1, len=0.540000, label="0.54"];
+ "jjihiaa" -- "efajjkheea" [w=1, len=0.600000, label="0.6"];
+ "efajjkheea" -- "eeegjjjdee" [w=1, len=0.600000, label="0.6"];
+ "ccccggccccc" -- "cgkkkgkgcgcaag" [w=1, len=0.640000, label="0.64"];
+ "aa" -- "abhhha" [w=1, len=0.670000, label="0.67"];
+ "ccccggccccc" -- "cacckkgcgkkkkggceeeeea" [w=1, len=0.680000, label="0.68"];
+ "gjhhia" -- "eadddhhjjifea" [w=1, len=0.690000, label="0.69"];
+ "cbbdaeaaeaaa" -- "bbhhhia" [w=1, len=0.750000, label="0.75"];
+}

@@ -124,7 +124,9 @@
         (let ((texte (merge-pathnames (format nil "pictures/~A.txt" (pathname-name file)) *doc*)))
           (with-open-file (o texte :direction :output :if-exists :supersede)
             (write-string (image mots) o))
-          (format t "~&Sonagramme en texte : doc/pictures/~A~%" (file-namestring texte)))))))
+          (format t "~&Sonagramme en texte : doc/pictures/~A~%" (file-namestring texte)))
+        ;; la transcription, pour d'autres exemples (rougequeue-noir-arbres.lisp)
+        classes))))
 
 (dolist (file (sort (directory (merge-pathnames "data/rougequeue-noir*.csv" *doc*)) #'string<
                     :key #'namestring))

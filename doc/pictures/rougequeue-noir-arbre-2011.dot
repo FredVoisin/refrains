@@ -1,0 +1,22 @@
+graph "rougequeue-noir-arbre-2011" {
+/* generated with refrains:graph>dot, 27 Oct 2026 5:23:57 */
+ graph [overlap="false", sep="+4"];
+ node [shape="plaintext", font=Helvetica, fontsize=12, color=black, fontcolor=black];
+ edge [font=Helvetica,fontsize=10, color=black, labelfloat=true];
+ "aaa" -- "daaa" [w=1, len=0.250000, label="0.25"];
+ "aaa" -- "aaaa" [w=1, len=0.250000, label="0.25"];
+ "aaa" -- "caaa" [w=1, len=0.250000, label="0.25"];
+ "caa" -- "caaa" [w=1, len=0.250000, label="0.25"];
+ "aaleda" -- "aaeca" [w=1, len=0.330000, label="0.33"];
+ "aaa" -- "aaeca" [w=1, len=0.400000, label="0.4"];
+ "ab" -- "a" [w=1, len=0.500000, label="0.5"];
+ "aaaaaaaa" -- "aaaa" [w=1, len=0.500000, label="0.5"];
+ "aaeeeeed" -- "eieejedd" [w=1, len=0.500000, label="0.5"];
+ "aaaaaaaa" -- "aekaiiieeaaaa" [w=1, len=0.540000, label="0.54"];
+ "daaa" -- "dheea" [w=1, len=0.600000, label="0.6"];
+ "aee" -- "dheea" [w=1, len=0.600000, label="0.6"];
+ "aee" -- "aaeeeeed" [w=1, len=0.620000, label="0.62"];
+ "ab" -- "aaa" [w=1, len=0.670000, label="0.67"];
+ "caa" -- "c" [w=1, len=0.670000, label="0.67"];
+ "ab" -- "fg" [w=1, len=1.000000, label="1.0"];
+}

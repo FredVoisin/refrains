@@ -1,0 +1,29 @@
+graph "rougequeue-noir-arbre-remake-03" {
+/* generated with refrains:graph>dot, 27 Oct 2026 5:23:58 */
+ graph [overlap="false", sep="+4"];
+ node [shape="plaintext", font=Helvetica, fontsize=12, color=black, fontcolor=black];
+ edge [font=Helvetica,fontsize=10, color=black, labelfloat=true];
+ "ffffcca" -- "ffcfcaa" [w=1, len=0.290000, label="0.29"];
+ "ffffcca" -- "ffgccca" [w=1, len=0.290000, label="0.29"];
+ "ffgccca" -- "ffhccc" [w=1, len=0.290000, label="0.29"];
+ "dffcfcc" -- "ddfcccc" [w=1, len=0.290000, label="0.29"];
+ "dffcfcc" -- "adgfffcc" [w=1, len=0.380000, label="0.38"];
+ "aaa" -- "aagaa" [w=1, len=0.400000, label="0.4"];
+ "gggggggaa" -- "ccjggggaca" [w=1, len=0.400000, label="0.4"];
+ "cccccc" -- "ddfcccc" [w=1, len=0.430000, label="0.43"];
+ "ffffcca" -- "dffcfcc" [w=1, len=0.430000, label="0.43"];
+ "aaagaaaga" -- "aagaa" [w=1, len=0.440000, label="0.44"];
+ "ccjggggaca" -- "ccklgaafaca" [w=1, len=0.450000, label="0.45"];
+ "aaa" -- "bbaaac" [w=1, len=0.500000, label="0.5"];
+ "gggggggaa" -- "ggggggggcccccc" [w=1, len=0.500000, label="0.5"];
+ "bafcaaaacfacaaa" -- "aaagaaaga" [w=1, len=0.530000, label="0.53"];
+ "cccccc" -- "aadcaccccaecc" [w=1, len=0.540000, label="0.54"];
+ "aaagaaaga" -- "ccklgaafaca" [w=1, len=0.550000, label="0.55"];
+ "gggggggaa" -- "ggggaagggggaaggggaaa" [w=1, len=0.550000, label="0.55"];
+ "cccccc" -- "ggggggggcccccc" [w=1, len=0.570000, label="0.57"];
+ "cccccc" -- "caaccdgggfcccc" [w=1, len=0.570000, label="0.57"];
+ "ffffcca" -- "cfgfci" [w=1, len=0.570000, label="0.57"];
+ "ffcfcaa" -- "ffggfaf" [w=1, len=0.570000, label="0.57"];
+ "aaa" -- "abf" [w=1, len=0.670000, label="0.67"];
+ "bbaaac" -- "c" [w=1, len=0.830000, label="0.83"];
+}
