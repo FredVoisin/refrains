@@ -4,13 +4,13 @@
 
 F. Voisin, octobre 2026. Script : [lisp/rougequeue-noir-sv.lisp](../lisp/rougequeue-noir-sv.lisp).
 
-Cet exemple reprend la méthode de 2011 ([rougequeue noir](rougequeue-noir.md)) :
+Cet exemple est un remake de celui de 2011 ([rougequeue noir](rougequeue-noir.md)) :
 les spectres instantanés d'un sonagramme deviennent des « mots », classés selon
 leur distance d'édition (`class-sym`), et la suite de leurs classes est une
 transcription du chant. En 2011, le sonagramme était une image, convertie en
-texte par jp2a. Ici, ce sont les **données** du sonagramme, exportées de Sonic
-Visualiser : les amplitudes mêmes, sans couleurs, ni tuiles, ni seuil de
-luminosité. Les sonagrammes sont ceux de deux extraits de la plage 12 du CD de
+texte par jp2a. Ici, on refait l'exemple directement depuis Sonic Visualiser : on
+part de ses **données**, et on les ramène à ce que donnait jp2a, une image en
+noir et blanc du sonagramme. Les sonagrammes sont ceux de trois extraits de la plage 12 du CD de
 André Bossus, [*Les chants d'oiseaux d'Europe occidentale*](https://www.delachauxetniestle.com/livre/les-chants-doiseaux-deurope-occidentale-3/9782603020036), Delachaux et Niestlé (livre avec CD), d'où vient aussi l'enregistrement de 2011 ; ce ne sont pas
 nécessairement les mêmes passages, et les classes ne se comparent pas une à
 une avec celles de 2011. Les enregistrements audio ne sont pas distribués :
@@ -50,6 +50,7 @@ d'affichage ne s'y appliquent pas.
 |---|---|---|---|
 | [data/rougequeue-noir01.csv](../data/rougequeue-noir01.csv) | 400 | 4,63 s | 513, de 0 à 22 050 Hz |
 | [data/rougequeue-noir02.csv](../data/rougequeue-noir02.csv) | 404 | 4,68 s | 513, de 0 à 22 050 Hz |
+| [data/rougequeue-noir03.csv](../data/rougequeue-noir03.csv) | 353 | 4,09 s | 513, de 0 à 22 050 Hz |
 
 D'après les fichiers, le son est échantillonné à 44,1 kHz et le sonagramme
 calculé par une transformée de Fourier de 1024 points (513 bandes de
@@ -74,9 +75,11 @@ dossier.
 2. **Les bandes** : les 513 bandes sont regroupées par 11, en gardant le
    maximum de chaque groupe : 47 bandes de 474 Hz, proches des 490 Hz de
    l'image de 2011, et des mots assez courts pour la distance d'édition.
-3. **Les mots** : une bande vaut 1 quand son amplitude est à moins de 40 dB
-   du maximum du sonagramme, 0 sinon. Le seuil se rapporte au maximum de chaque
-   fichier, non à un enregistrement de référence.
+3. **Les mots** : on part du résultat de jp2a, le sonagramme en noir et blanc :
+   à chaque instant, chaque bande est noire (1, de l'énergie) ou blanche (0, le
+   silence). Chaque spectre est ainsi un mot de 47 symboles, 0 ou 1. Le script
+   simule ce résultat à partir des données de Sonic Visualiser : la simulation
+   est expliquée dans le code.
 4. **La classification** : `class-sym` en 12 classes, avec les coûts du patch
    de 2011 (insertion et suppression 1,5), les spectres silencieux (tout à 0)
    exclus, qui forment la classe 0. Avec `:medians t`, chaque classe a sa
@@ -134,11 +137,27 @@ graves (2,8 kHz) ou plus aiguës (15 à 16 kHz) : la coupure des plus longues
 arêtes de l'arbre (lien simple) isole ces spectres rares, ce qui laisse moins
 de classes pour les variantes fréquentes.
 
-Le second export, `rougequeue-noir02.csv`, retrouve les mêmes types de
-spectres : sa classe `a` a la même médiane (3,8 à 5,7 kHz, 113 spectres), et
-`b` celle de `d` dans le premier (3,3 à 4,3 kHz). Comparer les médianes de
-plusieurs variantes du chant, par leur LSI, mesurerait ce qui se retrouve d'un
-chant à l'autre (c'est la méthode 3 de Garland et al., *Behaviour* 149, 2012).
+Les deux autres chants, `rougequeue-noir02.csv` et `rougequeue-noir03.csv`,
+retrouvent les mêmes types de spectres. Chaque fichier est classé seul : ses
+lettres sont numérotées dans l'ordre d'apparition, et une même lettre ne
+désigne pas le même type d'un chant à l'autre. Ce sont les médianes qui se
+comparent :
+
+| Type (médiane) | 01 | 02 | 03 |
+|---|---|---|---|
+| 3,8-5,7 kHz | `a`, 100 spectres | `a`, 113 | |
+| 3,3-4,3 kHz | `d`, 37 | `b`, 24 | `c`, 60 |
+| 3,3-5,2 kHz | `g`, 14 | `c`, 22 | |
+| 3,3-5,7 kHz | `f`, 16 | | `f`, 29 |
+| 3,8-6,6 kHz | | | `g`, 44 |
+
+Le type de 3,3 à 4,3 kHz est le seul présent, et nombreux, dans les trois
+chants. Le troisième chant a un type plus large, de 3,8 à 6,6 kHz, surtout
+dans sa deuxième partie (`gggg…`), et la classe `a` de 01 et de 02 y est
+partagée entre `a` (4,3-4,7 kHz) et `g`. Chaque chant a aussi six ou sept
+classes d'un seul spectre, propres à lui. Comparer les médianes par leur LSI
+mesurerait ce qui se retrouve d'un chant à l'autre (c'est la méthode 3 de
+Garland et al., *Behaviour* 149, 2012).
 
 ## Le code
 
@@ -156,8 +175,10 @@ se charge depuis le dossier du dépôt :
 ;;;; Transcrire le chant d'un rougequeue noir à partir de son sonagramme exporté de Sonic
 ;;;; Visualiser : les spectres instantanés, réduits en bandes, deviennent des mots de 0 et
 ;;;; de 1 (présence ou absence d'énergie au-dessus d'un seuil), classés par class-sym.
-;;;; C'est la méthode de 2011 (doc/exemples/rougequeue-noir.md), à partir des données du
-;;;; sonagramme et non de son image.
+;;;; C'est un remake de l'exemple de 2011 (doc/exemples/rougequeue-noir.md), à partir des
+;;;; données du sonagramme et non de son image : les mots de 0 et de 1 simulent ce que
+;;;; donnerait jp2a de l'image exportée de Sonic Visualiser (voir 3.), pour se remettre dans
+;;;; les conditions de 2011.
 ;;;;
 ;;;; Les données : doc/data/rougequeue-noir*.csv, exportées de Sonic Visualiser 5.2.1
 ;;;; (calque du sonagramme, File > Export Annotation Layer) : une ligne d'en-tête (TIME, puis
@@ -208,6 +229,20 @@ se charge depuis le dossier du dépôt :
 ;;; 3. Les mots : 1 quand l'amplitude d'une bande est à moins de *seuil-db* du maximum du
 ;;; sonagramme, 0 sinon. Le seuil dépend du fichier (de son maximum), non d'un enregistrement
 ;;; de référence.
+;;;
+;;; C'est une simulation de jp2a. En 2011, le sonagramme était une image, que jp2a
+;;; convertissait en texte en seuillant sa luminosité : chaque point devenait noir (.) ou
+;;; blanc (x), et le seuil dépendait du réglage d'affichage du sonagramme. On pourrait faire
+;;; de même avec l'image exportée de Sonic Visualiser (en SVG, avec ses tuiles PNG), mais ses
+;;; couleurs et son bruit de fond rendent le seuil difficile à régler. On seuille donc
+;;; directement les amplitudes, à 40 dB sous le maximum : la donnée est la même que celle
+;;; de 2011, présence ou absence d'énergie, sans passer par l'image.
+;;;
+;;; Le seuil est écrit ici, car refrains n'a pas de fonction de seuil fixe : filt-quantize à
+;;; 2 niveaux trouve son seuil dans les données (par les nuées dynamiques), et il est loin de
+;;; 40 dB. Sur rougequeue-noir01.csv, il est vers -72 dB sur les amplitudes en dB (le bruit de
+;;; fond compte alors comme de l'énergie), et vers -19 dB sur les amplitudes (seules les
+;;; notes les plus fortes restent).
 
 (defun mots (spectres)
   (let* ((reduits (mapcar #'bandes spectres))

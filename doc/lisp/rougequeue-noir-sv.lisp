@@ -3,8 +3,10 @@
 ;;;; Transcrire le chant d'un rougequeue noir à partir de son sonagramme exporté de Sonic
 ;;;; Visualiser : les spectres instantanés, réduits en bandes, deviennent des mots de 0 et
 ;;;; de 1 (présence ou absence d'énergie au-dessus d'un seuil), classés par class-sym.
-;;;; C'est la méthode de 2011 (doc/exemples/rougequeue-noir.md), à partir des données du
-;;;; sonagramme et non de son image.
+;;;; C'est un remake de l'exemple de 2011 (doc/exemples/rougequeue-noir.md), à partir des
+;;;; données du sonagramme et non de son image : les mots de 0 et de 1 simulent ce que
+;;;; donnerait jp2a de l'image exportée de Sonic Visualiser (voir 3.), pour se remettre dans
+;;;; les conditions de 2011.
 ;;;;
 ;;;; Les données : doc/data/rougequeue-noir*.csv, exportées de Sonic Visualiser 5.2.1
 ;;;; (calque du sonagramme, File > Export Annotation Layer) : une ligne d'en-tête (TIME, puis
@@ -55,6 +57,20 @@
 ;;; 3. Les mots : 1 quand l'amplitude d'une bande est à moins de *seuil-db* du maximum du
 ;;; sonagramme, 0 sinon. Le seuil dépend du fichier (de son maximum), non d'un enregistrement
 ;;; de référence.
+;;;
+;;; C'est une simulation de jp2a. En 2011, le sonagramme était une image, que jp2a
+;;; convertissait en texte en seuillant sa luminosité : chaque point devenait noir (.) ou
+;;; blanc (x), et le seuil dépendait du réglage d'affichage du sonagramme. On pourrait faire
+;;; de même avec l'image exportée de Sonic Visualiser (en SVG, avec ses tuiles PNG), mais ses
+;;; couleurs et son bruit de fond rendent le seuil difficile à régler. On seuille donc
+;;; directement les amplitudes, à 40 dB sous le maximum : la donnée est la même que celle
+;;; de 2011, présence ou absence d'énergie, sans passer par l'image.
+;;;
+;;; Le seuil est écrit ici, car refrains n'a pas de fonction de seuil fixe : filt-quantize à
+;;; 2 niveaux trouve son seuil dans les données (par les nuées dynamiques), et il est loin de
+;;; 40 dB. Sur rougequeue-noir01.csv, il est vers -72 dB sur les amplitudes en dB (le bruit de
+;;; fond compte alors comme de l'énergie), et vers -19 dB sur les amplitudes (seules les
+;;; notes les plus fortes restent).
 
 (defun mots (spectres)
   (let* ((reduits (mapcar #'bandes spectres))
