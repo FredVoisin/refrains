@@ -13,12 +13,15 @@ sauf `Alice.txt`, qui est dans le domaine public.
 | [hindehu-f0.txt](hindehu-f0.txt) | Fréquence fondamentale et intensité de cet extrait de *Hìndèhú*, détectées toutes les 10 ms avec l'algorithme YIN (temps en s, F0 en Hz ou 0 si non voisée, intensité en dB) ; enregistrement de S. Arom, V. Dehoux, S. Fürniss et F. Voisin, Centrafrique, 1989. | [Quantifier une F0 : *Hìndèhú*](../exemples/hindehu.md) |
 | [rougequeue_noir.jpg](rougequeue_noir.jpg) | Sonagramme du chant d'un rougequeue noir, réalisé par Frédéric Voisin à partir d'un enregistrement de André Bossus, [*Les chants d'oiseaux d'Europe occidentale*](https://www.delachauxetniestle.com/livre/les-chants-doiseaux-deurope-occidentale-3/9782603020036), Delachaux et Niestlé (livre avec CD). | [Rougequeue noir](../exemples/rougequeue-noir.md) |
 | [rougequeue_noir.txt](rougequeue_noir.txt) | Le même sonagramme converti en texte avec jp2a (`x` pour le blanc, `.` pour le noir). | [Rougequeue noir](../exemples/rougequeue-noir.md) |
+| [rougequeue-noir01.csv](rougequeue-noir01.csv), [rougequeue-noir02.csv](rougequeue-noir02.csv) | Deux sonagrammes du chant d'un rougequeue noir, exportés de Sonic Visualiser 5.2.1 en CSV par Frédéric Voisin, octobre 2026 (temps en s, puis l'amplitude de 513 bandes de 0 à 22 050 Hz), à partir de deux extraits de la plage 12 du CD de André Bossus, [*Les chants d'oiseaux d'Europe occidentale*](https://www.delachauxetniestle.com/livre/les-chants-doiseaux-deurope-occidentale-3/9782603020036), Delachaux et Niestlé (livre avec CD). | [Rougequeue noir, Sonic Visualiser](../exemples/rougequeue-noir-sv.md) |
 | [babil-chant-3.pitch](babil-chant-3.pitch) | Une analyse de fréquence fondamentale (F0) faite avec Praat, d'un enregistrement de Frédéric Voisin. | [Fréquence fondamentale](../exemples/frequence-fondamentale.md) |
 | `babil-chant-3-*.coll` | Ses segments, exportés sous forme de fichiers `coll` de Max (33 fichiers). | [Fréquence fondamentale](../exemples/frequence-fondamentale.md) |
 | [Alice.txt](Alice.txt) | Lewis Carroll, *Alice's Adventures in Wonderland* (domaine public). | [Délinéations](../exemples/delineations.md) |
 
-La licence du sonagramme du rougequeue noir et de sa transcription porte sur le
-travail de Frédéric Voisin ; l'enregistrement dont il est tiré, publié dans
+La licence des sonagrammes du rougequeue noir (l'image de 2011, sa transcription
+et les exports de Sonic Visualiser de 2026) porte sur le travail de Frédéric
+Voisin ; les enregistrements audio n'en sont pas distribués. L'enregistrement
+dont ils sont tirés, publié dans
 André Bossus, [*Les chants d'oiseaux d'Europe occidentale*](https://www.delachauxetniestle.com/livre/les-chants-doiseaux-deurope-occidentale-3/9782603020036), Delachaux et Niestlé (livre avec CD), reste la propriété de ses ayants droit.
 
 Les deux autres textes de l'exemple des délinéations, un extrait de Gilles

@@ -69,7 +69,9 @@ chaîne médiane) et la cohésion de la classe.
 
 La même démarche vaut pour un sonagramme importé de Sonic Visualiser ou
 d'Audacity : voir *Importer un sonagramme*, à `read-text`, dans la
-[documentation](../refrains.fr.md#read-text-file-key-mode-sep-rem-test-columns).
+[documentation](../refrains.fr.md#read-text-file-key-mode-sep-rem-test-columns),
+et l'exemple [du sonagramme de Sonic Visualiser à la transcription](rougequeue-noir-sv.md)
+(octobre 2026), qui part des données du sonagramme et non de son image.
 
 ---
 
