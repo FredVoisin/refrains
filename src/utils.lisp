@@ -93,6 +93,15 @@ If x is a graph or tree (a list of lists), change only the third element of each
 
 ;;; FOR COMPATIBILITIES (OM, PWGL etc)
 
+(defun frequencies (data test)
+  "The list of (element count) of the distinct elements of data (by test), in their order of first appearance."
+  (let ((table nil))
+    (map nil #'(lambda (x)
+                 (let ((e (assoc x table :test test)))
+                   (if e (incf (second e)) (push (list x 1) table))))
+         data)
+    (nreverse table)))
+
 (defun same-lengths-p (lists)
   "T if all the lists have the same length (or if there is none)."
   (let ((n (length (first lists))))

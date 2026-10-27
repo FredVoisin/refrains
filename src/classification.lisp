@@ -249,10 +249,17 @@ Returns (classes centres iterations), the classes numbered by order of first app
 ;;; classification par partitionnement de graphe
 
 (defun form-distance (a b sub ins del uncom norm)
-  "The edit distance between the forms a and b (lists, strings or symbols), as class-sym computes it."
-  (if (and (listp a) (listp b))
-      (edit-distance a b :change sub :insert ins :delete del :inex uncom :normalized norm)
-      (edit-dist a b sub ins del uncom norm)))
+  "The edit distance between the forms a and b (lists, strings or symbols), with the costs of class-sym, as an
+exact rational: the costs taken as rationals (1.5 is 3/2), the normalized distance divided exactly by the length
+of the longer form. Strings and symbols are compared by their codes, as edit-dist does."
+  (flet ((codes (x) (cond ((listp x) x) ((stringp x) (string2code x)) (t (alpha>num x)))))
+    (let* ((a (codes a))
+           (b (codes b))
+           (d (edit-distance a b :change (rational sub) :insert (rational ins) :delete (rational del)
+                                 :inex (rational (or uncom 0)))))
+      (if norm
+          (let ((m (max (length a) (length b)))) (if (zerop m) 0 (/ d m)))
+          d))))
 
 (defun lsi (a b)
   "The Levenshtein Similarity Index of the forms a and b: 1 - LD(a, b) / max(len(a), len(b)), LD the unweighted
@@ -264,12 +271,15 @@ Pacific humpback whale songs', Behaviour, 135, 1998, p. 1-27; Garland et al., Be
   "The set median of forms (with their repetitions): the form whose sum of distances to all the forms is the
 lowest, the first one in the order of forms for equal sums (Kohonen, 'Median strings', Pattern Recognition
 Letters, 3, 1985, p. 309-313)."
-  (let ((distinct (remove-duplicates forms :test #'equalp :from-end t))
+  ;; each distinct form once, weighted by its number of occurrences: the distances to the repetitions
+  ;; of a form were computed again for each of them
+  (let ((counts (frequencies forms #'equalp))
         best best-sum)
-    (dolist (x distinct best)
-      (let ((sum (loop for y in forms sum (funcall distance x y))))
+    (dolist (c counts best)
+      ;; exact sums of exact distances (see form-distance): equal sums are equal, and the first form is kept
+      (let ((sum (loop for (y n) in counts sum (* n (rational (funcall distance (first c) y))))))
         (when (or (null best-sum) (< sum best-sum))
-          (setf best x best-sum sum))))))
+          (setf best (first c) best-sum sum))))))
 
 (defun class-medians (data classes distance)
   "For each class of classes (a class number for each form of data), in the order of their numbers, its set median
@@ -277,7 +287,7 @@ by distance and the mean LSI of its forms to this median: (median mean-lsi)."
   (loop for c from 0 to (if classes (reduce #'max classes) -1)
         collect (let* ((forms (loop for d in data for k in classes when (= k c) collect d))
                        (median (set-median forms distance)))
-                  (list median (/ (loop for f in forms sum (lsi f median)) (length forms))))))
+                  (list median (float (/ (loop for f in forms sum (lsi f median)) (length forms)))))))
 
 (defun check-mst (mst k)
   "MST if it can be the minimum spanning tree of K distinct forms: K - 1 edges (a b distance) between the

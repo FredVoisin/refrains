@@ -30,15 +30,6 @@
 ;;;
 ;; stats
 
-(defun frequencies (data test)
-  "The list of (element count) of the distinct elements of data (by test), in their order of first appearance."
-  (let ((table nil))
-    (map nil #'(lambda (x)
-                 (let ((e (assoc x table :test test)))
-                   (if e (incf (second e)) (push (list x 1) table))))
-         data)
-    (nreverse table)))
-
 (defun histogramme (data &key (test #'equalp) (thes nil))
   "The list of (element count) of data, for the different elements (or those of thes): sorted by
 increasing value for numbers, else by decreasing count, elements of equal count in their order of
