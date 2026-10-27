@@ -281,3 +281,22 @@
         (is (not (probe-file (make-pathname :name (format nil "~A.cropped" (pathname-name tmp)) :defaults tmp))))
         (ignore-errors (delete-file (make-pathname :type "ly" :defaults tmp))))
       (skip "lilypond is not installed")))
+
+(test read-text-columns
+  ;; the columns of the lines, for instance the text of a sonogram (jp2a): one column by instant
+  (uiop:with-temporary-file (:pathname file :type "txt")
+    (with-open-file (o file :direction :output :if-exists :supersede)
+      (format o "x.x~%..x~%"))
+    (is (equal '((120 46) (46 46) (120 120)) (read-text (namestring file) :mode :charcode :columns t)))
+    (is (equal '((120 46 120) (46 46 120)) (read-text (namestring file) :mode :charcode))))
+  (uiop:with-temporary-file (:pathname file :type "csv")
+    (with-open-file (o file :direction :output :if-exists :supersede)
+      (format o "1,2,3~%4,5,6~%"))
+    (is (equal '((1 4) (2 5) (3 6)) (read-text (namestring file) :sep "," :columns t)))
+    (signals error (read-text (namestring file) :mode nil :columns t)))
+  ;; lines of different lengths have no columns
+  (uiop:with-temporary-file (:pathname file :type "txt")
+    (with-open-file (o file :direction :output :if-exists :supersede)
+      (format o "1 2 3~%4 5~%"))
+    (signals error (read-text (namestring file) :columns t))))
+

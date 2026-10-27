@@ -1812,7 +1812,7 @@ section.
 
 ## 4. Lecture et écriture de fichiers
 
-#### `read-text (file &key mode sep rem-test)`
+#### `read-text (file &key mode sep rem-test columns)`
 
 Importe dans une liste les données d'un fichier texte. Modes :
 
@@ -1848,6 +1848,53 @@ comme `)` ou `#`) est conservé sous forme de chaîne.
 ;; un fichier contenant "été, ça" (deux lignes : "été," et "ça")
 (read-text "words.txt" :mode :charcode :sep ",")   ;=> ((233 116 233) (231 97))
 ```
+
+`:columns` (avec les modes `t` et `:charcode`) renvoie les colonnes du fichier
+au lieu de ses lignes : les premiers éléments de toutes les lignes, puis les
+deuxièmes… ; toutes les lignes doivent avoir la même longueur, sinon c'est une
+erreur.
+
+```lisp
+;; image.txt contient "x.x" et "..x"
+(read-text "image.txt" :mode :charcode :columns t)   ;=> ((120 46) (46 46) (120 120))
+```
+
+**Importer un sonagramme.** Un sonagramme se lit comme une suite de spectres
+instantanés, chacun devenant un « mot » à classer (`class-sym`, `class-num`) :
+
+- **Sonic Visualiser** (version 4.1 ou plus) exporte les données d'un
+  sonagramme en CSV (*File > Export Annotation Layer*, sur le calque du
+  sonagramme) : une ligne d'en-tête facultative (`TIME`, `BIN 1`, `BIN 2`…),
+  puis une ligne par instant, le temps puis l'amplitude de chaque bande de
+  fréquence (des amplitudes, non des décibels). Chaque ligne est déjà un
+  spectre :
+
+  ```lisp
+  (let* ((lines (read-text "sonagramme.csv" :sep ","))
+         (spectres (mapcar #'cdr (cdr lines))))   ; sans l'en-tête ni le temps
+    ;; chaque spectre en un mot de 0 et de 1, selon un seuil d'amplitude
+    (mapcar (lambda (s) (mapcar (lambda (a) (if (> a 0.1) 1 0)) s)) spectres))
+  ```
+
+- **Une image** (un sonagramme exporté en image par Sonic Visualiser, une
+  capture d'Audacity, un sonagramme publié) se convertit en texte avec
+  [jp2a](https://github.com/Talinx/jp2a) (`brew install jp2a`), avec une
+  palette sans espace, par exemple `jp2a --width=300 --height=45 --chars=x.
+  sonagramme.png > sonagramme.txt` ; le blanc et le noir de l'image deviennent
+  deux caractères. Chaque ligne du texte est alors une fréquence, et chaque
+  colonne un instant : `:columns t` donne les spectres. C'est la méthode de
+  l'exemple du [rougequeue noir](exemples/rougequeue-noir.md).
+
+  ```lisp
+  (read-text "sonagramme.txt" :mode :charcode :columns t)
+  ```
+
+- **Audacity** n'exporte pas les données de son sonagramme : il exporte le
+  spectre d'une sélection (*Analyze > Plot Spectrum > Export*, deux colonnes
+  séparées par des tabulations, la fréquence et le niveau en dB) et les
+  étiquettes d'une piste d'étiquettes (*File > Export > Export Labels*, une
+  ligne par étiquette : début, fin, texte), qui se lisent avec `read-text`.
+  Pour un sonagramme entier, passer par une image et jp2a.
 
 #### `write-list (list file &optional mode)`
 

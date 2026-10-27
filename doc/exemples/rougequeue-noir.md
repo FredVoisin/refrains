@@ -8,7 +8,7 @@ compositionnels », *Actes des Journées d'Informatique Musicale (JIM 2011)*,
 Saint-Étienne, 2011, p. 191–197 (HAL
 [hal-01612263](https://hal.science/hal-01612263v1)).
 
-*Analyse conservée avec ses données dans le dépôt [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) ; son principe est résumé ici, en attendant d'être réécrit sous forme d'exemple Common Lisp.*
+*Analyse conservée avec ses données dans le dépôt [fv-morphologie](https://github.com/FredVoisin/fv-morphologie) ; son principe est résumé ici, et réécrit en Common Lisp à la fin de la page.*
 
 Méthode originale de Frédéric Voisin : un sonagramme est considéré uniquement
 comme une image ([data/rougequeue_noir.jpg](../data/rougequeue_noir.jpg) ; sonagramme
@@ -39,6 +39,30 @@ distances dues aux transpositions), arbre de recouvrement minimal
 (`class-sym` avec `:mst`). Voir
 [« Dissemblance et espaces compositionnels »](https://fredvoisin.com/articles/185-dissemblance-et-espaces-compositionnels.html)
 et [« Arbres de recouvrement minimal de chants d'oiseaux »](https://fredvoisin.com/articles/186-arbres-de-recouvrement-minimal-de-chants-d-oiseaux.html).
+
+
+## En Common Lisp
+
+Le texte de l'image ([data/rougequeue_noir.txt](../data/rougequeue_noir.txt))
+se lit avec `read-text` : en mode `:charcode`, chaque ligne devient la liste
+des codes de ses caractères, et `:columns t` en donne les colonnes, les
+spectres instantanés (300 « mots » de 45 codes, `x` et `.`). Les colonnes
+blanches sont les silences, exclus de la classification :
+
+```lisp
+(let* ((spectres (read-text "doc/data/rougequeue_noir.txt" :mode :charcode :columns t))
+       (silence (make-list 45 :initial-element (char-code #\x))))
+  (class-sym spectres 12 :edit-nn :ins 1.5 :del 1.5 :excluded (list silence)))
+;=> (0 0 ... 0 1 2 0 0 0 0 0 0 0 1 1 1 0 1 1 1 0 0 0 1 1 1 1 1 1 1 1 0 0 ...)
+```
+
+Le silence est la classe 0, et les classes de spectres suivent. Avec
+`:medians t`, `class-sym` donne aussi le spectre typique de chaque classe (sa
+chaîne médiane) et la cohésion de la classe.
+
+La même démarche vaut pour un sonagramme importé de Sonic Visualiser ou
+d'Audacity : voir *Importer un sonagramme*, à `read-text`, dans la
+[documentation](../refrains.fr.md#read-text-file-key-mode-sep-rem-test-columns).
 
 ---
 

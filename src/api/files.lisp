@@ -27,7 +27,7 @@
 
 (in-package :refrains)
 
-(defgeneric read-text (file &key mode sep rem-test)
+(defgeneric read-text (file &key mode sep rem-test columns)
   (:documentation "READ-TEXT: reads text <file> using following <mode> formats (another mode is an error):
  T : each line of file as a list of symbols or numbers
  NIL : flat mode, reads file as a single list of strings
@@ -36,10 +36,19 @@ Additional keyword :sep is a string defining all characters defining a separator
 (spaces, tabulations, newlines), or t for the usual punctuation marks; with :charcode, it may also
 be a list of characters or codes, or (:ignore c ...) to separate at all the characters which are
 not letters or digits (in any alphabet), but c ...
-Additional Keyword :rem-test defines a function to remove choosen words."))
+Additional Keyword :rem-test defines a function to remove choosen words.
+Keyword :columns t (with the modes T and :charcode) returns the columns of the file instead of its lines: the first
+elements of all the lines, then the second ones...; the lines must have the same length. For instance the text of
+an image, such as a sonogram converted by jp2a, whose columns are the instants and whose lines are the frequencies."))
 
-(defmethod read-text ((file t)  &key (mode t) (sep nil) (rem-test nil))
-  (read-txt-file file :mode mode :marks sep :rem-test rem-test))
+(defmethod read-text ((file t)  &key (mode t) (sep nil) (rem-test nil) (columns nil))
+  (let ((lines (read-txt-file file :mode mode :marks sep :rem-test rem-test)))
+    (cond ((not columns) lines)
+          ((null mode) (error "read-text: :columns needs lines (the mode T or :charcode), not the flat mode."))
+          ((not (refrains::same-lengths-p lines))
+           (error "read-text: :columns needs lines of the same length, not ~{~D~^, ~}."
+                  (remove-duplicates (mapcar #'length lines))))
+          (t (refrains::mat-transpose lines)))))
 
 ; (defmethod read-midi ((file))
 ; (defmethod read-sdif ((file))
