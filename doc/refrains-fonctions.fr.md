@@ -93,7 +93,7 @@ A propos de terminologie : dans un souci de simplification et de cohérence, le 
 
 ## Arbres des fonctions
 
-Les 58 fonctions reliées par leurs ressemblances, avec refrains lui-même : deux
+Les 58 fonctions reliées par leurs ressemblances, avec refrains lui-même : trois
 arbres de recouvrement minimal (`graph-span`), dessinés avec `graph>dot` et
 neato. Plus une arête est courte, plus les deux fonctions sont proches. Le
 dendrogramme de chaque arbre (`graph-dendrogram`, lien simple) range ses
@@ -132,6 +132,32 @@ Dans le dendrogramme, les fonctions se regroupent surtout par familles
 entre 0,4 et 0,9 : leurs docstrings partagent peu de mots.
 
 ![Dendrogramme des fonctions de refrains d'après leur documentation](pictures/refrains-docstrings-dendrogram.png)
+
+**Par le code** : pour chaque fonction, l'expression complète de ce qu'elle
+fait, sa définition (toutes ses méthodes) et celles de toutes les fonctions de
+refrains qu'elle appelle, de proche en proche, chacune une fois. Cette
+expression est réduite à ses noms : les fonctions de refrains, internes ou
+exportées, et les arguments et options de leurs définitions ; les fonctions de
+Common Lisp (`car`, `loop`, `let`…), qui apparaissent partout, ne comptent
+pas. Les sources sont lues avec le lecteur Lisp, et seuls les symboles en
+position de fonction, `(f …)` ou `#'f`, sont des appels : une variable qui
+porte le nom d'une fonction (`test`, `list`…) n'en est pas un. Les fonctions
+sont comparées par la distance de Jaccard entre ces ensembles de noms, de 4
+noms (`doc`, `transcode`…) à 82.
+
+Les fonctions se rapprochent ici par ce qu'elles font réellement : celles qui
+partagent leur chaîne d'appels sont les plus proches (`motif-list` et
+`motif-position` par la recherche de motifs, 0,11 ; `filt-mean` et
+`filt-function` par la fenêtre glissante, 0,12 ; `class-num` et
+`filt-quantize` par les nuées dynamiques, 0,38). Des liens que les noms ne
+montrent pas apparaissent : `help` est proche de `dist-edit`, parce qu'il
+cherche les mots voisins par la distance d'édition, et les distances
+d'édition rejoignent les motifs. Les noms d'arguments communs (`seq`,
+`test`, `data`…) rapprochent aussi des fonctions sans autre lien.
+
+![Arbre de recouvrement minimal des fonctions de refrains d'après leur code](pictures/refrains-code.png)
+
+![Dendrogramme des fonctions de refrains d'après leur code](pictures/refrains-code-dendrogram.png)
 
 ## A faire
 

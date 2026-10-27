@@ -5,9 +5,9 @@
 ;;;; leur documentation, et leurs dendrogrammes, calculés avec refrains.
 ;;;;
 ;;;; (load "doc/lisp/refrains-trees.lisp") écrit, dans doc/pictures/,
-;;;; refrains-names.dot/.png, refrains-docstrings.dot/.png et leurs
-;;;; dendrogrammes, refrains-names-dendrogram.dot/.png et
-;;;; refrains-docstrings-dendrogram.dot/.png.
+;;;; refrains-names.dot/.png, refrains-docstrings.dot/.png, refrains-code.dot/.png
+;;;; et leurs dendrogrammes, refrains-names-dendrogram.dot/.png,
+;;;; refrains-docstrings-dendrogram.dot/.png et refrains-code-dendrogram.dot/.png.
 ;;;; Les images sont tracées par neato (Graphviz).
 ;;;;
 ;;;; Copyright (C) 2026 Frédéric Voisin
@@ -152,4 +152,89 @@ les nombres et les symboles d'une lettre (a, b, x...)."
                 :invert t)
 (dendrogram>dot (nth-value 1 (graph-dendrogram *docstrings-tree*))
                 :out (namestring (merge-pathnames "refrains-docstrings-dendrogram.png" *pictures*))
+                :invert t)
+
+;;; 5. Par le code : pour chaque fonction, l'expression complète de ce qu'elle fait, sa
+;;; définition et celles de toutes les fonctions de refrains qu'elle appelle, de proche en
+;;; proche, réduite aux noms des fonctions de refrains et aux noms de leurs arguments et
+;;; options ; distance de Jaccard entre ces ensembles de noms.
+
+;; le dossier des sources : src/, à côté de doc/ (doc/pictures/ remonté de deux niveaux)
+(defparameter *sources*
+  (merge-pathnames "src/" (uiop:pathname-parent-directory-pathname
+                           (uiop:pathname-parent-directory-pathname *pictures*))))
+
+;; les définitions de refrains : le nom de chaque fonction, générique ou non, et ses formes
+;; (defun, defgeneric et toutes ses méthodes), lues avec le lecteur Lisp
+(defparameter *definitions*
+  (let ((definitions (make-hash-table)))
+    (dolist (file (append (directory (merge-pathnames "*.lisp" *sources*))
+                          (directory (merge-pathnames "api/*.lisp" *sources*)))
+                  definitions)
+      (with-open-file (s file)
+        (let ((*package* (find-package :refrains)))
+          (loop for form = (read s nil s) until (eq form s)
+                when (and (consp form) (member (first form) '(defun defmacro defgeneric defmethod)))
+                  do (push form (gethash (second form) definitions))))))))
+
+(defun arguments (form)
+  "Les noms des arguments et options de la définition form : sa liste d'arguments sans les
+mots &optional, &key..., ni les valeurs par défaut ni les classes des méthodes."
+  (loop for x in (third form)
+        unless (member x lambda-list-keywords)
+          collect (if (consp x) (if (consp (first x)) (second (first x)) (first x)) x)))
+
+(defun appels (form)
+  "Les fonctions de refrains appelées dans le corps de la définition form : les symboles en position
+de fonction, (f ...), ou désignés par #'f ; une variable du même nom qu'une fonction (test, list...)
+n'est pas un appel."
+  (let ((calls nil))
+    (labels ((call (x) (when (and (symbolp x) (gethash x *definitions*)) (pushnew x calls)))
+             (walk (x)
+               (when (consp x)
+                 (if (and (eq (first x) 'function) (consp (cdr x)))
+                     ;; #'f désigne f ; #'(lambda ...) : les appels de son corps
+                     (if (consp (second x)) (walk (second x)) (call (second x)))
+                     (progn (call (first x))
+                            (loop for y on x
+                                  do (walk (car y))
+                                  while (consp (cdr y))))))))
+      (mapc #'walk (cdddr form)))
+    calls))
+
+(defun expression-complete (f)
+  "Les fonctions de l'expression complète de f : f et toutes les fonctions de refrains qu'elle
+appelle, de proche en proche, chacune une fois."
+  (let ((seen nil))
+    (labels ((visit (g)
+               (unless (member g seen)
+                 (push g seen)
+                 (dolist (form (gethash g *definitions*))
+                   (mapc #'visit (appels form))))))
+      (visit f))
+    seen))
+
+(defun noms-du-code (f)
+  "L'expression complète de f réduite à ses noms : les fonctions de refrains et les arguments
+et options de leurs définitions, en minuscules."
+  (let ((functions (expression-complete f)))
+    (remove-duplicates
+     (mapcar #'string-downcase
+             (append functions
+                     (loop for g in functions
+                           append (loop for form in (gethash g *definitions*)
+                                        append (arguments form)))))
+     :test #'string=)))
+
+(defparameter *noms-du-code* (mapcar #'noms-du-code *functions*))
+
+(defparameter *code-tree*
+  (graph-span
+   (matrice-des-fonctions *noms-du-code*
+                          (lambda (a b) (refrains::jaccard-dist a b :test #'string=)))))
+
+(graph>dot *code-tree* :out (namestring (merge-pathnames "refrains-code.png" *pictures*))
+           :overlap nil :invert t)
+(dendrogram>dot (nth-value 1 (graph-dendrogram *code-tree*))
+                :out (namestring (merge-pathnames "refrains-code-dendrogram.png" *pictures*))
                 :invert t)
