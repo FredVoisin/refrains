@@ -7,14 +7,14 @@ Pour commencer, voir : [refrains.fr.md](refrains.fr.md).
 
 | Fichier | Contenu |
 |---|---|
-| [refrains.fr.md](refrains.fr.md) | La documentation générale : présentation, historique et cadre théorique, installation, menu, et la description de chaque fonction avec des exemples, section par section du menu ; références. |
-| [refrains-fonctions.fr.md](refrains-fonctions.fr.md) | La liste des fonctions exportées, section par section du menu, avec leurs arguments et leur docstring, les conventions de nommage, les arbres des fonctions. |
+| [refrains.fr.md](refrains.fr.md) | Dcumentation générale : présentation, historique et cadre théorique, installation, menu, et description de chaque fonction avec exemples, section par section du menu ; références. |
+| [refrains-fonctions.fr.md](refrains-fonctions.fr.md) | Liste des fonctions exportées, section par section du menu, avec arguments et docstring, conventions de nommage, arbres des fonctions. |
 | [exemples.md](exemples.md) | Liste d'exemples d'utilisation, avec une courte description de chacun. |
 | [exemples/](exemples/) | Dossier des exemples, un par fichier. |
 | [lisp/](lisp/README.md) | Exemples en Common Lisp documenté, comme pour [refrains-trees.lisp](lisp/refrains-trees.lisp). |
-| [data/](data/README.md) | Les données des exemples : mesures, sonagramme, analyses de F0 et un texte du domaine public. |
-| [pictures/](pictures/) | Figures de la documentation : l'arbre des opérations (`morpho-processes.png`), et les arbres et dendrogrammes des fonctions (`.png`), avec les fichiers dot dont ils sont tracés, produits par `lisp/refrains-trees.lisp`. |
-| [LICENSE](LICENSE) | La licence de la documentation : CC BY 4.0. |
+| [data/](data/README.md) | Données des exemples : mesures, sonagramme, analyses de F0 et un texte du domaine public. |
+| [pictures/](pictures/) | Figures de la documentation : arbre des opérations (`morpho-processes.png`), arbres et dendrogrammes des fonctions (`.png`), avec les fichiers dot dont ils sont tracés, produits par `lisp/refrains-trees.lisp`. |
+| [LICENSE](LICENSE) | Licence de la documentation : CC BY 4.0. |
 
 Dans Lisp, `(doc)` liste les fonctions, `(doc 'dist-edit)` affiche la
 docstring d'une fonction, et `(help "distance")` cherche un mot dans les noms
