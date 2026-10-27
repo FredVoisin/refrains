@@ -111,6 +111,22 @@
     ;; an unknown mode is an error (it gave nil)
     (signals error (class-sym d 3 :foo))))
 
+(test class-sym-medians
+  (let ((d '((a b c) (a b d) (x y z) (x y w) (a b c d) (k l m n o p) (k l m n o q))))
+    ;; the classes do not change; with :uncom 0.5, (a b c d) has the lowest sum of distances in its class
+    (multiple-value-bind (classes medians) (class-sym d 3 :edit-norm :medians t)
+      (is (equal (class-sym d 3 :edit-norm) classes))
+      (is (equal '((a b c d) (x y z) (k l m n o p)) (mapcar #'first medians)))
+      ;; LSI of (a b c), (a b d) and (a b c d) to (a b c d): 3/4, 3/4 and 1
+      (is (approx= 5/6 (second (first medians))))))
+  ;; unweighted LSI, whatever the costs: 1 - LD / max(len)
+  (is (approx= 0.75 (refrains::lsi '(a b c d) '(a x c d))))
+  (is (approx= 1 (refrains::lsi '() '())))
+  ;; an excluded form is its own class, its own median
+  (multiple-value-bind (classes medians) (class-sym '((a b) (nil) (a c) (nil) (x y)) 2 nil :medians t :excluded '((nil)))
+    (is (equal '(1 0 1 0 2) classes))
+    (is (equal '((nil) 1.0) (first medians)))))
+
 (test class-sym-mst
   (let* ((d '((q) (a b) (a b c d e f g h) (a c) (x y) (a b c d e f g x) (z z) (a b)))
          (others (remove '(q) d :test #'equalp))

@@ -1226,7 +1226,7 @@ longueur du flux et avec le nombre de classes.
 ;=> (0 0 1 1 2 2)
 ```
 
-#### `class-sym (data classes mode &key sub ins del uncom excluded mst)`
+#### `class-sym (data classes mode &key sub ins del uncom excluded mst medians)`
 
 Classification de formes symboliques composées de symboles arbitraires. Elle
 partitionne l'arbre de recouvrement minimal construit sur les dissimilarités
@@ -1257,13 +1257,39 @@ que de formes distinctes.
   formes exclues retirées d'abord :
   `(graph-span (dist-edit (remove-duplicates data :test #'equalp) nil :uncom 0.5))`.
   Un arbre qui ne correspond pas aux données est une erreur.
+- `:medians` : avec `t`, une seconde valeur décrit chaque classe, dans l'ordre
+  de leurs numéros, par `(médiane lsi)`. La **médiane** est la chaîne médiane
+  de la classe (*set median*, Kohonen, 1985) : la forme de la classe dont la
+  somme des distances aux formes de la classe, calculées comme pour la
+  classification, est la plus petite ; c'est la forme typique de la classe.
+  `lsi` est la moyenne de l'indice de similarité de Levenshtein (*Levenshtein
+  Similarity Index*, Helweg et al., 1998) des formes de la classe à cette
+  médiane : 1 − LD / max(longueurs), LD étant la distance de Levenshtein non
+  pondérée, de 0 (aucune similarité) à 1 (formes identiques). C'est la
+  cohésion de la classe. Garland et al. (2012) se servent de ces médianes pour
+  tester si des groupes de séquences sont distincts. Le LSI est le complément
+  de la distance d'édition normalisée : 1 − `(dist-edit a b :norm t)`.
 
 ```lisp
 (class-sym '((a b c) (a b d) (x y z) (x y w) (a b c d)
              (k l m n o p) (k l m n o q))
            3 :edit-norm)
 ;=> (0 0 1 1 0 2 2)
+(class-sym '((a b c) (a b d) (x y z) (x y w) (a b c d)
+             (k l m n o p) (k l m n o q))
+           3 :edit-norm :medians t)
+;=> (0 0 1 1 0 2 2)
+;   (((A B C D) 0.8333333) ((X Y Z) 0.8333333) ((K L M N O P) 0.9166666))
 ```
+
+Références : Teuvo Kohonen, « Median strings », *Pattern Recognition
+Letters*, 3, 1985, p. 309-313 ; David A. Helweg, Douglas H. Cato, Peter F.
+Jenkins, Claire Garrigue et Robert D. McCauley, « Geographic variation in
+South Pacific humpback whale songs », *Behaviour*, 135, 1998, p. 1-27 ; Ellen
+C. Garland, Matthew S. Lilley, Anne W. Goldizen, Melinda L. Rekdahl, Claire
+Garrigue et Michael J. Noad, « Improved versions of the Levenshtein distance
+method for comparing sequence information in animals' vocalisations: tests
+using humpback whale song », *Behaviour*, 149, 2012, p. 1413-1441.
 
 #### `graph-part (graph &optional mode n)`
 

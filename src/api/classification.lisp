@@ -181,7 +181,7 @@ first appearance in <data>."))
           (t
            (refrains::1d-class data (max 2 classes) (if dist dist #'identity))))))
 
-(defgeneric class-sym (data classes mode &key sub ins del uncom excluded mst)
+(defgeneric class-sym (data classes mode &key sub ins del uncom excluded mst medians)
   (:documentation "CLASS-SYM: classify a set of segments or sequences into different classes according to their editing distance to each other and
 by partitioning the resulting spanning tree (see graph-part).
 The output is a list of numbers (from zero) as instances of the different classes retrieved.
@@ -193,17 +193,25 @@ in the output, the numbering of the different instances begins by numbering thes
 in the order defined with the argument :excluded.
 The argument :mst, the minimum spanning tree of the forms, avoids computing it again (useful from a few hundred forms):
 (graph-span (dist-edit (remove-duplicates data :test #'equalp) nil ...)) with the same costs, the excluded forms removed
-from data first; another tree is an error."))
+from data first; another tree is an error.
+With :medians t, a second value describes each class, in the order of their numbers: (median lsi), the set median
+(the form of the class whose sum of distances, as for the classification, to the forms of the class is the lowest;
+Kohonen, 1985) and the mean Levenshtein Similarity Index (LSI) of the forms of the class to this median,
+1 - LD / max(len): 1 for identical forms (Helweg et al., 1998; Garland et al., Behaviour 149, 2012)."))
 
 (defmethod class-sym ((data t) (classes integer) (mode t)
-		      &key (sub 1) (ins 1) (del 1) (uncom .5) (excluded nil) (mst nil))
+		      &key (sub 1) (ins 1) (del 1) (uncom .5) (excluded nil) (mst nil) (medians nil))
   ;; modes are recognized by their names: 'edit-norm from any package, :edit-norm or "edit-norm"
   ;; (with :excluded, :edit-norm was ignored and nil gave nil; an unknown mode gave nil)
   (let* ((name (if mode (string-upcase (string mode)) "EDIT-NN"))
          (norm (cond ((string= name "EDIT-NN") nil)
                      ((string= name "EDIT-NORM") t)
                      (t (error "class-sym: unknown mode ~S, use :edit-nn or :edit-norm." mode)))))
-    (refrains::s-class data (max 2 classes) norm sub ins del uncom mst excluded)))
+    (if medians
+        (let ((c (refrains::s-class data (max 2 classes) norm sub ins del uncom mst excluded)))
+          (values c (refrains::class-medians
+                     data c #'(lambda (a b) (refrains::form-distance a b sub ins del uncom norm)))))
+        (refrains::s-class data (max 2 classes) norm sub ins del uncom mst excluded))))
 
 ;; 2.5 CONCATENATION
 

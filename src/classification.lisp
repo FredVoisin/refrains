@@ -248,6 +248,37 @@ Returns (classes centres iterations), the classes numbered by order of first app
 ;;;
 ;;; classification par partitionnement de graphe
 
+(defun form-distance (a b sub ins del uncom norm)
+  "The edit distance between the forms a and b (lists, strings or symbols), as class-sym computes it."
+  (if (and (listp a) (listp b))
+      (edit-distance a b :change sub :insert ins :delete del :inex uncom :normalized norm)
+      (edit-dist a b sub ins del uncom norm)))
+
+(defun lsi (a b)
+  "The Levenshtein Similarity Index of the forms a and b: 1 - LD(a, b) / max(len(a), len(b)), LD the unweighted
+Levenshtein distance, from 0 (no similarity) to 1 (the same forms) (Helweg et al., 'Geographic variation in South
+Pacific humpback whale songs', Behaviour, 135, 1998, p. 1-27; Garland et al., Behaviour, 149, 2012, p. 1413-1441)."
+  (- 1 (form-distance a b 1 1 1 0 t)))
+
+(defun set-median (forms distance)
+  "The set median of forms (with their repetitions): the form whose sum of distances to all the forms is the
+lowest, the first one in the order of forms for equal sums (Kohonen, 'Median strings', Pattern Recognition
+Letters, 3, 1985, p. 309-313)."
+  (let ((distinct (remove-duplicates forms :test #'equalp :from-end t))
+        best best-sum)
+    (dolist (x distinct best)
+      (let ((sum (loop for y in forms sum (funcall distance x y))))
+        (when (or (null best-sum) (< sum best-sum))
+          (setf best x best-sum sum))))))
+
+(defun class-medians (data classes distance)
+  "For each class of classes (a class number for each form of data), in the order of their numbers, its set median
+by distance and the mean LSI of its forms to this median: (median mean-lsi)."
+  (loop for c from 0 to (if classes (reduce #'max classes) -1)
+        collect (let* ((forms (loop for d in data for k in classes when (= k c) collect d))
+                       (median (set-median forms distance)))
+                  (list median (/ (loop for f in forms sum (lsi f median)) (length forms))))))
+
 (defun check-mst (mst k)
   "MST if it can be the minimum spanning tree of K distinct forms: K - 1 edges (a b distance) between the
 ranks 0 to K - 1, every rank present; otherwise an error which tells how to build it."
